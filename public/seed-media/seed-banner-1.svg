@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Placeholder banner image 1">
+  <defs>
+    <linearGradient id="a" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#f3a683"/>
+      <stop offset="100%" stop-color="#7868e6"/>
+    </linearGradient>
+    <linearGradient id="b" x1="0" x2="1" y1="1" y2="0">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.34"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="800" fill="url(#a)"/>
+  <circle cx="1020" cy="160" r="180" fill="#fff" fill-opacity="0.16"/>
+  <circle cx="180" cy="620" r="240" fill="#111827" fill-opacity="0.12"/>
+  <path d="M140 520h520c32 0 58 26 58 58v52H140z" fill="url(#b)"/>
+  <path d="M700 160l160 95-160 95-160-95 160-95Z" fill="#ffffff" fill-opacity="0.36"/>
+  <path d="M870 470c80 0 145 65 145 145H725c0-80 65-145 145-145Z" fill="#ffffff" fill-opacity="0.22"/>
+</svg>

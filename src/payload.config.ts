@@ -3,16 +3,24 @@ import sharp from 'sharp'
 import path from 'path'
 import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
+import { ru, ruTranslations } from '@payloadcms/translations/languages/ru'
 
-import { Categories } from './collections/Categories'
+import { Clubs } from './collections/Clubs'
+import { FormSubmissions } from './collections/FormSubmissions'
 import { Media } from './collections/Media'
+import { News } from './collections/News'
 import { Pages } from './collections/Pages'
-import { Posts } from './collections/Posts'
+import { GalleryAlbums } from './collections/GalleryAlbums'
+import { Jobs } from './collections/Jobs'
+import { Reviews } from './collections/Reviews'
+import { Teachers } from './collections/Teachers'
 import { Users } from './collections/Users'
-import { Footer } from './Footer/config'
-import { Header } from './Header/config'
+import { Footer } from './globals/Footer/config'
+import { Header } from './globals/Header/config'
+import { SiteSettings } from './globals/SiteSettings/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
+import deepMerge from '@/utilities/deepMerge'
 import { getServerSideURL } from './utilities/getURL'
 
 const filename = fileURLToPath(import.meta.url)
@@ -20,39 +28,53 @@ const dirname = path.dirname(filename)
 
 export default buildConfig({
   admin: {
+    dateFormat: "d MMMM yyyy 'г.,' HH:mm",
+    suppressHydrationWarning: true,
     components: {
-      // The `BeforeLogin` component renders a message that you see while logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
-      beforeLogin: ['@/components/BeforeLogin'],
-      // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
-      // Feel free to delete this at any time. Simply remove the line below.
-      beforeDashboard: ['@/components/BeforeDashboard'],
+      header: ['@/components/admin/ForceRussianLanguage'],
+      beforeLogin: ['@/components/admin/ForceRussianLanguage'],
     },
     importMap: {
       baseDir: path.resolve(dirname),
     },
     user: Users.slug,
-    livePreview: {
-      breakpoints: [
-        {
-          label: 'Mobile',
-          name: 'mobile',
-          width: 375,
-          height: 667,
+  },
+  i18n: {
+    fallbackLanguage: 'ru',
+    supportedLanguages: {
+      ru,
+    },
+    translations: {
+      ru: deepMerge(ruTranslations, {
+        authentication: {
+          emailOrUsername: 'Электронная почта или имя пользователя',
         },
-        {
-          label: 'Tablet',
-          name: 'tablet',
-          width: 768,
-          height: 1024,
+        'plugin-redirects': {
+          customUrl: 'Произвольный URL',
+          documentToRedirect: 'Документ для перенаправления',
+          fromUrl: 'URL источника',
+          internalLink: 'Внутренняя ссылка',
+          redirectType: 'Тип перенаправления',
+          toUrlType: 'Тип URL назначения',
         },
-        {
-          label: 'Desktop',
-          name: 'desktop',
-          width: 1440,
-          height: 900,
+        general: {
+          clear: 'Очистить',
+          custom: 'Пользовательский',
+          deletedAt: 'Дата удаления',
+          email: 'Электронная почта',
+          emailAddress: 'Электронная почта',
+          false: 'Нет',
+          item: 'Запись',
+          items: 'Записи',
+          moving: 'Перемещение',
+          trash: 'Корзина',
+          true: 'Да',
+          updatedSuccessfully: 'Успешно обновлено.',
         },
-      ],
+        validation: {
+          emailAddress: 'Пожалуйста, введите корректный адрес электронной почты.',
+        },
+      }),
     },
   },
   // This config helps us configure global or default features that the other editors can inherit
@@ -62,9 +84,20 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [
+    Pages,
+    Clubs,
+    News,
+    Teachers,
+    Reviews,
+    Jobs,
+    GalleryAlbums,
+    FormSubmissions,
+    Media,
+    Users,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
+  globals: [SiteSettings, Header, Footer],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,

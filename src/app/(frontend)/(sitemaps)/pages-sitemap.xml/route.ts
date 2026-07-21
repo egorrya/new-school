@@ -11,49 +11,105 @@ const getPagesSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://example.com'
 
-    const results = await payload.find({
-      collection: 'pages',
-      overrideAccess: false,
-      draft: false,
-      depth: 0,
-      limit: 1000,
-      pagination: false,
-      where: {
-        _status: {
-          equals: 'published',
-        },
-      },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-    })
-
     const dateFallback = new Date().toISOString()
 
-    const defaultSitemap = [
+    const [pagesResult, newsResult, clubsResult, galleryAlbumsResult] = await Promise.all([
+      payload.find({
+        collection: 'pages',
+        overrideAccess: false,
+        draft: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        where: {
+          _status: {
+            equals: 'published',
+          },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+      }),
+      payload.find({
+        collection: 'news',
+        overrideAccess: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        sort: '-publishedAt',
+        where: {
+          publishedAt: {
+            less_than_equal: dateFallback,
+          },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+      }),
+      payload.find({
+        collection: 'clubs',
+        draft: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        overrideAccess: false,
+        sort: 'sortOrder,title',
+        where: {
+          isActive: {
+            equals: true,
+          },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+      }),
+      payload.find({
+        collection: 'gallery-albums',
+        overrideAccess: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        sort: 'sortOrder,title',
+        select: {
+          id: true,
+          updatedAt: true,
+        },
+      }),
+    ])
+
+    const sitemap = [
+      ...(pagesResult.docs || []).filter((page) => Boolean(page?.slug)).map((page) => {
+        return {
+          loc: page?.slug === 'home' ? `${SITE_URL}/` : `${SITE_URL}/${page?.slug}`,
+          lastmod: page.updatedAt || dateFallback,
+        }
+      }),
+      ...(newsResult.docs || []).map((news) => ({
+        loc: `${SITE_URL}/news/${news.slug}`,
+        lastmod: news.updatedAt || dateFallback,
+      })),
+      ...(clubsResult.docs || []).map((club) => ({
+        loc: `${SITE_URL}/clubs/${club.slug}`,
+        lastmod: club.updatedAt || dateFallback,
+      })),
+      ...(galleryAlbumsResult.docs || []).map((album) => ({
+        loc: `${SITE_URL}/gallery-albums/${album.id}`,
+        lastmod: album.updatedAt || dateFallback,
+      })),
       {
-        loc: `${SITE_URL}/search`,
+        loc: `${SITE_URL}/news`,
         lastmod: dateFallback,
       },
       {
-        loc: `${SITE_URL}/posts`,
+        loc: `${SITE_URL}/gallery-albums`,
         lastmod: dateFallback,
       },
     ]
 
-    const sitemap = results.docs
-      ? results.docs
-          .filter((page) => Boolean(page?.slug))
-          .map((page) => {
-            return {
-              loc: page?.slug === 'home' ? `${SITE_URL}/` : `${SITE_URL}/${page?.slug}`,
-              lastmod: page.updatedAt || dateFallback,
-            }
-          })
-      : []
-
-    return [...defaultSitemap, ...sitemap]
+    return sitemap
   },
   ['pages-sitemap'],
   {

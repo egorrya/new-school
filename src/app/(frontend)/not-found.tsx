@@ -5,14 +5,18 @@ import { Button } from '@/components/ui/button'
 
 export default function NotFound() {
   return (
-    <div className="container py-28">
-      <div className="prose max-w-none">
-        <h1 style={{ marginBottom: 0 }}>404</h1>
-        <p className="mb-4">This page could not be found.</p>
+    <div className="container py-24 sm:py-28">
+      <div className="mx-auto flex max-w-3xl flex-col items-center gap-6 text-center">
+        <p className="text-sm font-medium text-foreground/60">Ошибка 404</p>
+        <h1 className="text-4xl font-heading sm:text-5xl">Страница не найдена</h1>
+        <p className="max-w-2xl text-base leading-relaxed text-foreground/75">
+          Похоже, ссылка устарела или страница ещё не опубликована.
+        </p>
+
+        <Button asChild variant="default">
+          <Link href="/">На главную</Link>
+        </Button>
       </div>
-      <Button asChild variant="default">
-        <Link href="/">Go home</Link>
-      </Button>
     </div>
   )
 }

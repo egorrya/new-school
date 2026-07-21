@@ -4,13 +4,17 @@ import deepMerge from '@/utilities/deepMerge'
 
 export type LinkAppearances = 'default' | 'outline'
 
+export const internalLinkCollections: Array<
+  'pages' | 'news' | 'clubs'
+> = ['pages', 'news', 'clubs']
+
 export const appearanceOptions: Record<LinkAppearances, { label: string; value: string }> = {
   default: {
-    label: 'Default',
+    label: 'По умолчанию',
     value: 'default',
   },
   outline: {
-    label: 'Outline',
+    label: 'Контурная',
     value: 'outline',
   },
 }
@@ -42,11 +46,11 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
             defaultValue: 'reference',
             options: [
               {
-                label: 'Internal link',
+                label: 'Внутренняя ссылка',
                 value: 'reference',
               },
               {
-                label: 'Custom URL',
+                label: 'Внешняя ссылка',
                 value: 'custom',
               },
             ],
@@ -60,61 +64,55 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
               },
               width: '50%',
             },
-            label: 'Open in new tab',
+            label: 'Открыть в новой вкладке',
           },
         ],
       },
     ],
   }
 
-  const linkTypes: Field[] = [
-    {
-      name: 'reference',
-      type: 'relationship',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'reference',
-      },
-      label: 'Document to link to',
-      relationTo: ['pages', 'posts'],
-      required: true,
+  const referenceField: Field = {
+    name: 'reference',
+    type: 'relationship',
+    admin: {
+      condition: (_, siblingData) => siblingData?.type === 'reference',
+      width: '50%',
     },
-    {
-      name: 'url',
-      type: 'text',
-      admin: {
-        condition: (_, siblingData) => siblingData?.type === 'custom',
-      },
-      label: 'Custom URL',
-      required: true,
+    label: 'Документ для ссылки',
+    relationTo: internalLinkCollections,
+    required: true,
+  }
+
+  const urlField: Field = {
+    name: 'url',
+    type: 'text',
+    admin: {
+      condition: (_, siblingData) => siblingData?.type === 'custom',
+      width: '50%',
     },
-  ]
+    label: 'Ссылка',
+    required: true,
+  }
 
   if (!disableLabel) {
-    linkTypes.map((linkType) => ({
-      ...linkType,
-      admin: {
-        ...linkType.admin,
-        width: '50%',
-      },
-    }))
-
     linkResult.fields.push({
       type: 'row',
       fields: [
-        ...linkTypes,
+        referenceField,
+        urlField,
         {
           name: 'label',
           type: 'text',
           admin: {
             width: '50%',
           },
-          label: 'Label',
+          label: 'Текст ссылки',
           required: true,
         },
       ],
     })
   } else {
-    linkResult.fields = [...linkResult.fields, ...linkTypes]
+    linkResult.fields = [...linkResult.fields, referenceField, urlField]
   }
 
   if (appearances !== false) {
@@ -128,7 +126,7 @@ export const link: LinkType = ({ appearances, disableLabel = false, overrides = 
       name: 'appearance',
       type: 'select',
       admin: {
-        description: 'Choose how the link should be rendered.',
+        description: 'Выберите, как должна отображаться ссылка.',
       },
       defaultValue: 'default',
       options: appearanceOptionsToUse,

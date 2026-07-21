@@ -1,5 +1,9 @@
-import PageTemplate, { generateMetadata } from './[slug]/page'
+import Page, { generateMetadata as sharedGenerateMetadata } from './[...slug]/page'
 
-export default PageTemplate
+export const dynamic = 'force-dynamic'
 
-export { generateMetadata }
+export const generateMetadata = sharedGenerateMetadata
+
+export default async function HomePage() {
+  return Page({ params: Promise.resolve({ slug: ['home'] }) })
+}
