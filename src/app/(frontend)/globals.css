@@ -18,6 +18,7 @@
   h6 {
     font-weight: unset;
     font-size: unset;
+    line-height: 1.1;
   }
 
   .font-base {
@@ -25,7 +26,7 @@
   }
 
   .font-heading {
-    font-weight: 500;
+    font-weight: 800;
   }
 }
 
@@ -68,21 +69,61 @@
 
 @keyframes marquee {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translate3d(calc(var(--marquee-distance, 50%) * -1), 0, 0);
   }
 }
 
-@keyframes marquee2 {
-  from {
-    transform: translateX(100%);
+@keyframes orbFloat {
+  0% {
+    transform: translate3d(0, 0, 0);
   }
 
-  to {
-    transform: translateX(0);
+  50% {
+    transform: translate3d(0.9rem, -0.6rem, 0);
+  }
+
+  100% {
+    transform: translate3d(-0.6rem, 0.75rem, 0);
+  }
+}
+
+@keyframes orbPulse {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes orbScale {
+  0%,
+  100% {
+    scale: 1;
+  }
+
+  50% {
+    scale: 0.7;
+  }
+}
+
+@keyframes backgroundDrift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+
+  50% {
+    transform: translate3d(0.75rem, -0.5rem, 0);
+  }
+
+  100% {
+    transform: translate3d(-0.5rem, 0.75rem, 0);
   }
 }
 
@@ -94,11 +135,35 @@
   }
 
   .animate-marquee {
-    animation: marquee 24s linear infinite;
+    animation: marquee var(--marquee-duration, 24s) linear infinite;
+    will-change: transform;
   }
 
-  .animate-marquee2 {
-    animation: marquee2 24s linear infinite;
+  .animate-orb-top-right {
+    animation:
+      orbFloat 14s ease-in-out infinite,
+      orbPulse 8s ease-in-out infinite,
+      orbScale 11s ease-in-out infinite;
+  }
+
+  .animate-orb-bottom-left {
+    animation:
+      orbFloat 16s ease-in-out infinite reverse,
+      orbPulse 9s ease-in-out infinite,
+      orbScale 13s ease-in-out infinite reverse;
+  }
+
+  .animate-background-drift {
+    animation: backgroundDrift 34s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-orb-top-right,
+    .animate-orb-bottom-left,
+    .animate-background-drift {
+      animation: none !important;
+    }
   }
 
   @variant sm {
@@ -140,14 +205,14 @@
   --card-foreground: #222;
   --popover: #fff;
   --popover-foreground: #222;
-  --primary: #222;
+  --primary: #06336f;
   --primary-foreground: #fff;
   --secondary: #fff;
   --secondary-foreground: #222;
   --muted: #fff;
   --muted-foreground: #5c5c5c;
-  --accent: #fff;
-  --accent-foreground: #222;
+  --accent: #06336f;
+  --accent-foreground: #fff;
   --destructive: oklch(83% 0.13 22deg);
   --destructive-foreground: oklch(16.5% 0.015 67deg);
   --border: #222;
@@ -160,9 +225,9 @@
   --chart-5: oklch(68% 0.12 255deg);
   --radius: 0.75rem;
   --school-radius-base: 0.75rem;
-  --school-shadow: 0.375rem 0.375rem 0 0 #222;
-  --school-shadow-offset-x: 0.375rem;
-  --school-shadow-offset-y: 0.375rem;
+  --school-shadow: 0 0.85rem 1.9rem rgb(255 255 255 / 0.7);
+  --school-shadow-offset-x: 0rem;
+  --school-shadow-offset-y: 0.15rem;
   --school-font-base: var(--font-montserrat);
   --school-font-heading: var(--font-montserrat);
   --sidebar: #fff;
@@ -177,8 +242,8 @@
   --warning: oklch(90.5% 0.14 92deg);
   --error: oklch(83% 0.13 22deg);
   --error-foreground: oklch(16.5% 0.015 67deg);
-  --main: oklch(90.5% 0.14 92deg);
-  --main-foreground: oklch(16.5% 0.015 67deg);
+  --main: #06336f;
+  --main-foreground: #fff;
   --secondary-background: #fff;
   --secondary-background-foreground: #222;
   --overlay: rgb(18 14 10 / 0.38);
@@ -187,6 +252,19 @@
   --accent-sky: oklch(92.5% 0.05 236deg);
   --accent-sun: oklch(90.5% 0.14 92deg);
   --school-grid-line: rgb(18 14 10 / 0.045);
+  --site-header-height: 5rem;
+  --site-header-logo-height: 3rem;
+  --site-header-logo-height-expanded: 7rem;
+  --site-header-top-offset: 0.25rem;
+}
+
+@variant sm {
+  :root {
+    --site-header-height: 6.25rem;
+    --site-header-logo-height: 3.5rem;
+    --site-header-logo-height-expanded: 8.25rem;
+    --site-header-top-offset: 0.5rem;
+  }
 }
 
 @theme inline {

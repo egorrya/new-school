@@ -51,7 +51,7 @@ export default async function NewsPage() {
               description="Свежие новости школы, анонсы и важные обновления."
               headingLevel={1}
               title="Новости школы"
-              titleClassName="text-3xl sm:text-4xl lg:text-5xl"
+              titleClassName="text-2xl sm:text-3xl lg:text-4xl"
             />
 
             {news.length > 0 ? (

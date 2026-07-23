@@ -8,12 +8,12 @@ import { getPayload } from 'payload'
 
 import {
   GalleryPhotoSlider,
-  buildGalleryPhotoSlides,
 } from '@/components/collections/GalleryPhotoSlider'
+import { GalleryAlbumsIntro } from '@/components/collections/GalleryAlbumsIntro'
+import { buildGalleryPhotoSlides } from '@/components/collections/galleryPhotoSlides'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
-  PageBlockHeader,
   PageBlockSection,
   PageBlockSurface,
 } from '@/components/shared/PageBlock'
@@ -46,11 +46,9 @@ export default async function GalleryAlbumsPage() {
       <PageBlockContainer>
         <PageBlockSurface className="bg-card p-6 sm:p-8 lg:p-10">
           <div className="space-y-8">
-            <PageBlockHeader
+            <GalleryAlbumsIntro
               description="Фотографии с событий, поездок и школьной жизни."
-              headingLevel={1}
               title="Галерея"
-              titleClassName="text-3xl sm:text-4xl lg:text-5xl"
             />
 
             {slides.length > 0 ? (

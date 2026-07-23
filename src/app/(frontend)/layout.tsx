@@ -7,6 +7,7 @@ import React from 'react'
 import { Footer } from '@/components/layout/Footer/Component'
 import { Header } from '@/components/layout/Header/Component'
 import { Toaster } from '@/components/ui/sonner'
+import { InfiniteGridBackground } from '@/components/ui/backgrounds/infinite-grid-background'
 import { mergeOpenGraph } from '@/lib/mergeOpenGraph'
 
 import './globals.css'
@@ -25,9 +26,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <head>
         <link href="/favicon.svg" rel="icon" type="image/svg+xml" />
       </head>
-      <body suppressHydrationWarning>
+      <body className="relative isolate bg-background" suppressHydrationWarning>
+        <InfiniteGridBackground />
         <Header />
-        <main className="flex-1 pt-24 sm:pt-28 lg:pt-32">{children}</main>
+        <main className="relative z-10 flex-1" style={{ paddingTop: 'var(--site-header-height)' }}>
+          {children}
+        </main>
         <Footer />
         <Toaster position="top-right" />
       </body>

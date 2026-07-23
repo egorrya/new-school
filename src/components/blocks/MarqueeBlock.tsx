@@ -1,6 +1,7 @@
 import type { MarqueeBlock as MarqueeBlockType } from '@/payload-types'
 
-import Marquee from '@/components/ui/marquee'
+import { MarqueeStage } from '@/components/blocks/MarqueeStage.client'
+import { PageBlockSection } from '@/components/shared/PageBlock'
 
 export function MarqueeBlock({ items }: MarqueeBlockType) {
   const marqueeItems = (items ?? [])
@@ -11,5 +12,12 @@ export function MarqueeBlock({ items }: MarqueeBlockType) {
     return null
   }
 
-  return <Marquee items={marqueeItems} />
+  return (
+    <PageBlockSection className="py-0">
+      <MarqueeStage
+        className="border-y-2 border-border bg-secondary-background text-foreground font-base"
+        items={marqueeItems}
+      />
+    </PageBlockSection>
+  )
 }

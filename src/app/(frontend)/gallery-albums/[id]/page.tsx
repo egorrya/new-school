@@ -8,7 +8,9 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { isMediaDocument } from '@/components/collections/CollectionCards'
-import { GalleryPhotoSlider, buildGalleryPhotoSlides } from '@/components/collections/GalleryPhotoSlider'
+import { GalleryAlbumsIntro } from '@/components/collections/GalleryAlbumsIntro'
+import { GalleryPhotoSlider } from '@/components/collections/GalleryPhotoSlider'
+import { buildGalleryPhotoSlides } from '@/components/collections/galleryPhotoSlides'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -68,18 +70,11 @@ export default async function GalleryAlbumDetailPage({ params: paramsPromise }: 
   return (
     <PageBlockSection>
       <PageBlockContainer>
-        <PageBlockSurface className="overflow-hidden bg-card">
-          <article className="space-y-8 p-6 sm:p-8 lg:p-10">
+        <PageBlockSurface className="bg-card p-6 sm:p-8 lg:p-10">
+          <article className="space-y-8">
             <div className="space-y-3">
               <Badge variant="neutral">Альбом</Badge>
-              <h1 className="font-heading text-4xl leading-[0.95] sm:text-5xl">
-                {album.title}
-              </h1>
-              {album.description ? (
-                <p className="max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg">
-                  {album.description}
-                </p>
-              ) : null}
+              <GalleryAlbumsIntro description={album.description} title={album.title} />
               <Badge variant="neutral">{images.length} фото</Badge>
             </div>
 

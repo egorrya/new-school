@@ -33,6 +33,15 @@ export const Reviews: CollectionConfig<'reviews'> = {
       label: 'Описание автора',
     },
     {
+      name: 'avatar',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Фото автора',
+      admin: {
+        description: 'Опциональное фото для компонента testimonials.',
+      },
+    },
+    {
       name: 'text',
       type: 'textarea',
       label: 'Текст отзыва',

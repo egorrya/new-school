@@ -175,12 +175,13 @@ export interface Page {
     | (
         | HeroBlock
         | MarqueeBlock
-        | BannerSliderBlock
         | TextImageBlock
         | FeatureCardsBlock
         | AudienceBlock
         | ProgramBlock
         | ScheduleBlock
+        | TabsBlock
+        | TestimonialsBlock
         | CollectionGridBlock
         | CTAFormBlock
       )[]
@@ -207,19 +208,27 @@ export interface Page {
  * via the `definition` "HeroBlock".
  */
 export interface HeroBlock {
-  /**
-   * Короткая строка над заголовком.
-   */
-  eyebrow?: string | null;
   title: string;
   /**
    * Краткий текст под заголовком.
    */
   description?: string | null;
   /**
-   * Основное изображение первого экрана.
+   * Фоновое изображение первого экрана. По умолчанию используется /media/blob.webp.
    */
   image?: (number | null) | Media;
+  /**
+   * Выключите, чтобы скрыть фоновой blob-слой первого экрана.
+   */
+  showBlobBackground?: boolean | null;
+  /**
+   * Выключите, чтобы blob использовал стандартную посадку без смещений и сжатия.
+   */
+  customBlobPositioning?: boolean | null;
+  /**
+   * Верхнее изображение первого экрана. По умолчанию используется /media/kids.webp.
+   */
+  kidsImage?: (number | null) | Media;
   primaryButtonLabel: string;
   /**
    * Адрес для первой кнопки.
@@ -376,37 +385,6 @@ export interface MarqueeBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerSliderBlock".
- */
-export interface BannerSliderBlock {
-  /**
-   * Добавьте баннеры для слайдера.
-   */
-  slides?:
-    | {
-        title: string;
-        /**
-         * Текст под заголовком слайда.
-         */
-        description?: string | null;
-        /**
-         * Изображение баннера.
-         */
-        image: number | Media;
-        buttonLabel?: string | null;
-        /**
-         * Адрес для кнопки баннера.
-         */
-        buttonLink?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'bannerSlider';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TextImageBlock".
  */
 export interface TextImageBlock {
@@ -549,10 +527,107 @@ export interface ScheduleBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TabsBlock".
+ */
+export interface TabsBlock {
+  /**
+   * Опциональный заголовок над вкладками.
+   */
+  title?: string | null;
+  /**
+   * Опциональный текст над вкладками.
+   */
+  description?: string | null;
+  /**
+   * В каждой вкладке можно добавить текст и вложенные screens, кроме самих вкладок.
+   */
+  tabs?:
+    | {
+        title: string;
+        content?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        /**
+         * Можно добавлять любые screens страницы, кроме блока вкладок.
+         */
+        layout?:
+          | (
+              | TextImageBlock
+              | FeatureCardsBlock
+              | AudienceBlock
+              | ProgramBlock
+              | ScheduleBlock
+              | TestimonialsBlock
+              | CollectionGridBlock
+              | CTAFormBlock
+            )[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'tabs';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock".
+ */
+export interface TestimonialsBlock {
+  title?: string | null;
+  /**
+   * Короткий текст перед отзывами.
+   */
+  description?: string | null;
+  /**
+   * Оставьте пустым, чтобы показать отзывы автоматически по порядку.
+   */
+  selectedReviews?: (number | Review)[] | null;
+  /**
+   * Используется, если конкретные отзывы не выбраны.
+   */
+  itemLimit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'testimonials';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: number;
+  authorName: string;
+  authorDescription?: string | null;
+  /**
+   * Опциональное фото для компонента testimonials.
+   */
+  avatar?: (number | null) | Media;
+  text: string;
+  isPublished?: boolean | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CollectionGridBlock".
  */
 export interface CollectionGridBlock {
   title: string;
+  hideTitle?: boolean | null;
   /**
    * Краткий текст перед списком.
    */
@@ -564,10 +639,27 @@ export interface CollectionGridBlock {
   /**
    * Максимум карточек в выдаче.
    */
-  itemLimit: number;
+  itemLimit?: number | null;
+  /**
+   * Выберите конкретный альбом или оставьте пустым, чтобы показать фото из всех альбомов.
+   */
+  galleryAlbum?: (number | null) | GalleryAlbum;
   id?: string | null;
   blockName?: string | null;
   blockType: 'collectionGrid';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "gallery-albums".
+ */
+export interface GalleryAlbum {
+  id: number;
+  title: string;
+  description?: string | null;
+  images?: (number | Media)[] | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -697,20 +789,6 @@ export interface Teacher {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "reviews".
- */
-export interface Review {
-  id: number;
-  authorName: string;
-  authorDescription?: string | null;
-  text: string;
-  isPublished?: boolean | null;
-  sortOrder?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "jobs".
  */
 export interface Job {
@@ -734,19 +812,6 @@ export interface Job {
   } | null;
   contactText?: string | null;
   isActive?: boolean | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "gallery-albums".
- */
-export interface GalleryAlbum {
-  id: number;
-  title: string;
-  description?: string | null;
-  images?: (number | Media)[] | null;
-  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1052,12 +1117,13 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         hero?: T | HeroBlockSelect<T>;
         marquee?: T | MarqueeBlockSelect<T>;
-        bannerSlider?: T | BannerSliderBlockSelect<T>;
         textImage?: T | TextImageBlockSelect<T>;
         featureCards?: T | FeatureCardsBlockSelect<T>;
         audience?: T | AudienceBlockSelect<T>;
         program?: T | ProgramBlockSelect<T>;
         schedule?: T | ScheduleBlockSelect<T>;
+        tabs?: T | TabsBlockSelect<T>;
+        testimonials?: T | TestimonialsBlockSelect<T>;
         collectionGrid?: T | CollectionGridBlockSelect<T>;
         ctaForm?: T | CTAFormBlockSelect<T>;
       };
@@ -1079,10 +1145,12 @@ export interface PagesSelect<T extends boolean = true> {
  * via the `definition` "HeroBlock_select".
  */
 export interface HeroBlockSelect<T extends boolean = true> {
-  eyebrow?: T;
   title?: T;
   description?: T;
   image?: T;
+  showBlobBackground?: T;
+  customBlobPositioning?: T;
+  kidsImage?: T;
   primaryButtonLabel?: T;
   primaryButtonLink?: T;
   secondaryButtonLabel?: T;
@@ -1099,24 +1167,6 @@ export interface MarqueeBlockSelect<T extends boolean = true> {
     | T
     | {
         text?: T;
-        id?: T;
-      };
-  id?: T;
-  blockName?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerSliderBlock_select".
- */
-export interface BannerSliderBlockSelect<T extends boolean = true> {
-  slides?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        image?: T;
-        buttonLabel?: T;
-        buttonLink?: T;
         id?: T;
       };
   id?: T;
@@ -1207,13 +1257,56 @@ export interface ScheduleBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TabsBlock_select".
+ */
+export interface TabsBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  tabs?:
+    | T
+    | {
+        title?: T;
+        content?: T;
+        layout?:
+          | T
+          | {
+              textImage?: T | TextImageBlockSelect<T>;
+              featureCards?: T | FeatureCardsBlockSelect<T>;
+              audience?: T | AudienceBlockSelect<T>;
+              program?: T | ProgramBlockSelect<T>;
+              schedule?: T | ScheduleBlockSelect<T>;
+              testimonials?: T | TestimonialsBlockSelect<T>;
+              collectionGrid?: T | CollectionGridBlockSelect<T>;
+              ctaForm?: T | CTAFormBlockSelect<T>;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TestimonialsBlock_select".
+ */
+export interface TestimonialsBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  selectedReviews?: T;
+  itemLimit?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "CollectionGridBlock_select".
  */
 export interface CollectionGridBlockSelect<T extends boolean = true> {
   title?: T;
+  hideTitle?: T;
   description?: T;
   collectionType?: T;
   itemLimit?: T;
+  galleryAlbum?: T;
   id?: T;
   blockName?: T;
 }
@@ -1283,6 +1376,7 @@ export interface TeachersSelect<T extends boolean = true> {
 export interface ReviewsSelect<T extends boolean = true> {
   authorName?: T;
   authorDescription?: T;
+  avatar?: T;
   text?: T;
   isPublished?: T;
   sortOrder?: T;
@@ -1560,9 +1654,13 @@ export interface SiteSetting {
    */
   logoType?: ('text' | 'image') | null;
   /**
-   * Загрузите файл в медиа или выберите существующий медиафайл для логотипа.
+   * Показывается при загрузке страницы и используется в подвале.
    */
   logoImage?: (number | null) | Media;
+  /**
+   * Показывается в шапке после скролла. Если не задан, будет использоваться большой логотип.
+   */
+  logoImageCompact?: (number | null) | Media;
   /**
    * Основной номер для связи.
    */
@@ -1709,6 +1807,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   siteName?: T;
   logoType?: T;
   logoImage?: T;
+  logoImageCompact?: T;
   phone?: T;
   email?: T;
   address?: T;

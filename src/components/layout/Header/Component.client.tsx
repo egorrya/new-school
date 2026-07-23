@@ -1,9 +1,9 @@
 'use client'
 
-import gsap from 'gsap'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import React, { useLayoutEffect, useRef } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'framer-motion'
 
 import type { Header, SiteSetting } from '@/payload-types'
 
@@ -16,13 +16,29 @@ interface HeaderClientProps {
   siteSettings?: SiteSetting
 }
 
+const HEADER_SCROLL_BORDER_DISTANCE = 140
+const HEADER_SCROLL_BACKGROUND_DISTANCE = 220
+const HEADER_SCROLL_COMPACT_THRESHOLD = 48
+
+const headerShellClassName =
+  'relative overflow-visible rounded-base border-2 border-transparent bg-transparent shadow-none'
+const headerRowClassName =
+  'flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-6'
+const headerLogoClassName =
+  'inline-flex h-[var(--site-header-logo-height)] shrink-0 items-center transition-[height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] data-[header-state=expanded]:h-[var(--site-header-logo-height-expanded)] lg:justify-self-start'
+const headerNavClassName = 'hidden lg:flex lg:justify-self-center'
+const headerActionsClassName = 'lg:justify-self-end'
+
 export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings }) => {
   const pathname = usePathname()
+  const [logoState, setLogoState] = useState<'expanded' | 'compact'>('expanded')
+  const shouldReduceMotion = useReducedMotion() ?? false
   const shellRef = useRef<HTMLDivElement | null>(null)
   const rowRef = useRef<HTMLDivElement | null>(null)
   const logoRef = useRef<HTMLDivElement | null>(null)
   const navRef = useRef<HTMLDivElement | null>(null)
   const actionsRef = useRef<HTMLDivElement | null>(null)
+  const applyScrollStateRef = useRef<(() => void) | null>(null)
 
   useLayoutEffect(() => {
     const shell = shellRef.current
@@ -35,24 +51,28 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
       return
     }
 
-    const borderFadeDistance = 18
-    const shadowStartDistance = 28
-    const shadowFadeDistance = 16
-
     let scrollRaf = 0
 
-    shell.style.transitionProperty = 'border-color, box-shadow'
-    shell.style.transitionDuration = '180ms, 90ms'
-    shell.style.transitionTimingFunction = 'linear, linear'
+    const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1)
+    const smoothStep = (value: number) => value * value * (3 - 2 * value)
+
+    shell.style.transitionProperty = 'border-color, background-color'
+    shell.style.transitionDuration = '180ms'
+    shell.style.transitionTimingFunction = 'linear'
 
     const applyScrollState = () => {
       const scrollY = window.scrollY
-      const borderProgress = Math.min(scrollY / borderFadeDistance, 1)
-      const shadowProgress = Math.max(0, Math.min((scrollY - shadowStartDistance) / shadowFadeDistance, 1))
+      const borderProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_BORDER_DISTANCE))
+      const backgroundProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_BACKGROUND_DISTANCE))
+      const borderAlpha = 0.72 * borderProgress
+      const nextLogoState: 'expanded' | 'compact' =
+        scrollY >= HEADER_SCROLL_COMPACT_THRESHOLD ? 'compact' : 'expanded'
 
-      shell.style.borderColor = `rgba(34, 34, 34, ${borderProgress.toFixed(3)})`
-      shell.style.boxShadow = `0.2rem 0.2rem 0 0 rgba(34, 34, 34, ${shadowProgress.toFixed(3)})`
+      shell.style.borderColor = `rgba(34, 34, 34, ${borderAlpha.toFixed(3)})`
+      shell.style.backgroundColor = `rgba(255, 255, 255, ${backgroundProgress.toFixed(3)})`
+      setLogoState((current) => (current === nextLogoState ? current : nextLogoState))
     }
+    applyScrollStateRef.current = applyScrollState
 
     const scheduleScrollState = () => {
       if (scrollRaf !== 0) {
@@ -65,145 +85,97 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
       })
     }
 
-    const navLinks = nav.querySelectorAll('a')
-    const actionItems = actions.querySelectorAll('a, button')
-    const headerTimeline = gsap.timeline({
-      defaults: {
-        ease: 'power3.out',
-      },
-    })
-
-    gsap.set([shell, row, logo, nav], {
-      autoAlpha: 0,
-      y: -10,
-    })
-
-    gsap.set(actions, {
-      autoAlpha: 0,
-    })
-
-    gsap.set(navLinks, {
-      autoAlpha: 0,
-      y: -6,
-    })
-
-    gsap.set(actionItems, {
-      autoAlpha: 0,
-      y: -6,
-    })
-
-    headerTimeline
-      .to(shell, {
-        autoAlpha: 1,
-        duration: 0.65,
-        y: 0,
-      })
-      .to(
-        row,
-        {
-          autoAlpha: 1,
-          duration: 0.5,
-          y: 0,
-        },
-        0.14,
-      )
-      .to(
-        logo,
-        {
-          autoAlpha: 1,
-          duration: 0.5,
-          y: 0,
-        },
-        0.26,
-      )
-      .to(
-        nav,
-        {
-          autoAlpha: 1,
-          duration: 0.45,
-          y: 0,
-        },
-        0.38,
-      )
-      .to(
-        navLinks,
-        {
-          autoAlpha: 1,
-          duration: 0.4,
-          ease: 'power2.out',
-          stagger: 0.12,
-          y: 0,
-        },
-        0.46,
-      )
-      .to(
-        actions,
-        {
-          autoAlpha: 1,
-          duration: 0.28,
-        },
-        0.58,
-      )
-      .to(
-        actionItems,
-        {
-          autoAlpha: 1,
-          duration: 0.28,
-          ease: 'none',
-          stagger: 0.08,
-          y: 0,
-        },
-        0.64,
-      )
-
     applyScrollState()
     window.addEventListener('scroll', scheduleScrollState, { passive: true })
 
     return () => {
+      applyScrollStateRef.current = null
       window.removeEventListener('scroll', scheduleScrollState)
       if (scrollRaf !== 0) {
         window.cancelAnimationFrame(scrollRaf)
       }
-      headerTimeline.kill()
-      gsap.killTweensOf([shell, row, logo, nav, actions])
     }
+  }, [])
+
+  useLayoutEffect(() => {
+    applyScrollStateRef.current?.()
   }, [pathname])
 
   return (
-    <header className="container fixed inset-x-0 top-0 z-50 pt-1 sm:pt-2" suppressHydrationWarning>
-      <div
+    <header
+      className="container fixed inset-x-0 top-0 z-50 pt-[var(--site-header-top-offset)]"
+      suppressHydrationWarning
+    >
+      <motion.div
         ref={shellRef}
-        className={cn('relative overflow-hidden rounded-base border-2 border-transparent bg-card shadow-none')}
+        className={cn(headerShellClassName)}
+        initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+        transition={{ delay: 0, duration: 0.65, ease: 'easeOut' }}
+        viewport={{ amount: 0.1, once: true }}
+        whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
       >
-        <div
+        <motion.div
           ref={rowRef}
-          className={cn(
-            'flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-6',
-          )}
+          data-header-state={logoState}
+          className={cn(headerRowClassName)}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+          transition={{ delay: 0.14, duration: 0.5, ease: 'easeOut' }}
+          viewport={{ amount: 0.1, once: true }}
+          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
         >
-          <div ref={logoRef} className="inline-flex shrink-0 lg:justify-self-start">
-            <Link href="/" aria-label={siteSettings?.siteName || 'Новая школа'}>
+          <motion.div
+            ref={logoRef}
+            data-header-state={logoState}
+            className={cn(headerLogoClassName)}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+            transition={{ delay: 0.26, duration: 0.5, ease: 'easeOut' }}
+            viewport={{ amount: 0.1, once: true }}
+            whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          >
+            <Link
+              aria-label={siteSettings?.siteName || 'Новая школа'}
+              className="flex h-full origin-center items-center transition-transform duration-200 ease-out hover:scale-105 focus-visible:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:focus-visible:scale-100"
+              href="/"
+            >
               <Logo
+                className="h-full"
+                compactLogo={siteSettings?.logoImageCompact ?? null}
                 logo={siteSettings?.logoImage ?? null}
                 logoType={siteSettings?.logoType ?? null}
+                sizeVariant="header"
                 siteName={siteSettings?.siteName}
+                state={logoState}
               />
             </Link>
-          </div>
+          </motion.div>
 
-          <div ref={navRef} className="hidden lg:flex lg:justify-self-center">
+          <motion.div
+            ref={navRef}
+            className={cn(headerNavClassName)}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+            transition={{ delay: 0.38, duration: 0.45, ease: 'easeOut' }}
+            viewport={{ amount: 0.1, once: true }}
+            whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          >
             <HeaderNavLinks header={header} />
-          </div>
+          </motion.div>
 
-          <div ref={actionsRef} className="lg:justify-self-end">
+          <motion.div
+            ref={actionsRef}
+            className={cn(headerActionsClassName)}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+            transition={{ delay: 0.58, duration: 0.3, ease: 'easeOut' }}
+            viewport={{ amount: 0.1, once: true }}
+            whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          >
             <HeaderNavActions
               className="lg:justify-self-end"
               header={header}
               siteSettings={siteSettings}
             />
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        </motion.div>
+      </motion.div>
     </header>
   )
 }

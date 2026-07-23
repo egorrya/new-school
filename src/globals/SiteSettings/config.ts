@@ -48,11 +48,24 @@ export const SiteSettings: GlobalConfig = {
     {
       name: 'logoImage',
       type: 'upload',
-      label: 'Логотип',
+      label: 'Большой логотип',
       relationTo: 'media',
       admin: {
         condition: (_, data) => data?.logoType === 'image',
-        description: 'Загрузите файл в медиа или выберите существующий медиафайл для логотипа.',
+        description: 'Показывается при загрузке страницы и используется в подвале.',
+        components: {
+          Field: '@/components/admin/LogoUploadField',
+        },
+      },
+    },
+    {
+      name: 'logoImageCompact',
+      type: 'upload',
+      label: 'Маленький логотип',
+      relationTo: 'media',
+      admin: {
+        condition: (_, data) => data?.logoType === 'image',
+        description: 'Показывается в шапке после скролла. Если не задан, будет использоваться большой логотип.',
         components: {
           Field: '@/components/admin/LogoUploadField',
         },

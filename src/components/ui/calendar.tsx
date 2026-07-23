@@ -53,15 +53,15 @@ function Calendar({
           buttonVariants({ variant: "noShadow" }),
           "size-9 shrink-0 bg-transparent p-0 font-base text-inherit aria-selected:opacity-100",
         ),
-        range_start: "day-range-start rounded-l-base bg-foreground text-background",
-        range_end: "day-range-end rounded-r-base bg-foreground text-background",
-        selected: "rounded-base bg-foreground text-background",
+        range_start: "day-range-start rounded-l-base bg-main text-main-foreground",
+        range_end: "day-range-end rounded-r-base bg-main text-main-foreground",
+        selected: "rounded-base bg-main text-main-foreground",
         // Keep today's day visible without changing the activity color scale.
         today:
           "[&>button]:ring-2 [&>button]:ring-border [&>button]:ring-offset-2 [&>button]:ring-offset-background [&>button]:font-heading",
         outside: "day-outside opacity-50 aria-selected:bg-none",
         disabled: "rounded-base opacity-50",
-        range_middle: "bg-foreground/20 text-foreground",
+        range_middle: "bg-main/20 text-main",
         hidden: "invisible",
         ...classNames,
       }}

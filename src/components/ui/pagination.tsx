@@ -56,7 +56,7 @@ function PaginationLink({
           size,
         }),
         className,
-        isActive && "bg-foreground text-background",
+        isActive && "bg-main text-main-foreground",
       )}
       {...props}
     />

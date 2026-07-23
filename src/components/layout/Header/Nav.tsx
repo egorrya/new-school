@@ -31,9 +31,18 @@ type HeaderNavActionsProps = {
   siteSettings?: SiteSetting
 }
 
+const navigationLinkClassName =
+  'inline-flex origin-center text-sm font-medium leading-none text-foreground transition-transform duration-200 ease-out hover:scale-115'
+const desktopCtaWrapperClassName = 'hidden lg:flex lg:items-center'
+const desktopCtaButtonClassName = 'w-auto'
+
 function resolveHref(link: HeaderNavigationItem['link']) {
   if (link.type === 'reference') {
-    const reference = link.reference?.value
+    if (!link.reference) {
+      return ''
+    }
+
+    const reference = link.reference.value
 
     if (reference && typeof reference === 'object' && 'slug' in reference) {
       return getDocumentHref(link.reference.relationTo, reference.slug)
@@ -55,10 +64,7 @@ function NavigationLinks({ className, header, itemClassName }: NavigationLinksPr
       {navigationLinks.map((item) => {
         const href = resolveHref(item.link)
         const isExternal = href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
-        const linkClassName = cn(
-          'text-sm font-medium leading-none text-foreground transition-colors hover:text-foreground/70',
-          itemClassName,
-        )
+        const linkClassName = cn(navigationLinkClassName, itemClassName)
 
         if (!href) {
           return null
@@ -100,20 +106,13 @@ export function HeaderNavLinks({ className, header, itemClassName }: NavigationL
 
 export function HeaderNavActions({ className, header, siteSettings }: HeaderNavActionsProps) {
   const applicationText = siteSettings?.defaultApplicationCtaText || 'Оставить заявку'
-  const buttonMotionClassName =
-    'motion-reduce:transition-none motion-reduce:hover:translate-x-0 motion-reduce:hover:translate-y-0'
 
   return (
     <div className={cn('flex items-center justify-end gap-2', className)}>
       <div className="lg:hidden">
         <Sheet>
           <SheetTrigger asChild>
-            <Button
-              aria-label="Открыть меню"
-              className={buttonMotionClassName}
-              size="icon"
-              variant="neutral"
-            >
+            <Button aria-label="Открыть меню" size="icon" variant="neutral">
               <Menu className="size-5" aria-hidden="true" />
             </Button>
           </SheetTrigger>
@@ -137,8 +136,8 @@ export function HeaderNavActions({ className, header, siteSettings }: HeaderNavA
         </Sheet>
       </div>
 
-      <div className="hidden lg:block pb-1">
-        <Button asChild className={buttonMotionClassName}>
+      <div className={desktopCtaWrapperClassName}>
+        <Button asChild className={desktopCtaButtonClassName}>
           <Link href="/clubs">
             {applicationText}
           </Link>

@@ -9,14 +9,6 @@ export const HeroBlock: Block = {
   },
   fields: [
     {
-      name: 'eyebrow',
-      type: 'text',
-      label: 'Подзаголовок',
-      admin: {
-        description: 'Короткая строка над заголовком.',
-      },
-    },
-    {
       name: 'title',
       type: 'text',
       label: 'Заголовок',
@@ -34,9 +26,37 @@ export const HeroBlock: Block = {
       name: 'image',
       type: 'upload',
       relationTo: 'media',
-      label: 'Изображение',
+      label: 'Фон blob',
       admin: {
-        description: 'Основное изображение первого экрана.',
+        description: 'Фоновое изображение первого экрана. По умолчанию используется /media/blob.webp.',
+      },
+    },
+    {
+      name: 'showBlobBackground',
+      type: 'checkbox',
+      label: 'Показывать blob-фон',
+      defaultValue: true,
+      admin: {
+        description: 'Выключите, чтобы скрыть фоновой blob-слой первого экрана.',
+      },
+    },
+    {
+      name: 'customBlobPositioning',
+      type: 'checkbox',
+      label: 'Кастомное позиционирование blob',
+      defaultValue: true,
+      admin: {
+        condition: (_, siblingData) => siblingData?.showBlobBackground !== false,
+        description: 'Выключите, чтобы blob использовал стандартную посадку без смещений и сжатия.',
+      },
+    },
+    {
+      name: 'kidsImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Изображение поверх',
+      admin: {
+        description: 'Верхнее изображение первого экрана. По умолчанию используется /media/kids.webp.',
       },
     },
     {

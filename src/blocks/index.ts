@@ -1,7 +1,6 @@
 import type { Block, BlocksField } from 'payload'
 
 import { AudienceBlock } from './AudienceBlock/config'
-import { BannerSliderBlock } from './BannerSliderBlock/config'
 import { CTAFormBlock } from './CTAFormBlock/config'
 import { CollectionGridBlock } from './CollectionGridBlock/config'
 import { FeatureCardsBlock } from './FeatureCardsBlock/config'
@@ -9,11 +8,12 @@ import { HeroBlock } from './HeroBlock/config'
 import { MarqueeBlock } from './MarqueeBlock/config'
 import { ProgramBlock } from './ProgramBlock/config'
 import { ScheduleBlock } from './ScheduleBlock/config'
+import { TabsBlock } from './TabsBlock/config'
+import { TestimonialsBlock } from './TestimonialsBlock/config'
 import { TextImageBlock } from './TextImageBlock/config'
 
 export {
   AudienceBlock,
-  BannerSliderBlock,
   CTAFormBlock,
   CollectionGridBlock,
   FeatureCardsBlock,
@@ -21,18 +21,21 @@ export {
   MarqueeBlock,
   ProgramBlock,
   ScheduleBlock,
+  TabsBlock,
+  TestimonialsBlock,
   TextImageBlock,
 }
 
 export const pageBlocks: Block[] = [
   HeroBlock,
   MarqueeBlock,
-  BannerSliderBlock,
   TextImageBlock,
   FeatureCardsBlock,
   AudienceBlock,
   ProgramBlock,
   ScheduleBlock,
+  TabsBlock,
+  TestimonialsBlock,
   CollectionGridBlock,
   CTAFormBlock,
 ]

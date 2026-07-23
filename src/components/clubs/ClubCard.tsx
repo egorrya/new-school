@@ -21,7 +21,7 @@ export function ClubCard({ club, priority }: ClubCardProps) {
         <MediaFrame alt={club.title} aspectClassName="aspect-[16/10]" priority={priority} resource={club.coverImage} />
 
         <div className="space-y-2">
-          <h3 className="font-heading text-2xl leading-tight">
+          <h3 className="font-heading text-2xl leading-[1.1]">
             <Link className="transition-colors hover:text-main" href={href}>
               {club.title}
             </Link>

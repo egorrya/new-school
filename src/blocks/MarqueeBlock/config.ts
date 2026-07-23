@@ -13,6 +13,17 @@ export const MarqueeBlock: Block = {
       type: 'array',
       label: 'Тексты',
       minRows: 1,
+      defaultValue: [
+        { text: 'Собираем роботов' },
+        { text: 'Пишем код' },
+        { text: 'Творим' },
+        { text: 'Говорим' },
+        { text: 'Тренируем логику' },
+        { text: 'Выступаем' },
+        { text: 'Пробуем новое' },
+        { text: 'Делаем своими руками' },
+        { text: 'Учимся вместе' },
+      ],
       labels: {
         singular: 'Текст',
         plural: 'Тексты',

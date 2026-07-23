@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { MotionReveal } from '@/components/shared/MotionReveal'
 import { cn } from '@/utilities/ui'
 
 type PageBlockSectionProps = React.ComponentProps<'section'>
@@ -65,20 +66,27 @@ export function PageBlockHeader({
 }: PageBlockHeaderProps) {
   return (
     <div className={cn('space-y-3', className)}>
-      {renderHeading(
-        headingLevel,
-        cn('max-w-4xl font-heading text-3xl leading-[0.95] sm:text-4xl lg:text-5xl', titleClassName),
-        title,
-      )}
+      <MotionReveal amount={0.2} duration={0.7} y={14}>
+        {renderHeading(
+          headingLevel,
+          cn(
+            'max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl',
+            titleClassName,
+          ),
+          title,
+        )}
+      </MotionReveal>
       {description ? (
-        <p
-          className={cn(
-            'max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg',
-            descriptionClassName,
-          )}
-        >
-          {description}
-        </p>
+        <MotionReveal amount={0.2} delay={0.08} duration={0.7} y={12}>
+          <p
+            className={cn(
+              'max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg',
+              descriptionClassName,
+            )}
+          >
+            {description}
+          </p>
+        </MotionReveal>
       ) : null}
     </div>
   )

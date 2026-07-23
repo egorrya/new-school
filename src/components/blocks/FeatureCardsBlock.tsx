@@ -14,13 +14,14 @@ import {
   Users,
 } from 'lucide-react'
 
-import { MediaFrame } from '@/components/shared/MediaFrame'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
   PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
+import { MotionReveal } from '@/components/shared/MotionReveal'
 
 const featureIconMap: Record<string, LucideIcon> = {
   'book-open': BookOpen,
@@ -29,12 +30,14 @@ const featureIconMap: Record<string, LucideIcon> = {
   'graduation-cap': GraduationCap,
   'heart-handshake': HeartHandshake,
   layers: Layers3,
-  'lightbulb': Lightbulb,
+  lightbulb: Lightbulb,
   rocket: Rocket,
   'shield-check': ShieldCheck,
   sparkles: Sparkles,
   users: Users,
 }
+
+const featureIconColors = ['#06336f', '#FF6824', '#FF1E24', '#00B590', '#FFCB00']
 
 function normalizeIconName(iconName: string) {
   return iconName
@@ -44,22 +47,23 @@ function normalizeIconName(iconName: string) {
     .replace(/^-+|-+$/g, '')
 }
 
-function FeatureIcon({ iconName }: { iconName?: string | null }) {
+function FeatureIcon({ iconName, color }: { iconName?: string | null; color: string }) {
   const normalizedName = iconName ? normalizeIconName(iconName) : ''
   const Icon = (normalizedName ? featureIconMap[normalizedName] : undefined) ?? Sparkles
 
   return (
-    <div className="flex size-28 shrink-0 items-center justify-center rounded-full border-2 border-border bg-background text-main-foreground shadow-shadow sm:size-32">
-      <Icon className="size-11 sm:size-12" />
-    </div>
+    <Card
+      className="flex size-14 shrink-0 items-center justify-center rounded-[0.8rem] border-2 border-border text-white shadow-shadow sm:size-16"
+      style={{ backgroundColor: color }}
+    >
+      <CardContent className="flex h-full w-full items-center justify-center p-0">
+        <Icon className="size-7 sm:size-8" />
+      </CardContent>
+    </Card>
   )
 }
 
-export function FeatureCardsBlock({
-  title,
-  description,
-  cards,
-}: FeatureCardsBlockType) {
+export function FeatureCardsBlock({ title, description, cards }: FeatureCardsBlockType) {
   const featureCards = cards ?? []
 
   return (
@@ -71,44 +75,47 @@ export function FeatureCardsBlock({
             descriptionClassName="mx-auto w-full max-w-3xl text-center"
             className="mx-auto flex max-w-4xl flex-col items-center text-center"
             title={title}
-            titleClassName="w-full text-3xl sm:text-4xl lg:text-5xl"
+            titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
           />
 
           {featureCards.length > 0 ? (
-            <div className="grid justify-items-center gap-x-8 gap-y-12 [grid-template-columns:repeat(auto-fit,minmax(min(100%,20rem),1fr))]">
-              {featureCards.map((card, index) => (
-                <article
-                  className="flex h-full w-full max-w-sm flex-col items-center text-center"
-                  key={card.id || `${card.title}-${index}`}
-                >
-                  {card.iconName ? (
-                    <FeatureIcon iconName={card.iconName} />
-                  ) : (
-                    <div className="flex size-28 shrink-0 items-center justify-center rounded-full border-2 border-border bg-background text-main-foreground shadow-shadow sm:size-32">
-                      <Sparkles className="size-11 sm:size-12" />
-                    </div>
-                  )}
+            <MotionReveal amount={0.2} duration={0.8} y={18}>
+              <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]">
+                {featureCards.map((card, index) => (
+                  <article className="w-full" key={card.id || `${card.title}-${index}`}>
+                    <div className="flex items-center gap-6">
+                      {card.iconName ? (
+                        <FeatureIcon
+                          color={featureIconColors[index % featureIconColors.length]}
+                          iconName={card.iconName}
+                        />
+                      ) : (
+                        <Card
+                          className="flex size-14 shrink-0 items-center justify-center rounded-[0.8rem] border-2 border-border text-white shadow-shadow sm:size-16"
+                          style={{
+                            backgroundColor: featureIconColors[index % featureIconColors.length],
+                          }}
+                        >
+                          <CardContent className="flex h-full w-full items-center justify-center p-0">
+                            <Sparkles className="size-7 sm:size-8" />
+                          </CardContent>
+                        </Card>
+                      )}
 
-                  <div className="mt-6 space-y-3">
-                    <h3 className="mx-auto max-w-sm font-heading text-xl leading-tight sm:text-2xl">
-                      {card.title}
-                    </h3>
-                    <p className="mx-auto max-w-sm text-sm leading-relaxed text-foreground/80">
+                      <div className="min-w-0 text-left">
+                        <h3 className="font-heading text-lg leading-[1.1] sm:text-xl">
+                          {card.title}
+                        </h3>
+                      </div>
+                    </div>
+
+                    <p className="mt-5 max-w-2xl text-sm leading-relaxed text-foreground/80">
                       {card.text || 'Описание этого пункта пока не добавлено.'}
                     </p>
-                  </div>
-
-                  {card.image ? (
-                    <MediaFrame
-                      alt={card.title}
-                      aspectClassName="aspect-[4/3]"
-                      className="mt-6 w-full"
-                      resource={card.image}
-                    />
-                  ) : null}
-                </article>
-              ))}
-            </div>
+                  </article>
+                ))}
+              </div>
+            </MotionReveal>
           ) : (
             <PageBlockEmptyState
               description="Добавьте столько пунктов, сколько нужно, чтобы этот блок начал работать."

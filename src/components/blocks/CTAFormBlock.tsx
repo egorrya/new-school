@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { PageBlockContainer, PageBlockSection } from '@/components/shared/PageBlock'
 import { PageBlockHeader } from '@/components/shared/PageBlock'
+import { MotionReveal } from '@/components/shared/MotionReveal'
 import {
   CTA_FORM_TYPES,
   buildCTAFormSubmissionKey,
@@ -58,7 +59,14 @@ function isDuplicateSubmissionError(error: unknown): boolean {
   )
 }
 
-export function CTAFormBlock({ clubId, title, description, buttonLabel, formType, pageUrl }: Props) {
+export function CTAFormBlock({
+  clubId,
+  title,
+  description,
+  buttonLabel,
+  formType,
+  pageUrl,
+}: Props) {
   async function submitCTAForm(
     _previousState: CTAFormState,
     formData: FormData,
@@ -83,8 +91,14 @@ export function CTAFormBlock({ clubId, title, description, buttonLabel, formType
         }
       }
 
-      const { clubId: submittedClubId, consentAccepted, formType: submittedFormType, name, pageUrl: submittedPageUrl, phone } =
-        parsed.data
+      const {
+        clubId: submittedClubId,
+        consentAccepted,
+        formType: submittedFormType,
+        name,
+        pageUrl: submittedPageUrl,
+        phone,
+      } = parsed.data
 
       if (!consentAccepted) {
         return {
@@ -126,7 +140,8 @@ export function CTAFormBlock({ clubId, title, description, buttonLabel, formType
       if (duplicate.docs.length > 0) {
         return {
           eventId: randomUUID(),
-          message: 'Такая заявка уже отправлена. Попробуйте изменить номер телефона или обратитесь в школу напрямую.',
+          message:
+            'Такая заявка уже отправлена. Попробуйте изменить номер телефона или обратитесь в школу напрямую.',
           status: 'error',
         }
       }
@@ -154,7 +169,8 @@ export function CTAFormBlock({ clubId, title, description, buttonLabel, formType
       if (isDuplicateSubmissionError(error)) {
         return {
           eventId: randomUUID(),
-          message: 'Такая заявка уже отправлена. Попробуйте изменить номер телефона или обратитесь в школу напрямую.',
+          message:
+            'Такая заявка уже отправлена. Попробуйте изменить номер телефона или обратитесь в школу напрямую.',
           status: 'error',
         }
       }
@@ -170,25 +186,27 @@ export function CTAFormBlock({ clubId, title, description, buttonLabel, formType
   return (
     <PageBlockSection>
       <PageBlockContainer>
-        <div className="grid gap-0 overflow-hidden lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
-          <div className="border-b-2 border-border p-6 sm:p-8 lg:border-b-0 lg:border-r-2 lg:p-10">
-            <PageBlockHeader
-              description={description || 'Оставьте заявку, и мы свяжемся с вами.'}
-              title={title}
-              titleClassName="text-3xl sm:text-4xl lg:text-5xl"
-            />
-          </div>
+        <MotionReveal amount={0.2} duration={0.8} y={18}>
+          <div className="grid gap-0 overflow-hidden lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
+            <div className="border-b-2 border-border p-6 sm:p-8 lg:border-b-0 lg:border-r-2 lg:p-10">
+              <PageBlockHeader
+                description={description || 'Оставьте заявку, и мы свяжемся с вами.'}
+                title={title}
+                titleClassName="text-2xl sm:text-3xl lg:text-4xl"
+              />
+            </div>
 
-          <div className="p-6 sm:p-8 lg:p-10">
-            <CTAFormClient
-              action={submitCTAForm as CTAFormAction}
-              buttonLabel={buttonLabel}
-              clubId={clubId}
-              formType={formType}
-              pageUrl={pageUrl}
-            />
+            <div className="p-6 sm:p-8 lg:p-10">
+              <CTAFormClient
+                action={submitCTAForm as CTAFormAction}
+                buttonLabel={buttonLabel}
+                clubId={clubId}
+                formType={formType}
+                pageUrl={pageUrl}
+              />
+            </div>
           </div>
-        </div>
+        </MotionReveal>
       </PageBlockContainer>
     </PageBlockSection>
   )

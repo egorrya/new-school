@@ -31,9 +31,9 @@ const SEED_CONTEXT: SeedContext = {
 const seedMediaFiles: SeedMediaInput[] = [
   {
     key: 'hero',
-    filename: 'seed-hero.svg',
-    alt: 'Абстрактный фон для страниц',
-    filePath: path.resolve(process.cwd(), 'public/seed-media/seed-hero.svg'),
+    filename: 'blob.webp',
+    alt: 'Абстрактный blob для фона',
+    filePath: path.resolve(process.cwd(), 'public/seed-media/blob.webp'),
   },
   {
     key: 'banner1',
@@ -63,10 +63,9 @@ function makeHeroBlock({
   secondaryButtonLabel?: string
   secondaryButtonLink?: string
   image?: number | null
-}) {
+  }) {
   return {
     blockType: 'hero',
-    eyebrow: 'Новая школа',
     title,
     description: PLACEHOLDER_TEXT,
     image: image ?? null,
@@ -503,25 +502,6 @@ async function seedPages(
           'Кружки',
           'Английский язык',
         ]),
-        {
-          blockType: 'bannerSlider',
-          slides: [
-            {
-              title: 'Слайд 1',
-              description: PLACEHOLDER_TEXT,
-              image: media.banner1.id,
-              buttonLabel: 'Семейные классы',
-              buttonLink: '/family-classes',
-            },
-            {
-              title: 'Слайд 2',
-              description: PLACEHOLDER_TEXT,
-              image: media.banner2.id,
-              buttonLabel: 'Подготовка к школе',
-              buttonLink: '/school-preparation',
-            },
-          ],
-        },
         makeTextImageBlock('О школе', 'right', media.hero.id),
         makeFeatureCardsBlock('Преимущества', ['Преимущество 1', 'Преимущество 2', 'Преимущество 3']),
         makeCtaFormBlock(),
@@ -545,33 +525,13 @@ async function seedPages(
           secondaryButtonLink: '/about',
           image: media.hero.id,
         }),
-        makeMarqueeBlock(['Hero', 'Marquee', 'Intro', 'Text Image', 'Program', 'Form']),
-        {
-          blockType: 'bannerSlider',
-          slides: [
-            {
-              title: 'Hero и слайдер',
-              description: 'Эта страница показывает все доступные блоки в одном месте.',
-              image: media.banner1.id,
-              buttonLabel: 'Семейные классы',
-              buttonLink: '/family-classes',
-            },
-            {
-              title: 'Текстовые блоки',
-              description: 'Здесь можно посмотреть textImage, audience и program.',
-              image: media.banner2.id,
-              buttonLabel: 'Подготовка к школе',
-              buttonLink: '/school-preparation',
-            },
-            {
-              title: 'Динамические секции',
-              description: 'Внизу страницы есть расписание, тарифы, подборки и форма заявки.',
-              image: media.hero.id,
-              buttonLabel: 'К форме',
-              buttonLink: '/about',
-            },
-          ],
-        },
+        makeMarqueeBlock([
+          'Бегущая строка',
+          'UI marquee',
+          'Анимация без пауз',
+          'Секция после hero',
+          'Демо блока',
+        ]),
         makeTextImageBlock('Вводный блок', 'right', media.hero.id),
         makeTextImageBlock('Текст и изображение слева', 'left', media.hero.id),
         makeTextImageBlock('Текст и изображение справа', 'right', media.banner1.id),

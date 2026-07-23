@@ -90,7 +90,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
                   <Badge variant="neutral">Новость</Badge>
                   <Badge variant="neutral">{formatRussianDate(news.publishedAt)}</Badge>
                 </div>
-                <h1 className="font-heading text-4xl leading-[0.95] sm:text-5xl">
+                <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">
                   {news.title}
                 </h1>
                 {news.excerpt ? (

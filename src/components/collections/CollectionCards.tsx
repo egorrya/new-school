@@ -11,6 +11,8 @@ import { MediaFrame } from '@/components/shared/MediaFrame'
 import { getDocumentHref } from '@/utilities/getDocumentHref'
 import { cn } from '@/utilities/ui'
 
+import { getTestimonialQuoteClass } from '@/components/blocks/testimonials'
+
 export function isMediaDocument(
   resource: number | MediaDocument | null | undefined,
 ): resource is MediaDocument {
@@ -64,7 +66,7 @@ export function NewsCard({ news, priority }: { news: News; priority?: boolean })
       </div>
 
       <div className="space-y-2">
-        <h3 className="font-heading text-2xl leading-tight">
+        <h3 className="font-heading text-2xl leading-[1.1]">
           <Link className="transition-colors hover:text-main" href={href}>
             {news.title}
           </Link>
@@ -95,7 +97,7 @@ export function TeacherCard({ teacher }: { teacher: Teacher }) {
 
         <div className="space-y-3">
           <Badge variant="neutral">{teacher.position || 'Преподаватель'}</Badge>
-          <h3 className="font-heading text-2xl leading-tight">{teacher.name}</h3>
+          <h3 className="font-heading text-2xl leading-[1.1]">{teacher.name}</h3>
           {teacher.description ? (
             <div className="text-sm leading-relaxed text-foreground/80">
               <RichText data={teacher.description} enableGutter={false} enableProse={false} />
@@ -116,11 +118,13 @@ export function ReviewCard({ review }: { review: Review }) {
     <Card className="h-full bg-card">
       <CardContent className="flex h-full flex-col gap-4 p-5 sm:p-6">
         <p className="font-heading text-5xl leading-none text-main-foreground">“</p>
-        <blockquote className="text-sm leading-relaxed text-foreground sm:text-base">
+        <blockquote className={cn('text-foreground', getTestimonialQuoteClass(review.text))}>
           {review.text}
         </blockquote>
         <div className="mt-auto border-t-2 border-border pt-4">
-          <p className="font-heading text-xl leading-tight">{review.authorName}</p>
+          <p className="max-w-full whitespace-nowrap overflow-hidden text-clip font-heading text-xl leading-[1.1]">
+            {review.authorName}
+          </p>
           <p className="text-sm leading-relaxed text-foreground/70">
             {review.authorDescription || 'Автор отзыва'}
           </p>
@@ -135,7 +139,7 @@ export function JobCard({ job }: { job: Job }) {
     <CollectionCardShell className="bg-secondary-background/25">
       <Badge variant="neutral">Вакансия</Badge>
       <div className="space-y-2">
-        <h3 className="font-heading text-2xl leading-tight">{job.title}</h3>
+        <h3 className="font-heading text-2xl leading-[1.1]">{job.title}</h3>
         <p className="text-sm leading-relaxed text-foreground/80">
           {job.shortDescription || 'Краткое описание вакансии пока не добавлено.'}
         </p>
@@ -168,7 +172,7 @@ export function GalleryAlbumCard({ album, priority }: { album: GalleryAlbum; pri
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-2">
           <Badge variant="neutral">Альбом</Badge>
-          <h3 className="font-heading text-2xl leading-tight">
+          <h3 className="font-heading text-2xl leading-[1.1]">
             <Link className="transition-colors hover:text-main" href={href}>
               {album.title}
             </Link>

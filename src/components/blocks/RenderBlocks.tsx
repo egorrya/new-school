@@ -3,7 +3,6 @@ import { Fragment } from 'react'
 import type { Page } from '@/payload-types'
 
 import { AudienceBlock } from './AudienceBlock'
-import { BannerSliderBlock } from './BannerSliderBlock'
 import { CTAFormBlock } from './CTAFormBlock'
 import { CollectionGridBlock } from './CollectionGridBlock'
 import { FeatureCardsBlock } from './FeatureCardsBlock'
@@ -11,6 +10,8 @@ import { HeroBlock } from './HeroBlock'
 import { MarqueeBlock } from './MarqueeBlock'
 import { ProgramBlock } from './ProgramBlock'
 import { ScheduleBlock } from './ScheduleBlock'
+import { TabsBlock } from './TabsBlock'
+import { TestimonialsBlock } from './TestimonialsBlock'
 import { TextImageBlock } from './TextImageBlock'
 
 type PageBlock = NonNullable<Page['layout']>[number]
@@ -18,18 +19,17 @@ type PageBlock = NonNullable<Page['layout']>[number]
 type RenderBlocksProps = {
   blocks?: Page['layout'] | null
   pageUrl: string
+  allowFullScreenHero?: boolean
 }
 
 function assertNever(value: never): never {
   throw new Error(`Unhandled block type: ${String((value as PageBlock).blockType)}`)
 }
 
-function renderBlock(block: PageBlock, pageUrl: string) {
+function renderBlock(block: PageBlock, pageUrl: string, isFirstBlock: boolean) {
   switch (block.blockType) {
     case 'hero':
-      return <HeroBlock {...block} />
-    case 'bannerSlider':
-      return <BannerSliderBlock {...block} />
+      return <HeroBlock {...block} fullScreen={isFirstBlock} />
     case 'marquee':
       return <MarqueeBlock {...block} />
     case 'textImage':
@@ -42,6 +42,10 @@ function renderBlock(block: PageBlock, pageUrl: string) {
       return <ProgramBlock {...block} />
     case 'schedule':
       return <ScheduleBlock {...block} />
+    case 'tabs':
+      return <TabsBlock {...block} pageUrl={pageUrl} />
+    case 'testimonials':
+      return <TestimonialsBlock {...block} />
     case 'collectionGrid':
       return <CollectionGridBlock {...block} />
     case 'ctaForm':
@@ -51,7 +55,7 @@ function renderBlock(block: PageBlock, pageUrl: string) {
   }
 }
 
-export function RenderBlocks({ blocks, pageUrl }: RenderBlocksProps) {
+export function RenderBlocks({ blocks, pageUrl, allowFullScreenHero = true }: RenderBlocksProps) {
   if (!blocks || blocks.length === 0) {
     return null
   }
@@ -60,7 +64,9 @@ export function RenderBlocks({ blocks, pageUrl }: RenderBlocksProps) {
     <>
       {blocks.map((block, index) => (
         <Fragment key={block.id || `${block.blockType}-${index}`}>
-          {renderBlock(block, pageUrl)}
+          {(block as { blockType?: string }).blockType === 'bannerSlider'
+            ? null
+            : renderBlock(block, pageUrl, allowFullScreenHero && index === 0)}
         </Fragment>
       ))}
     </>

@@ -118,7 +118,7 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
               <div className="space-y-6">
                 <div className="space-y-3">
                   <p className="text-sm text-foreground/60">Кружок</p>
-                  <h1 className="font-heading text-4xl leading-[0.95] sm:text-5xl">
+                  <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">
                     {club.title}
                   </h1>
                   {club.shortDescription ? (

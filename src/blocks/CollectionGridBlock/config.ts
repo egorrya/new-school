@@ -15,6 +15,12 @@ export const CollectionGridBlock: Block = {
       required: true,
     },
     {
+      name: 'hideTitle',
+      type: 'checkbox',
+      label: 'Скрыть заголовок',
+      defaultValue: false,
+    },
+    {
       name: 'description',
       type: 'textarea',
       label: 'Описание',
@@ -43,10 +49,21 @@ export const CollectionGridBlock: Block = {
       name: 'itemLimit',
       type: 'number',
       label: 'Количество элементов',
-      required: true,
+      defaultValue: 6,
       min: 1,
       admin: {
+        condition: (_data, siblingData) => siblingData?.collectionType !== 'galleryAlbums',
         description: 'Максимум карточек в выдаче.',
+      },
+    },
+    {
+      name: 'galleryAlbum',
+      type: 'relationship',
+      label: 'Альбом галереи',
+      relationTo: 'gallery-albums',
+      admin: {
+        condition: (_data, siblingData) => siblingData?.collectionType === 'galleryAlbums',
+        description: 'Выберите конкретный альбом или оставьте пустым, чтобы показать фото из всех альбомов.',
       },
     },
   ],
