@@ -64,7 +64,7 @@ export function AnimatedTabs({
               onMouseEnter={() => setHovering(true)}
               onMouseLeave={() => setHovering(false)}
               className={cn(
-                "relative shrink-0 rounded-full px-8 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+                "relative shrink-0 cursor-pointer rounded-full px-8 py-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
                 tabClassName,
               )}
               style={{ transformStyle: "preserve-3d" }}

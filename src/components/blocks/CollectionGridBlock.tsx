@@ -22,16 +22,20 @@ import { CollectionGridHeader } from '@/components/blocks/CollectionGridHeader'
 import { CollectionGridReveal } from '@/components/blocks/CollectionGridReveal'
 import { TestimonialsCarousel } from '@/components/blocks/TestimonialsCarousel.client'
 import { toTestimonialItems } from '@/components/blocks/testimonials'
+import { collectionListingPaths } from '@/blocks/CollectionGridBlock/collectionListingPaths'
 
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
 import { getPayload } from 'payload'
+import Link from 'next/link'
 
 import {
   PageBlockContainer,
   PageBlockEmptyState,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/utilities/ui'
 
 type CollectionType = CollectionGridBlockType['collectionType']
 
@@ -176,7 +180,9 @@ export async function CollectionGridBlock({
   galleryAlbum,
   hideTitle,
   itemLimit,
+  showViewAllButton,
   title,
+  viewAllButtonLabel,
 }: CollectionGridBlockType) {
   const { isEnabled: draft } = await draftMode()
   const items = await getCollectionDocuments(collectionType, itemLimit, draft, galleryAlbum)
@@ -184,12 +190,13 @@ export async function CollectionGridBlock({
     collectionType === 'galleryAlbums'
       ? buildGalleryPhotoSlides(items as GalleryAlbum[])
       : []
+  const viewAllHref = collectionListingPaths[collectionType]
 
   return (
     <PageBlockSection
       className={
         collectionType === 'reviews'
-          ? 'flex min-h-[calc(100dvh-var(--site-header-height,0px))] items-center'
+          ? 'flex min-h-[calc(100dvh-var(--site-header-height,0px)-var(--site-secondary-header-height,0px))] items-center'
           : undefined
       }
     >
@@ -216,7 +223,12 @@ export async function CollectionGridBlock({
             ) : collectionType === 'reviews' && items.length > 0 ? (
               <TestimonialsCarousel testimonials={toTestimonialItems(items as Review[])} />
             ) : items.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div
+                className={cn(
+                  'grid md:grid-cols-2 xl:grid-cols-3',
+                  collectionType === 'news' ? 'gap-6' : 'gap-4',
+                )}
+              >
                 {collectionType === 'clubs'
                   ? (items as Club[]).map((item, index) => (
                       <ClubCard key={item.id || `${item.title}-${index}`} club={item} />
@@ -226,6 +238,7 @@ export async function CollectionGridBlock({
                   ? (items as News[]).map((item, index) => (
                       <NewsCard
                         key={item.id || `${item.title}-${index}`}
+                        index={index}
                         news={item}
                         priority={index === 0}
                       />
@@ -238,7 +251,7 @@ export async function CollectionGridBlock({
                   : null}
                 {collectionType === 'jobs'
                   ? (items as Job[]).map((item, index) => (
-                      <JobCard key={item.id || `${item.title}-${index}`} job={item} />
+                      <JobCard index={index} key={item.id || `${item.title}-${index}`} job={item} />
                     ))
                   : null}
               </div>
@@ -273,6 +286,14 @@ export async function CollectionGridBlock({
               />
             )}
           </CollectionGridReveal>
+
+          {showViewAllButton && viewAllHref && items.length > 0 ? (
+            <div className="flex justify-center">
+              <Button asChild>
+                <Link href={viewAllHref}>{viewAllButtonLabel || 'Смотреть все'}</Link>
+              </Button>
+            </div>
+          ) : null}
         </div>
       </PageBlockContainer>
     </PageBlockSection>

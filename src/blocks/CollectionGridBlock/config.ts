@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { collectionListingPaths } from './collectionListingPaths'
+
 export const CollectionGridBlock: Block = {
   slug: 'collectionGrid',
   interfaceName: 'CollectionGridBlock',
@@ -64,6 +66,31 @@ export const CollectionGridBlock: Block = {
       admin: {
         condition: (_data, siblingData) => siblingData?.collectionType === 'galleryAlbums',
         description: 'Выберите конкретный альбом или оставьте пустым, чтобы показать фото из всех альбомов.',
+      },
+    },
+    {
+      name: 'showViewAllButton',
+      type: 'checkbox',
+      label: 'Показать кнопку "Смотреть все"',
+      defaultValue: false,
+      admin: {
+        condition: (_data, siblingData) =>
+          Boolean(siblingData?.collectionType && siblingData.collectionType in collectionListingPaths),
+        description: 'Добавить кнопку-ссылку на страницу со всеми материалами этого типа.',
+      },
+    },
+    {
+      name: 'viewAllButtonLabel',
+      type: 'text',
+      label: 'Текст кнопки',
+      defaultValue: 'Смотреть все',
+      admin: {
+        condition: (_data, siblingData) =>
+          Boolean(
+            siblingData?.showViewAllButton &&
+              siblingData?.collectionType &&
+              siblingData.collectionType in collectionListingPaths,
+          ),
       },
     },
   ],

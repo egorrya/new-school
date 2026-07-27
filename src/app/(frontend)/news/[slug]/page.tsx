@@ -12,11 +12,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import RichText from '@/components/shared/RichText'
 import { MediaFrame } from '@/components/shared/MediaFrame'
+import { MotionReveal } from '@/components/shared/MotionReveal'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
   PageBlockSection,
-  PageBlockSurface,
 } from '@/components/shared/PageBlock'
 import { generateMeta } from '@/lib/generateMeta'
 
@@ -75,33 +75,33 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
   return (
     <PageBlockSection>
       <PageBlockContainer>
-        <PageBlockSurface className="overflow-hidden bg-card">
-          <article className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:p-10">
+        <article className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+          <MotionReveal blur={2} duration={0.47} y={18}>
             <MediaFrame
               alt={news.title}
               aspectClassName="aspect-[4/3]"
+              fallbackImageSrc="/seed-media/seed-banner-1.svg"
               priority
               resource={news.coverImage}
             />
+          </MotionReveal>
 
-            <div className="space-y-6">
-              <div className="space-y-3">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <MotionReveal blur={2} delay={0.08} duration={0.47} y={18}>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="neutral">Новость</Badge>
                   <Badge variant="neutral">{formatRussianDate(news.publishedAt)}</Badge>
                 </div>
+              </MotionReveal>
+              <MotionReveal blur={2} delay={0.16} duration={0.47} y={18}>
                 <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">
                   {news.title}
                 </h1>
-                {news.excerpt ? (
-                  <p className="max-w-2xl text-base leading-relaxed text-foreground/80 sm:text-lg">
-                    {news.excerpt}
-                  </p>
-                ) : null}
-              </div>
+              </MotionReveal>
+            </div>
 
+            <MotionReveal blur={2} delay={0.24} duration={0.47} y={18}>
               <div className="space-y-3">
-                <p className="text-sm text-foreground/60">Текст новости</p>
                 {news.content ? (
                   <RichText data={news.content} enableGutter={false} enableProse={true} />
                 ) : (
@@ -111,18 +111,17 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
                   />
                 )}
               </div>
+            </MotionReveal>
 
+            <MotionReveal blur={2} delay={0.32} duration={0.47} y={18}>
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="neutral">
                   <Link href="/news">К новостям</Link>
                 </Button>
-                <Button asChild>
-                  <Link href="/">На главную</Link>
-                </Button>
               </div>
-            </div>
-          </article>
-        </PageBlockSurface>
+            </MotionReveal>
+          </div>
+        </article>
       </PageBlockContainer>
     </PageBlockSection>
   )

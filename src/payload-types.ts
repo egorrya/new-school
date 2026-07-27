@@ -73,6 +73,7 @@ export interface Config {
     teachers: Teacher;
     reviews: Review;
     jobs: Job;
+    'org-info-sections': OrgInfoSection;
     'gallery-albums': GalleryAlbum;
     'form-submissions': FormSubmission;
     media: Media;
@@ -97,6 +98,7 @@ export interface Config {
     teachers: TeachersSelect<false> | TeachersSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     jobs: JobsSelect<false> | JobsSelect<true>;
+    'org-info-sections': OrgInfoSectionsSelect<false> | OrgInfoSectionsSelect<true>;
     'gallery-albums': GalleryAlbumsSelect<false> | GalleryAlbumsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -181,8 +183,10 @@ export interface Page {
         | ProgramBlock
         | ScheduleBlock
         | TabsBlock
+        | TeacherListBlock
         | TestimonialsBlock
         | CollectionGridBlock
+        | FaqBlock
         | CTAFormBlock
       )[]
     | null;
@@ -234,11 +238,6 @@ export interface HeroBlock {
    * Адрес для первой кнопки.
    */
   primaryButtonLink: string;
-  secondaryButtonLabel?: string | null;
-  /**
-   * Адрес для второй кнопки.
-   */
-  secondaryButtonLink?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
@@ -420,15 +419,15 @@ export interface FeatureCardsBlock {
    */
   description?: string | null;
   /**
+   * Если отмечено, заголовок не будет отображаться.
+   */
+  hideTitle?: boolean | null;
+  /**
    * Добавьте столько пунктов, сколько нужно.
    */
   cards?:
     | {
-        title: string;
-        /**
-         * Короткое пояснение к пункту.
-         */
-        text?: string | null;
+        text: string;
         /**
          * Иллюстрация для пункта.
          */
@@ -569,8 +568,10 @@ export interface TabsBlock {
               | AudienceBlock
               | ProgramBlock
               | ScheduleBlock
+              | TeacherListBlock
               | TestimonialsBlock
               | CollectionGridBlock
+              | FaqBlock
               | CTAFormBlock
             )[]
           | null;
@@ -580,6 +581,60 @@ export interface TabsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'tabs';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeacherListBlock".
+ */
+export interface TeacherListBlock {
+  title?: string | null;
+  /**
+   * Короткий текст перед списком.
+   */
+  description?: string | null;
+  /**
+   * Оставьте пустым, чтобы показать преподавателей автоматически по порядку.
+   */
+  selectedTeachers?: (number | Teacher)[] | null;
+  /**
+   * Используется, если конкретные преподаватели не выбраны.
+   */
+  itemLimit?: number | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'teacherList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "teachers".
+ */
+export interface Teacher {
+  id: number;
+  name: string;
+  position?: string | null;
+  /**
+   * Год, когда преподаватель начал работать в школе.
+   */
+  startYear?: number | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  photo?: (number | null) | Media;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -612,10 +667,31 @@ export interface Review {
   authorName: string;
   authorDescription?: string | null;
   /**
-   * Опциональное фото для компонента testimonials.
+   * Выберите предустановленный аватар. Если не выбрано, будет использовано загруженное фото.
+   */
+  avatarPreset?:
+    | (
+        | 'men/micah-1784914786335.svg'
+        | 'men/micah-1784914798547.svg'
+        | 'men/micah-1784914808913.svg'
+        | 'men/micah-1784914814162.svg'
+        | 'men/micah-1784914843905.svg'
+        | 'women/micah-1784914470498.svg'
+        | 'women/micah-1784914502367.svg'
+        | 'women/micah-1784914592082.svg'
+        | 'women/micah-1784914647503.svg'
+        | 'women/micah-1784914705338.svg'
+      )
+    | null;
+  /**
+   * Опциональное фото для компонента testimonials. Используется если не выбран предустановленный аватар.
    */
   avatar?: (number | null) | Media;
   text: string;
+  /**
+   * Опциональное описание, которое будет показано под отзывом. Если пусто, блок не будет отображаться.
+   */
+  description?: string | null;
   isPublished?: boolean | null;
   sortOrder?: number | null;
   updatedAt: string;
@@ -644,6 +720,11 @@ export interface CollectionGridBlock {
    * Выберите конкретный альбом или оставьте пустым, чтобы показать фото из всех альбомов.
    */
   galleryAlbum?: (number | null) | GalleryAlbum;
+  /**
+   * Добавить кнопку-ссылку на страницу со всеми материалами этого типа.
+   */
+  showViewAllButton?: boolean | null;
+  viewAllButtonLabel?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'collectionGrid';
@@ -660,6 +741,34 @@ export interface GalleryAlbum {
   sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock".
+ */
+export interface FaqBlock {
+  title: string;
+  /**
+   * Опциональный текст под заголовком.
+   */
+  description?: string | null;
+  /**
+   * Если отмечено, заголовок не будет отображаться.
+   */
+  hideTitle?: boolean | null;
+  /**
+   * Добавляйте, меняйте местами или удаляйте вопросы и ответы.
+   */
+  items?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'faq';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -761,40 +870,15 @@ export interface News {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "teachers".
- */
-export interface Teacher {
-  id: number;
-  name: string;
-  position?: string | null;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  photo?: (number | null) | Media;
-  sortOrder?: number | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "jobs".
  */
 export interface Job {
   id: number;
   title: string;
   shortDescription?: string | null;
+  /**
+   * Полный текст вакансии. Показывается на отдельной странице вакансии на сайте.
+   */
   description?: {
     root: {
       type: string;
@@ -810,8 +894,58 @@ export interface Job {
     };
     [k: string]: unknown;
   } | null;
+  /**
+   * Если заполнено, карточка вакансии будет вести на этот адрес вместо страницы вакансии на сайте (описание выше при этом скрывается).
+   */
+  externalUrl?: string | null;
   contactText?: string | null;
   isActive?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-info-sections".
+ */
+export interface OrgInfoSection {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Анонс для карточки в списке разделов.
+   */
+  excerpt?: string | null;
+  content?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Например, PDF с положением, приказом или отчётом.
+   */
+  documents?:
+    | {
+        title: string;
+        file: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  isPublished?: boolean | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1040,6 +1174,10 @@ export interface PayloadLockedDocument {
         value: number | Job;
       } | null)
     | ({
+        relationTo: 'org-info-sections';
+        value: number | OrgInfoSection;
+      } | null)
+    | ({
         relationTo: 'gallery-albums';
         value: number | GalleryAlbum;
       } | null)
@@ -1123,8 +1261,10 @@ export interface PagesSelect<T extends boolean = true> {
         program?: T | ProgramBlockSelect<T>;
         schedule?: T | ScheduleBlockSelect<T>;
         tabs?: T | TabsBlockSelect<T>;
+        teacherList?: T | TeacherListBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
         collectionGrid?: T | CollectionGridBlockSelect<T>;
+        faq?: T | FaqBlockSelect<T>;
         ctaForm?: T | CTAFormBlockSelect<T>;
       };
   meta?:
@@ -1153,8 +1293,6 @@ export interface HeroBlockSelect<T extends boolean = true> {
   kidsImage?: T;
   primaryButtonLabel?: T;
   primaryButtonLink?: T;
-  secondaryButtonLabel?: T;
-  secondaryButtonLink?: T;
   id?: T;
   blockName?: T;
 }
@@ -1192,10 +1330,10 @@ export interface TextImageBlockSelect<T extends boolean = true> {
 export interface FeatureCardsBlockSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  hideTitle?: T;
   cards?:
     | T
     | {
-        title?: T;
         text?: T;
         image?: T;
         iconName?: T;
@@ -1275,12 +1413,26 @@ export interface TabsBlockSelect<T extends boolean = true> {
               audience?: T | AudienceBlockSelect<T>;
               program?: T | ProgramBlockSelect<T>;
               schedule?: T | ScheduleBlockSelect<T>;
+              teacherList?: T | TeacherListBlockSelect<T>;
               testimonials?: T | TestimonialsBlockSelect<T>;
               collectionGrid?: T | CollectionGridBlockSelect<T>;
+              faq?: T | FaqBlockSelect<T>;
               ctaForm?: T | CTAFormBlockSelect<T>;
             };
         id?: T;
       };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeacherListBlock_select".
+ */
+export interface TeacherListBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  selectedTeachers?: T;
+  itemLimit?: T;
   id?: T;
   blockName?: T;
 }
@@ -1307,6 +1459,26 @@ export interface CollectionGridBlockSelect<T extends boolean = true> {
   collectionType?: T;
   itemLimit?: T;
   galleryAlbum?: T;
+  showViewAllButton?: T;
+  viewAllButtonLabel?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "FaqBlock_select".
+ */
+export interface FaqBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  hideTitle?: T;
+  items?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }
@@ -1363,6 +1535,7 @@ export interface NewsSelect<T extends boolean = true> {
 export interface TeachersSelect<T extends boolean = true> {
   name?: T;
   position?: T;
+  startYear?: T;
   description?: T;
   photo?: T;
   sortOrder?: T;
@@ -1376,8 +1549,10 @@ export interface TeachersSelect<T extends boolean = true> {
 export interface ReviewsSelect<T extends boolean = true> {
   authorName?: T;
   authorDescription?: T;
+  avatarPreset?: T;
   avatar?: T;
   text?: T;
+  description?: T;
   isPublished?: T;
   sortOrder?: T;
   updatedAt?: T;
@@ -1391,8 +1566,31 @@ export interface JobsSelect<T extends boolean = true> {
   title?: T;
   shortDescription?: T;
   description?: T;
+  externalUrl?: T;
   contactText?: T;
   isActive?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "org-info-sections_select".
+ */
+export interface OrgInfoSectionsSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  excerpt?: T;
+  content?: T;
+  documents?:
+    | T
+    | {
+        title?: T;
+        file?: T;
+        id?: T;
+      };
+  isPublished?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1693,6 +1891,16 @@ export interface SiteSetting {
    * Показывается на кнопке заявки, если для страницы не задан свой текст.
    */
   defaultApplicationCtaText?: string | null;
+  /**
+   * Блок с контактами, формой заявки и картой, который автоматически показывается внизу каждой страницы сайта перед подвалом.
+   */
+  contactsSection?: {
+    enabled?: boolean | null;
+    /**
+     * Ссылка для встраивания карты (например, код конструктора карт Яндекс.Карт). Оставьте поле пустым, чтобы скрыть карту, но показывать контакты и форму.
+     */
+    mapEmbedUrl?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1722,6 +1930,45 @@ export interface Header {
             | ({
                 relationTo: 'clubs';
                 value: number | Club;
+              } | null)
+            | ({
+                relationTo: 'org-info-sections';
+                value: number | OrgInfoSection;
+              } | null);
+          url?: string | null;
+          label: string;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Включить или отключить отображение дополнительной строки ссылок над основной шапкой.
+   */
+  showSecondaryHeader?: boolean | null;
+  /**
+   * Дополнительная строка ссылок над основной шапкой. Не закреплена при прокрутке — исчезает вместе со страницей, когда посетитель прокручивает вниз.
+   */
+  secondaryHeaderLinks?:
+    | {
+        link: {
+          type?: ('reference' | 'custom') | null;
+          newTab?: boolean | null;
+          reference?:
+            | ({
+                relationTo: 'pages';
+                value: number | Page;
+              } | null)
+            | ({
+                relationTo: 'news';
+                value: number | News;
+              } | null)
+            | ({
+                relationTo: 'clubs';
+                value: number | Club;
+              } | null)
+            | ({
+                relationTo: 'org-info-sections';
+                value: number | OrgInfoSection;
               } | null);
           url?: string | null;
           label: string;
@@ -1758,6 +2005,10 @@ export interface Footer {
             | ({
                 relationTo: 'clubs';
                 value: number | Club;
+              } | null)
+            | ({
+                relationTo: 'org-info-sections';
+                value: number | OrgInfoSection;
               } | null);
           url?: string | null;
           label: string;
@@ -1785,6 +2036,10 @@ export interface Footer {
             | ({
                 relationTo: 'clubs';
                 value: number | Club;
+              } | null)
+            | ({
+                relationTo: 'org-info-sections';
+                value: number | OrgInfoSection;
               } | null);
           url?: string | null;
           label: string;
@@ -1816,6 +2071,12 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   telegramUrl?: T;
   whatsappUrl?: T;
   defaultApplicationCtaText?: T;
+  contactsSection?:
+    | T
+    | {
+        enabled?: T;
+        mapEmbedUrl?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1826,6 +2087,21 @@ export interface SiteSettingsSelect<T extends boolean = true> {
  */
 export interface HeaderSelect<T extends boolean = true> {
   navigationLinks?:
+    | T
+    | {
+        link?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+            };
+        id?: T;
+      };
+  showSecondaryHeader?: T;
+  secondaryHeaderLinks?:
     | T
     | {
         link?:

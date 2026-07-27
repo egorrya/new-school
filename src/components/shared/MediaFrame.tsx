@@ -1,4 +1,5 @@
 import type { Media as MediaType } from '@/payload-types'
+import Image from 'next/image'
 import * as React from 'react'
 
 import { Media } from '@/components/shared/Media'
@@ -7,20 +8,24 @@ import { cn } from '@/utilities/ui'
 
 type MediaFrameProps = {
   alt?: string
+  children?: React.ReactNode
   className?: string
   imageClassName?: string
   priority?: boolean
   resource?: MediaType | number | null
   aspectClassName?: string
+  fallbackImageSrc?: string
 }
 
 export function MediaFrame({
   alt = 'Изображение',
+  children,
   className,
   imageClassName,
   priority,
   resource,
   aspectClassName = 'aspect-[4/3]',
+  fallbackImageSrc,
 }: MediaFrameProps) {
   const mediaResource = typeof resource === 'object' ? resource : null
   const hasMedia = Boolean(mediaResource)
@@ -44,6 +49,15 @@ export function MediaFrame({
           resource={mediaResource}
           videoClassName={cn('absolute inset-0 h-full w-full object-cover', imageClassName)}
         />
+      ) : fallbackImageSrc ? (
+        <Image
+          alt={alt}
+          className={cn('object-cover', imageClassName)}
+          fill
+          sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
+          src={fallbackImageSrc}
+          unoptimized
+        />
       ) : (
         <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
           <div className="max-w-sm">
@@ -54,6 +68,8 @@ export function MediaFrame({
           </div>
         </div>
       )}
+
+      {children}
     </div>
   )
 }

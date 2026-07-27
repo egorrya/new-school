@@ -66,7 +66,7 @@ export function PageBlockHeader({
 }: PageBlockHeaderProps) {
   return (
     <div className={cn('space-y-3', className)}>
-      <MotionReveal amount={0.2} duration={0.7} y={14}>
+      <MotionReveal amount={0.35} duration={0.47} margin="0px 0px -25% 0px" y={14}>
         {renderHeading(
           headingLevel,
           cn(
@@ -77,7 +77,13 @@ export function PageBlockHeader({
         )}
       </MotionReveal>
       {description ? (
-        <MotionReveal amount={0.2} delay={0.08} duration={0.7} y={12}>
+        <MotionReveal
+          amount={0.35}
+          delay={0.08}
+          duration={0.47}
+          margin="0px 0px -25% 0px"
+          y={12}
+        >
           <p
             className={cn(
               'max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg',

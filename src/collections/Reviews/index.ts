@@ -33,12 +33,62 @@ export const Reviews: CollectionConfig<'reviews'> = {
       label: 'Описание автора',
     },
     {
+      name: 'avatarPreset',
+      type: 'select',
+      label: 'Предустановленный аватар',
+      options: [
+        {
+          label: 'Мужчина 1',
+          value: 'men/micah-1784914786335.svg',
+        },
+        {
+          label: 'Мужчина 2',
+          value: 'men/micah-1784914798547.svg',
+        },
+        {
+          label: 'Мужчина 3',
+          value: 'men/micah-1784914808913.svg',
+        },
+        {
+          label: 'Мужчина 4',
+          value: 'men/micah-1784914814162.svg',
+        },
+        {
+          label: 'Мужчина 5',
+          value: 'men/micah-1784914843905.svg',
+        },
+        {
+          label: 'Женщина 1',
+          value: 'women/micah-1784914470498.svg',
+        },
+        {
+          label: 'Женщина 2',
+          value: 'women/micah-1784914502367.svg',
+        },
+        {
+          label: 'Женщина 3',
+          value: 'women/micah-1784914592082.svg',
+        },
+        {
+          label: 'Женщина 4',
+          value: 'women/micah-1784914647503.svg',
+        },
+        {
+          label: 'Женщина 5',
+          value: 'women/micah-1784914705338.svg',
+        },
+      ],
+      admin: {
+        description: 'Выберите предустановленный аватар. Если не выбрано, будет использовано загруженное фото.',
+      },
+    },
+    {
       name: 'avatar',
       type: 'upload',
       relationTo: 'media',
       label: 'Фото автора',
       admin: {
-        description: 'Опциональное фото для компонента testimonials.',
+        description: 'Опциональное фото для компонента testimonials. Используется если не выбран предустановленный аватар.',
       },
     },
     {
@@ -46,6 +96,14 @@ export const Reviews: CollectionConfig<'reviews'> = {
       type: 'textarea',
       label: 'Текст отзыва',
       required: true,
+    },
+    {
+      name: 'description',
+      type: 'text',
+      label: 'Описание (отображается под отзывом)',
+      admin: {
+        description: 'Опциональное описание, которое будет показано под отзывом. Если пусто, блок не будет отображаться.',
+      },
     },
     {
       name: 'isPublished',

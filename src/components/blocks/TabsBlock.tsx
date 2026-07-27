@@ -41,7 +41,7 @@ export function TabsBlock({ title, description, tabs, pageUrl }: TabsBlockProps)
           ) : null}
 
           {tabItems.length > 0 ? (
-            <MotionReveal amount={0.2} duration={0.8} y={18}>
+            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
               <AnimatedTabs
                 tabs={tabItems.map((tab, index) => {
                   const nestedBlocks = tab.layout ?? []

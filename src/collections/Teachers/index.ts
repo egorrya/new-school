@@ -34,6 +34,16 @@ export const Teachers: CollectionConfig<'teachers'> = {
       label: 'Должность',
     },
     {
+      name: 'startYear',
+      type: 'number',
+      label: 'Год начала работы',
+      min: 1950,
+      max: new Date().getFullYear(),
+      admin: {
+        description: 'Год, когда преподаватель начал работать в школе.',
+      },
+    },
+    {
       name: 'description',
       type: 'richText',
       label: 'Описание',

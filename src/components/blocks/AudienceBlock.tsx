@@ -28,7 +28,7 @@ export function AudienceBlock({ title, text, items }: AudienceBlockType) {
           />
 
           {audienceItems.length > 0 ? (
-            <MotionReveal amount={0.2} duration={0.8} y={18}>
+            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {audienceItems.map((item, index) => (
                   <Card

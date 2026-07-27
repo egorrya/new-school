@@ -1,7 +1,7 @@
 'use client'
 
-import type { TargetAndTransition, Transition } from 'framer-motion'
-import { motion, useInView, useReducedMotion } from 'framer-motion'
+import type { TargetAndTransition, Transition } from 'motion/react'
+import { motion, useInView, useReducedMotion } from 'motion/react'
 import { useRef } from 'react'
 
 import Marquee from '@/components/ui/marquee'
@@ -37,6 +37,7 @@ export function MarqueeStage({ items, className }: MarqueeStageProps) {
   const rootRef = useRef<HTMLDivElement | null>(null)
   const inView = useInView(rootRef, {
     amount: 0.35,
+    margin: '0px 0px -25% 0px',
     once: false,
   })
 

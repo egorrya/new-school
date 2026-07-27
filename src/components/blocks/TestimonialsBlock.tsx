@@ -11,7 +11,6 @@ import {
   PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
-import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import { TestimonialsCarousel } from './TestimonialsCarousel.client'
 import { toTestimonialItems } from './testimonials'
@@ -91,7 +90,7 @@ export async function TestimonialsBlock({
   const testimonials = toTestimonialItems(reviews)
 
   return (
-    <PageBlockSection className="flex min-h-[calc(100dvh-var(--site-header-height,0px))] items-center">
+    <PageBlockSection className="flex min-h-[calc(100dvh-var(--site-header-height,0px)-var(--site-secondary-header-height,0px))] items-center">
       <PageBlockContainer>
         <div className="space-y-8 py-8 sm:py-12 lg:py-16">
           {title || description ? (
@@ -105,9 +104,7 @@ export async function TestimonialsBlock({
           ) : null}
 
           {testimonials.length > 0 ? (
-            <MotionReveal amount={0.2} duration={0.8} y={18}>
-              <TestimonialsCarousel testimonials={testimonials} />
-            </MotionReveal>
+            <TestimonialsCarousel testimonials={testimonials} />
           ) : (
             <PageBlockEmptyState
               description="Добавьте опубликованные отзывы в Payload или выберите конкретные отзывы в настройках блока."

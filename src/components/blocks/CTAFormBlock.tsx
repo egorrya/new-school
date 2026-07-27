@@ -6,6 +6,8 @@ import { z } from 'zod'
 import { PageBlockContainer, PageBlockSection } from '@/components/shared/PageBlock'
 import { PageBlockHeader } from '@/components/shared/PageBlock'
 import { MotionReveal } from '@/components/shared/MotionReveal'
+import { SiteContacts, SiteSocialLinks } from '@/components/layout/SiteContacts'
+import { getGlobal } from '@/utilities/getGlobals'
 import {
   CTA_FORM_TYPES,
   buildCTAFormSubmissionKey,
@@ -59,7 +61,7 @@ function isDuplicateSubmissionError(error: unknown): boolean {
   )
 }
 
-export function CTAFormBlock({
+export async function CTAFormBlock({
   clubId,
   title,
   description,
@@ -67,6 +69,8 @@ export function CTAFormBlock({
   formType,
   pageUrl,
 }: Props) {
+  const siteSettings = await getGlobal('site-settings', 1)
+
   async function submitCTAForm(
     _previousState: CTAFormState,
     formData: FormData,
@@ -186,23 +190,29 @@ export function CTAFormBlock({
   return (
     <PageBlockSection>
       <PageBlockContainer>
-        <MotionReveal amount={0.2} duration={0.8} y={18}>
-          <div className="grid gap-0 overflow-hidden lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]">
-            <div className="border-b-2 border-border p-6 sm:p-8 lg:border-b-0 lg:border-r-2 lg:p-10">
+        <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+          <div className="grid items-center gap-0 overflow-hidden lg:grid-cols-12">
+            <div className="border-b-2 border-border p-6 sm:p-8 lg:border-b-0 lg:col-span-7 lg:p-10">
               <PageBlockHeader
-                description={description || 'Оставьте заявку, и мы свяжемся с вами.'}
-                title={title}
+                description={description}
+                title="Есть вопросы? Мы рядом"
                 titleClassName="text-2xl sm:text-3xl lg:text-4xl"
               />
+
+              <div className="mt-8 space-y-6">
+                <SiteContacts siteSettings={siteSettings} variant="plain" />
+                <SiteSocialLinks siteSettings={siteSettings} variant="icon" />
+              </div>
             </div>
 
-            <div className="p-6 sm:p-8 lg:p-10">
+            <div className="p-6 sm:p-8 lg:col-span-5 lg:p-10">
               <CTAFormClient
                 action={submitCTAForm as CTAFormAction}
                 buttonLabel={buttonLabel}
                 clubId={clubId}
                 formType={formType}
                 pageUrl={pageUrl}
+                title={title}
               />
             </div>
           </div>

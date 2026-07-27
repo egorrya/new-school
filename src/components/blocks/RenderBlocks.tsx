@@ -5,12 +5,14 @@ import type { Page } from '@/payload-types'
 import { AudienceBlock } from './AudienceBlock'
 import { CTAFormBlock } from './CTAFormBlock'
 import { CollectionGridBlock } from './CollectionGridBlock'
+import { FaqBlock } from './FaqBlock'
 import { FeatureCardsBlock } from './FeatureCardsBlock'
 import { HeroBlock } from './HeroBlock'
 import { MarqueeBlock } from './MarqueeBlock'
 import { ProgramBlock } from './ProgramBlock'
 import { ScheduleBlock } from './ScheduleBlock'
 import { TabsBlock } from './TabsBlock'
+import { TeacherListBlock } from './TeacherListBlock'
 import { TestimonialsBlock } from './TestimonialsBlock'
 import { TextImageBlock } from './TextImageBlock'
 
@@ -44,10 +46,14 @@ function renderBlock(block: PageBlock, pageUrl: string, isFirstBlock: boolean) {
       return <ScheduleBlock {...block} />
     case 'tabs':
       return <TabsBlock {...block} pageUrl={pageUrl} />
+    case 'teacherList':
+      return <TeacherListBlock {...block} />
     case 'testimonials':
       return <TestimonialsBlock {...block} />
     case 'collectionGrid':
       return <CollectionGridBlock {...block} />
+    case 'faq':
+      return <FaqBlock {...block} />
     case 'ctaForm':
       return <CTAFormBlock {...block} pageUrl={pageUrl} />
     default:

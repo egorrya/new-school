@@ -12,6 +12,8 @@ const badgeVariants = cva(
       variant: {
         default: "text-foreground",
         neutral: "text-foreground/70",
+        solid:
+          "rounded-base border-2 border-border bg-white px-2.5 py-1 text-xs text-foreground",
       },
     },
     defaultVariants: {

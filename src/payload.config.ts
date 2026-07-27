@@ -12,6 +12,7 @@ import { News } from './collections/News'
 import { Pages } from './collections/Pages'
 import { GalleryAlbums } from './collections/GalleryAlbums'
 import { Jobs } from './collections/Jobs'
+import { OrgInfoSections } from './collections/OrgInfoSections'
 import { Reviews } from './collections/Reviews'
 import { Teachers } from './collections/Teachers'
 import { Users } from './collections/Users'
@@ -91,6 +92,7 @@ export default buildConfig({
     Teachers,
     Reviews,
     Jobs,
+    OrgInfoSections,
     GalleryAlbums,
     FormSubmissions,
     Media,

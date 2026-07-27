@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
 
+import Link from "next/link"
 import * as React from "react"
 
 import { buttonVariants } from "@/components/ui/button"
@@ -25,7 +26,7 @@ function PaginationContent({
   return (
     <ul
       data-slot="pagination-content"
-      className={cn("flex flex-row items-center gap-1", className)}
+      className={cn("flex flex-row items-center gap-2", className)}
       {...props}
     />
   )
@@ -42,21 +43,21 @@ function PaginationLink({
   isActive,
   size = "icon",
   ...props
-}: React.ComponentProps<"a"> & {
+}: React.ComponentProps<typeof Link> & {
   isActive?: boolean
   size?: "default" | "sm" | "lg" | "icon"
 }) {
   return (
-    <a
+    <Link
       data-slot="pagination-link"
       aria-current={isActive ? "page" : undefined}
       className={cn(
         buttonVariants({
-          variant: "noShadow",
+          variant: isActive ? "noShadow" : "neutral",
           size,
         }),
+        size === "icon" && "h-10 w-10",
         className,
-        isActive && "bg-main text-main-foreground",
       )}
       {...props}
     />
@@ -71,8 +72,8 @@ function PaginationPrevious({
     <PaginationLink
       data-slot="pagination-previous"
       aria-label="На предыдущую страницу"
-      size="default"
-      className={cn("gap-1 pl-2.5", className)}
+      size="sm"
+      className={cn("gap-1 pl-3", className)}
       {...props}
     >
       <ChevronLeft className="size-4" />
@@ -89,8 +90,8 @@ function PaginationNext({
     <PaginationLink
       data-slot="pagination-next"
       aria-label="На следующую страницу"
-      size="default"
-      className={cn("gap-1 pr-2.5", className)}
+      size="sm"
+      className={cn("gap-1 pr-3", className)}
       {...props}
     >
       <span>Следующая</span>
@@ -107,7 +108,7 @@ function PaginationEllipsis({
     <span
       data-slot="pagination-ellipsis"
       aria-hidden
-      className={cn("flex size-9 items-center justify-center", className)}
+      className={cn("flex size-10 items-center justify-center", className)}
       {...props}
     >
       <MoreHorizontal className="size-4" />

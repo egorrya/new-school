@@ -7,5 +7,9 @@ export const getDocumentHref = (relationTo: string, slug?: string | null) => {
     return slug === 'home' ? '/' : `/${slug}`
   }
 
+  if (relationTo === 'org-info-sections') {
+    return `/organization-info/${slug}`
+  }
+
   return `/${relationTo}/${slug}`
 }

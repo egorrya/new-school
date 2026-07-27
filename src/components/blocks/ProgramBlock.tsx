@@ -26,7 +26,7 @@ export function ProgramBlock({ title, description, items }: ProgramBlockType) {
           />
 
           {programItems.length > 0 ? (
-            <MotionReveal amount={0.2} duration={0.8} y={18}>
+            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
               <ol className="grid gap-4">
                 {programItems.map((item, index) => (
                   <li key={item.id || `${item.title}-${index}`}>

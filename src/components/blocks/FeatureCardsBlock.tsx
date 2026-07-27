@@ -63,59 +63,61 @@ function FeatureIcon({ iconName, color }: { iconName?: string | null; color: str
   )
 }
 
-export function FeatureCardsBlock({ title, description, cards }: FeatureCardsBlockType) {
+function FeatureCard({
+  card,
+  index,
+}: {
+  card: { id?: string | null; text: string; iconName?: string | null }
+  index: number
+}) {
+  const color = featureIconColors[index % featureIconColors.length]
+
+  return (
+    <MotionReveal
+      amount={0.35}
+      blur={2}
+      delay={index * 0.3}
+      duration={0.47}
+      margin="0px 0px -25% 0px"
+      y={18}
+    >
+      <article className="flex h-full items-center gap-5 rounded-base border-2 border-border bg-card p-5 sm:gap-6 sm:p-6">
+        <div className="shrink-0">
+          <FeatureIcon iconName={card.iconName} color={color} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-medium leading-snug text-foreground sm:text-lg">
+            {card.text}
+          </p>
+        </div>
+      </article>
+    </MotionReveal>
+  )
+}
+
+export function FeatureCardsBlock({ title, description, hideTitle, cards }: FeatureCardsBlockType) {
   const featureCards = cards ?? []
 
   return (
     <PageBlockSection>
       <PageBlockContainer>
         <div className="space-y-8">
-          <PageBlockHeader
-            description={description || 'Краткое описание преимуществ пока не заполнено.'}
-            descriptionClassName="mx-auto w-full max-w-3xl text-center"
-            className="mx-auto flex max-w-4xl flex-col items-center text-center"
-            title={title}
-            titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
-          />
+          {!hideTitle && (
+            <PageBlockHeader
+              description={description}
+              descriptionClassName="mx-auto w-full max-w-3xl text-center"
+              className="mx-auto flex max-w-4xl flex-col items-center text-center"
+              title={title}
+              titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
+            />
+          )}
 
           {featureCards.length > 0 ? (
-            <MotionReveal amount={0.2} duration={0.8} y={18}>
-              <div className="grid gap-5 [grid-template-columns:repeat(auto-fit,minmax(min(100%,18rem),1fr))]">
-                {featureCards.map((card, index) => (
-                  <article className="w-full" key={card.id || `${card.title}-${index}`}>
-                    <div className="flex items-center gap-6">
-                      {card.iconName ? (
-                        <FeatureIcon
-                          color={featureIconColors[index % featureIconColors.length]}
-                          iconName={card.iconName}
-                        />
-                      ) : (
-                        <Card
-                          className="flex size-14 shrink-0 items-center justify-center rounded-[0.8rem] border-2 border-border text-white shadow-shadow sm:size-16"
-                          style={{
-                            backgroundColor: featureIconColors[index % featureIconColors.length],
-                          }}
-                        >
-                          <CardContent className="flex h-full w-full items-center justify-center p-0">
-                            <Sparkles className="size-7 sm:size-8" />
-                          </CardContent>
-                        </Card>
-                      )}
-
-                      <div className="min-w-0 text-left">
-                        <h3 className="font-heading text-lg leading-[1.1] sm:text-xl">
-                          {card.title}
-                        </h3>
-                      </div>
-                    </div>
-
-                    <p className="mt-5 max-w-2xl text-sm leading-relaxed text-foreground/80">
-                      {card.text || 'Описание этого пункта пока не добавлено.'}
-                    </p>
-                  </article>
-                ))}
-              </div>
-            </MotionReveal>
+            <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+              {featureCards.map((card, index) => (
+                <FeatureCard key={card.id || `${card.text}-${index}`} card={card} index={index} />
+              ))}
+            </div>
           ) : (
             <PageBlockEmptyState
               description="Добавьте столько пунктов, сколько нужно, чтобы этот блок начал работать."

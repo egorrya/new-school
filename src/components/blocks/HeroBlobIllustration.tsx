@@ -1,7 +1,8 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useState, type CSSProperties } from 'react'
+import { type CSSProperties, type ReactNode, useEffect, useState } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 
 import type { HeroBlock as HeroBlockType } from '@/payload-types'
 
@@ -28,69 +29,131 @@ function toMediaResource(resource?: HeroBlobIllustrationProps['blobImage']) {
   return typeof resource === 'object' && resource !== null ? resource : null
 }
 
+function OrnamentImage({ src, loading = 'lazy' }: { src: string; loading?: 'eager' | 'lazy' }) {
+  return (
+    <Image
+      alt=""
+      aria-hidden="true"
+      className="object-contain"
+      decoding="async"
+      fill
+      loading={loading}
+      sizes="12rem"
+      src={src}
+      unoptimized
+    />
+  )
+}
+
+type HeroRevealProps = {
+  children: ReactNode
+  className?: string
+  delay: number
+  shouldReduceMotion: boolean
+}
+
+function HeroReveal({ children, className, delay, shouldReduceMotion }: HeroRevealProps) {
+  if (shouldReduceMotion) {
+    return <div className={className}>{children}</div>
+  }
+
+  return (
+    <motion.div
+      className={className}
+      initial={{ opacity: 0, y: 12, scale: 0.985, filter: 'blur(2px)' }}
+      transition={{
+        delay,
+        duration: 0.72,
+        ease: 'easeOut',
+      }}
+      viewport={{ amount: 0.15, once: true }}
+      whileInView={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 export function HeroBlobIllustration({
   blobImage,
   kidsImage,
   showBlobBackground = true,
   customBlobPositioning = true,
 }: HeroBlobIllustrationProps) {
-  const [squiggleMarkup, setSquiggleMarkup] = useState<string | null>(null)
-  const [rightLineMarkup, setRightLineMarkup] = useState<string | null>(null)
-  const [dotGridMarkup, setDotGridMarkup] = useState<string | null>(null)
+  const shouldReduceMotion = useReducedMotion() ?? false
+  const [showBookoraa, setShowBookoraa] = useState(false)
+  const [showWiggleLine, setShowWiggleLine] = useState(false)
+  const [showStars, setShowStars] = useState(false)
   const blobResource = toMediaResource(blobImage)
   const kidsResource = toMediaResource(kidsImage)
 
   useEffect(() => {
-    const controller = new AbortController()
+    const bookoraaTimer = window.setTimeout(() => {
+      setShowBookoraa(true)
+    }, shouldReduceMotion ? 0 : 1500)
 
-    const loadOrnament = async (url: string) => {
-      try {
-        const response = await fetch(url, {
-          signal: controller.signal,
-        })
+    const wiggleTimer = window.setTimeout(() => {
+      setShowWiggleLine(true)
+    }, shouldReduceMotion ? 0 : 2500)
 
-        if (!response.ok) {
-          throw new Error(`Failed to load ornament: ${response.status}`)
-        }
+    const starsTimer = window.setTimeout(() => {
+      setShowStars(true)
+    }, shouldReduceMotion ? 0 : 4000)
 
-        return await response.text()
-      } catch (error) {
-        if (error instanceof DOMException && error.name === 'AbortError') {
-          return null
-        }
-
-        return null
-      }
+    return () => {
+      window.clearTimeout(bookoraaTimer)
+      window.clearTimeout(wiggleTimer)
+      window.clearTimeout(starsTimer)
     }
-
-    Promise.all([
-      loadOrnament('/media/hero-ornaments/squiggle.svg'),
-      loadOrnament('/media/hero-ornaments/right-line.svg'),
-      loadOrnament('/media/hero-ornaments/dot-grid.svg'),
-    ]).then(([squiggle, rightLine, dotGrid]) => {
-      setSquiggleMarkup(squiggle)
-      setRightLineMarkup(rightLine)
-      setDotGridMarkup(dotGrid)
-    })
-
-    return () => controller.abort()
-  }, [])
+  }, [shouldReduceMotion])
 
   return (
     <div
       aria-hidden="true"
-      className="pointer-events-none relative isolate aspect-[1448/1086] w-full max-w-none overflow-visible"
+      className="pointer-events-none relative isolate aspect-1448/1086 w-full max-w-none overflow-visible"
     >
-      <div className="absolute inset-0 z-[20] overflow-visible">
-        <div className="absolute bottom-[-16%] left-[-3%] h-[clamp(3.5rem,8vw,6rem)] w-[clamp(4.75rem,10vw,8rem)] rotate-[25deg] origin-center">
-          <div
-            className="h-full w-full [&_svg]:block [&_svg]:h-full [&_svg]:w-full"
-            dangerouslySetInnerHTML={squiggleMarkup ? { __html: squiggleMarkup } : undefined}
-          />
-        </div>
+      <div className="absolute inset-0 z-20 overflow-visible">
+        {showBookoraa ? (
+          <HeroReveal
+            className="absolute bottom-[-24%] left-[-10%] h-[clamp(7rem,16vw,12rem)] w-[clamp(9.5rem,20vw,16rem)] origin-center"
+            delay={0.3}
+            shouldReduceMotion={shouldReduceMotion}
+          >
+            <div className="relative h-full w-full">
+              <OrnamentImage loading="eager" src="/media/hero-ornaments/Bookoraa.svg" />
+            </div>
+          </HeroReveal>
+        ) : null}
 
-        <div className="absolute right-[-9%] bottom-[-19%] h-[clamp(5.25rem,11vw,8.5rem)] w-[clamp(11rem,17vw,18.5rem)] rotate-[25deg] origin-center">
-          <div className="relative h-full w-full">
+        <HeroReveal
+          className="absolute right-[-9%] bottom-[-16%] h-[clamp(5.25rem,11vw,8.5rem)] w-[clamp(11rem,17vw,18.5rem)] origin-center"
+          delay={2.25}
+          shouldReduceMotion={shouldReduceMotion}
+        >
+          <motion.div
+            className="relative h-full w-full"
+            initial={shouldReduceMotion ? false : { x: 0, rotate: 25 }}
+            animate={
+              shouldReduceMotion
+                ? undefined
+                : {
+                    x: [0, 9, 0, -9, 0],
+                    y: [0, -2, 0, 2, 0],
+                    rotate: [25, 27.5, 25, 22.5, 25],
+                  }
+            }
+            transition={
+              shouldReduceMotion
+                ? undefined
+                : {
+                    duration: 5.8,
+                    ease: 'easeInOut',
+                    repeat: Infinity,
+                    repeatType: 'loop',
+                  }
+            }
+            style={{ willChange: 'transform' }}
+          >
             <div className="absolute inset-0">
               <Image
                 alt=""
@@ -99,62 +162,96 @@ export function HeroBlobIllustration({
                 sizes="100vw"
                 src="/media/puzzle.webp"
                 className="object-contain"
-                priority
-                loading="eager"
+                loading="lazy"
                 unoptimized
               />
             </div>
+          </motion.div>
+        </HeroReveal>
+
+        {showWiggleLine ? (
+          <div className="absolute right-[-2%] top-[-1%] sm:top-[0%] h-[clamp(3rem,6vw,4.5rem)] w-[clamp(7rem,12vw,10rem)] rotate-25 origin-center">
+            <div className="relative h-full w-full">
+              <OrnamentImage loading="eager" src="/media/hero-ornaments/wiggle-line.svg" />
+            </div>
           </div>
-        </div>
-
-        <div className="absolute right-[-2%] top-[-3%] sm:top-[-2%] h-[clamp(3rem,6vw,4.5rem)] w-[clamp(7rem,12vw,10rem)] rotate-[8deg] origin-center">
-          <div
-            className="h-full w-full [&_svg]:block [&_svg]:h-full [&_svg]:w-full"
-            dangerouslySetInnerHTML={rightLineMarkup ? { __html: rightLineMarkup } : undefined}
-          />
-        </div>
+        ) : null}
       </div>
 
-      <div className="absolute left-[-2%] top-[-2%] z-[-1] h-[clamp(4.25rem,7.5vw,6.25rem)] w-[clamp(4.25rem,7.5vw,6.25rem)] origin-center">
-        <div
-          className="h-full w-full [&_svg]:block [&_svg]:h-full [&_svg]:w-full"
-          dangerouslySetInnerHTML={dotGridMarkup ? { __html: dotGridMarkup } : undefined}
-        />
-      </div>
+      {showStars ? (
+        <HeroReveal
+          className="absolute left-[-13%] top-[-16%] z-[-1] h-[clamp(12.75rem,22.5vw,18.75rem)] w-[clamp(12.75rem,22.5vw,18.75rem)] origin-center"
+          delay={0.36}
+          shouldReduceMotion={shouldReduceMotion}
+        >
+          <div className="relative h-full w-full">
+            <OrnamentImage loading="eager" src="/media/hero-ornaments/stars.svg" />
+          </div>
+        </HeroReveal>
+      ) : null}
 
       {showBlobBackground ? (
-        <div
+        <HeroReveal
           className={cn(
             'absolute z-0',
             customBlobPositioning
-              ? '-left-[18%] top-0 -right-[10%] -bottom-[9%] scale-x-[0.91] scale-y-[0.72] origin-center'
+              ? 'left-[-18%] top-0 right-[-10%] bottom-[-9%] scale-x-[0.91] scale-y-[0.72] origin-center'
               : 'inset-0',
           )}
+          delay={1.2}
+          shouldReduceMotion={shouldReduceMotion}
         >
-          <div className="absolute inset-0">
-            <ImageMedia
-              alt=""
-              fill
-              imgClassName="object-contain opacity-100"
-              pictureClassName="absolute inset-0"
-              priority
-              resource={blobResource}
-              src={blobResource ? undefined : blobFallback}
-            />
-          </div>
-        </div>
+          {shouldReduceMotion ? (
+            <div className="absolute inset-0">
+              <ImageMedia
+                alt=""
+                fill
+                imgClassName="object-contain opacity-100"
+                pictureClassName="absolute inset-0"
+                priority
+                resource={blobResource}
+                src={blobResource ? undefined : blobFallback}
+              />
+            </div>
+          ) : (
+            <motion.div
+              className="absolute inset-0"
+              initial={{ scale: 1 }}
+              animate={{ scale: [1, 1.15, 1] }}
+              transition={{
+                duration: 10.4,
+                ease: 'easeInOut',
+                repeat: Infinity,
+                repeatType: 'loop',
+              }}
+              style={{ willChange: 'transform' }}
+            >
+              <ImageMedia
+                alt=""
+                fill
+                imgClassName="object-contain opacity-100"
+                pictureClassName="absolute inset-0"
+                priority
+                resource={blobResource}
+                src={blobResource ? undefined : blobFallback}
+              />
+            </motion.div>
+          )}
+        </HeroReveal>
       ) : null}
       <div className="absolute inset-0 z-10">
-        <ImageMedia
-          alt=""
-          fill
-          imgClassName="origin-center object-contain scale-[1.08] sm:scale-[1.12]"
-          imgStyle={kidsImageFadeStyle}
-          pictureClassName="absolute inset-0"
-          priority
-          resource={kidsResource}
-          src={kidsResource ? undefined : kidsFallback}
-        />
+        <HeroReveal className="absolute inset-0" delay={0.85} shouldReduceMotion={shouldReduceMotion}>
+          <ImageMedia
+            alt=""
+            fill
+            imgClassName="origin-center object-contain scale-[1.08] sm:scale-[1.12]"
+            imgStyle={kidsImageFadeStyle}
+            pictureClassName="absolute inset-0"
+            priority
+            resource={kidsResource}
+            src={kidsResource ? undefined : kidsFallback}
+          />
+        </HeroReveal>
       </div>
     </div>
   )

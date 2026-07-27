@@ -38,6 +38,20 @@ export const Jobs: CollectionConfig<'jobs'> = {
       type: 'richText',
       label: 'Описание',
       editor: defaultLexical,
+      admin: {
+        description:
+          'Полный текст вакансии. Показывается на отдельной странице вакансии на сайте.',
+        condition: (_data, siblingData) => !siblingData?.externalUrl,
+      },
+    },
+    {
+      name: 'externalUrl',
+      type: 'text',
+      label: 'Внешняя ссылка',
+      admin: {
+        description:
+          'Если заполнено, карточка вакансии будет вести на этот адрес вместо страницы вакансии на сайте (описание выше при этом скрывается).',
+      },
     },
     {
       name: 'contactText',

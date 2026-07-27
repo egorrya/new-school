@@ -2,7 +2,7 @@
 
 import { animate } from 'motion'
 import { useEffect, useId, useRef, useState, type CSSProperties, type RefObject } from 'react'
-import { motion, useReducedMotion } from 'framer-motion'
+import { motion, useReducedMotion } from 'motion/react'
 
 import { cn } from '@/utilities/ui'
 
@@ -40,6 +40,27 @@ function GridPattern({ id, patternRef }: GridPatternProps) {
   )
 }
 
+/**
+ * This is meant to be rendered as the first child inside `main`, not as a
+ * viewport-fixed sibling — that's deliberate. `main` is the layer that has to
+ * stay opaque and scroll away for the footer reveal to work (see
+ * FooterReveal.client.tsx); a *globally* fixed background can never scroll
+ * away, so it would either permanently hide the footer (if stacked above it)
+ * or bleed through the footer's transparent gaps (if stacked below main
+ * without main covering it). Scoping it to `main` sidesteps that entirely —
+ * it's `main`'s own background, so once `main` ends, it's simply gone,
+ * leaving the footer on its own plain background.
+ *
+ * This has to be `position: sticky` with a *genuine* `h-screen` height, not
+ * a zero-height trick — verified empirically: a zero-height (or
+ * height-cancelled-by-margin) sticky element never releases from "stuck",
+ * because sticky's release is computed from the element's own real box
+ * overflowing its containing block, and a box with no net height never
+ * overflows anything. With a real height it releases correctly right as
+ * `main` ends. The `-100vh` it would otherwise push into the flow gets
+ * cancelled by a matching `marginTop: '-100vh'` on the sibling that wraps
+ * `main`'s real content (see layout.tsx) instead of on this element itself.
+ */
 export function InfiniteGridBackground({
   className,
   cellSize = 40,
@@ -141,7 +162,7 @@ export function InfiniteGridBackground({
   return (
     <div
       ref={rootRef}
-      className={cn('pointer-events-none fixed inset-0 -z-10 overflow-hidden', className)}
+      className={cn('pointer-events-none sticky top-0 h-screen overflow-hidden', className)}
       aria-hidden="true"
       style={
         {
@@ -150,8 +171,6 @@ export function InfiniteGridBackground({
         } as CSSProperties
       }
     >
-      <div className="absolute inset-0 bg-background" />
-
       <motion.div
         className="background-effects animate-background-drift absolute inset-0 scale-[1.02] motion-reduce:scale-100"
         initial={shouldReduceMotion ? false : { scale: 1.02 }}
@@ -169,8 +188,32 @@ export function InfiniteGridBackground({
         <GridPattern id={`${patternId}-active`} patternRef={activePatternRef} />
       </motion.div>
 
-      <div className="absolute right-[-20%] top-[-20%] h-[36%] w-[36%] rounded-full bg-[#FB5C18] opacity-100 blur-[110px]" />
-      <div className="absolute bottom-[-20%] left-[-14%] h-[36%] w-[36%] rounded-full bg-[#0878BA] opacity-100 blur-[110px]" />
+      <motion.div
+        className="absolute right-[-20%] top-[-20%] h-[36%] w-[36%] rounded-full bg-[#FB5C18] opacity-100 blur-[110px]"
+        initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.5 }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, scale: [0.5, 1.5, 0.5] }}
+        transition={
+          shouldReduceMotion
+            ? undefined
+            : {
+                opacity: { duration: 1.2, ease: 'easeOut' },
+                scale: { duration: 18, ease: 'easeInOut', repeat: Infinity },
+              }
+        }
+      />
+      <motion.div
+        className="absolute bottom-[-20%] left-[-14%] h-[36%] w-[36%] rounded-full bg-[#0878BA] opacity-100 blur-[110px]"
+        initial={shouldReduceMotion ? false : { opacity: 0, scale: 1.5 }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, scale: [1.5, 0.5, 1.5] }}
+        transition={
+          shouldReduceMotion
+            ? undefined
+            : {
+                opacity: { duration: 1.2, ease: 'easeOut', delay: 0.15 },
+                scale: { duration: 18, ease: 'easeInOut', repeat: Infinity },
+              }
+        }
+      />
     </div>
   )
 }

@@ -28,7 +28,7 @@ export function ScheduleBlock({ title, description, scheduleItems }: ScheduleBlo
           />
 
           {items.length > 0 ? (
-            <MotionReveal amount={0.2} duration={0.8} y={18}>
+            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
               <Card className="overflow-hidden bg-background/70">
                 <CardContent className="p-0">
                   <dl>

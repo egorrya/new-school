@@ -5,8 +5,8 @@ import deepMerge from '@/utilities/deepMerge'
 export type LinkAppearances = 'default' | 'outline'
 
 export const internalLinkCollections: Array<
-  'pages' | 'news' | 'clubs'
-> = ['pages', 'news', 'clubs']
+  'pages' | 'news' | 'clubs' | 'org-info-sections'
+> = ['pages', 'news', 'clubs', 'org-info-sections']
 
 export const appearanceOptions: Record<LinkAppearances, { label: string; value: string }> = {
   default: {

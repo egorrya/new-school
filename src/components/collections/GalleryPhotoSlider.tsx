@@ -14,9 +14,10 @@ type GalleryPhotoSliderProps = {
 export function GalleryPhotoSlider({ slides, className }: GalleryPhotoSliderProps) {
   return (
     <MotionReveal
-      amount={0.2}
+      amount={0.35}
+      blur={2}
       className={cn('will-change-[transform,opacity,filter]', className)}
-      duration={1.65}
+      duration={0.63}
       y={30}
     >
       <Skiper54 slides={slides} />

@@ -13,9 +13,10 @@ type GalleryScrollRevealProps = {
 export function GalleryScrollReveal({ children, className }: GalleryScrollRevealProps) {
   return (
     <MotionReveal
-      amount={0.2}
-      className={cn('will-change-transform', className)}
-      duration={1.05}
+      amount={0.35}
+      blur={2}
+      className={cn('will-change-[transform,opacity,filter]', className)}
+      duration={0.5}
       y={24}
     >
       {children}

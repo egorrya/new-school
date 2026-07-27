@@ -135,5 +135,34 @@ export const SiteSettings: GlobalConfig = {
         description: 'Показывается на кнопке заявки, если для страницы не задан свой текст.',
       },
     },
+    {
+      name: 'contactsSection',
+      type: 'group',
+      label: 'Контакты и карта перед подвалом',
+      admin: {
+        description:
+          'Блок с контактами, формой заявки и картой, который автоматически показывается внизу каждой страницы сайта перед подвалом.',
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          label: 'Показывать блок на всех страницах',
+          defaultValue: true,
+        },
+        {
+          name: 'mapEmbedUrl',
+          type: 'text',
+          label: 'Ссылка на карту (iframe)',
+          defaultValue:
+            'https://yandex.ru/map-widget/v1/?um=constructor%3Aa21aa33533bf1ac31fee26d61f75c2fcf44a922c63cbd5b4af848ae5f24ab52a&source=constructor',
+          admin: {
+            condition: (_, data) => data?.contactsSection?.enabled !== false,
+            description:
+              'Ссылка для встраивания карты (например, код конструктора карт Яндекс.Карт). Оставьте поле пустым, чтобы скрыть карту, но показывать контакты и форму.',
+          },
+        },
+      ],
+    },
   ],
 }

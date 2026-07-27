@@ -13,11 +13,14 @@ export const HeroBlock: Block = {
       type: 'text',
       label: 'Заголовок',
       required: true,
+      defaultValue: 'Школа, где детям интересно учиться',
     },
     {
       name: 'description',
       type: 'textarea',
       label: 'Описание',
+      defaultValue:
+        'Помогаем детям учиться, раскрывать способности и находить свои сильные стороны через занятия, проекты и живое общение',
       admin: {
         description: 'Краткий текст под заголовком.',
       },
@@ -64,6 +67,7 @@ export const HeroBlock: Block = {
       type: 'text',
       label: 'Текст первой кнопки',
       required: true,
+      defaultValue: 'Оставить заявку',
     },
     {
       name: 'primaryButtonLink',
@@ -72,19 +76,6 @@ export const HeroBlock: Block = {
       required: true,
       admin: {
         description: 'Адрес для первой кнопки.',
-      },
-    },
-    {
-      name: 'secondaryButtonLabel',
-      type: 'text',
-      label: 'Текст второй кнопки',
-    },
-    {
-      name: 'secondaryButtonLink',
-      type: 'text',
-      label: 'Ссылка второй кнопки',
-      admin: {
-        description: 'Адрес для второй кнопки.',
       },
     },
   ],

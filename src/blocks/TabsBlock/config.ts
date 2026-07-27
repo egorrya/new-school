@@ -3,9 +3,11 @@ import type { Block } from 'payload'
 import { AudienceBlock } from '@/blocks/AudienceBlock/config'
 import { CTAFormBlock } from '@/blocks/CTAFormBlock/config'
 import { CollectionGridBlock } from '@/blocks/CollectionGridBlock/config'
+import { FaqBlock } from '@/blocks/FaqBlock/config'
 import { FeatureCardsBlock } from '@/blocks/FeatureCardsBlock/config'
 import { ProgramBlock } from '@/blocks/ProgramBlock/config'
 import { ScheduleBlock } from '@/blocks/ScheduleBlock/config'
+import { TeacherListBlock } from '@/blocks/TeacherListBlock/config'
 import { TestimonialsBlock } from '@/blocks/TestimonialsBlock/config'
 import { TextImageBlock } from '@/blocks/TextImageBlock/config'
 import { defaultLexical } from '@/fields/defaultLexical'
@@ -16,8 +18,10 @@ const nestedTabBlocks: Block[] = [
   AudienceBlock,
   ProgramBlock,
   ScheduleBlock,
+  TeacherListBlock,
   TestimonialsBlock,
   CollectionGridBlock,
+  FaqBlock,
   CTAFormBlock,
 ]
 

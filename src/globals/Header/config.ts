@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { link } from '@/fields/link'
 import { authenticated } from '../../access/authenticated'
+import { revalidateHeader } from './hooks/revalidateHeader'
 
 export const Header: GlobalConfig = {
   slug: 'header',
@@ -12,6 +13,9 @@ export const Header: GlobalConfig = {
   access: {
     read: () => true,
     update: authenticated,
+  },
+  hooks: {
+    afterChange: [revalidateHeader],
   },
   fields: [
     {
@@ -27,6 +31,31 @@ export const Header: GlobalConfig = {
       admin: {
         initCollapsed: true,
         description: 'Ссылки для верхнего меню сайта.',
+      },
+    },
+    {
+      name: 'showSecondaryHeader',
+      type: 'checkbox',
+      label: 'Показать верхнюю строку (второй хедер)',
+      defaultValue: false,
+      admin: {
+        description: 'Включить или отключить отображение дополнительной строки ссылок над основной шапкой.',
+      },
+    },
+    {
+      name: 'secondaryHeaderLinks',
+      type: 'array',
+      label: 'Ссылки в верхней строке (второй хедер)',
+      maxRows: 6,
+      fields: [
+        link({
+          appearances: false,
+        }),
+      ],
+      admin: {
+        initCollapsed: true,
+        description:
+          'Дополнительная строка ссылок над основной шапкой. Не закреплена при прокрутке — исчезает вместе со страницей, когда посетитель прокручивает вниз.',
       },
     },
   ],

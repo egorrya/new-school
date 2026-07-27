@@ -225,7 +225,7 @@
   --chart-5: oklch(68% 0.12 255deg);
   --radius: 0.75rem;
   --school-radius-base: 0.75rem;
-  --school-shadow: 0 0.85rem 1.9rem rgb(255 255 255 / 0.7);
+  --school-shadow: none;
   --school-shadow-offset-x: 0rem;
   --school-shadow-offset-y: 0.15rem;
   --school-font-base: var(--font-montserrat);
@@ -252,7 +252,7 @@
   --accent-sky: oklch(92.5% 0.05 236deg);
   --accent-sun: oklch(90.5% 0.14 92deg);
   --school-grid-line: rgb(18 14 10 / 0.045);
-  --site-header-height: 5rem;
+  --site-header-height: 8.75rem;
   --site-header-logo-height: 3rem;
   --site-header-logo-height-expanded: 7rem;
   --site-header-top-offset: 0.25rem;
@@ -260,7 +260,7 @@
 
 @variant sm {
   :root {
-    --site-header-height: 6.25rem;
+    --site-header-height: 10.5rem;
     --site-header-logo-height: 3.5rem;
     --site-header-logo-height-expanded: 8.25rem;
     --site-header-top-offset: 0.5rem;

@@ -13,6 +13,7 @@ export const FeatureCardsBlock: Block = {
       type: 'text',
       label: 'Заголовок',
       required: true,
+      defaultValue: 'Почему мы?',
     },
     {
       name: 'description',
@@ -20,6 +21,14 @@ export const FeatureCardsBlock: Block = {
       label: 'Описание',
       admin: {
         description: 'Краткий текст перед пунктами.',
+      },
+    },
+    {
+      name: 'hideTitle',
+      type: 'checkbox',
+      label: 'Скрыть заголовок',
+      admin: {
+        description: 'Если отмечено, заголовок не будет отображаться.',
       },
     },
     {
@@ -35,20 +44,38 @@ export const FeatureCardsBlock: Block = {
         description: 'Добавьте столько пунктов, сколько нужно.',
         initCollapsed: true,
       },
-      fields: [
+      defaultValue: [
         {
-          name: 'title',
-          type: 'text',
-          label: 'Заголовок',
-          required: true,
+          text: 'Опытные учителя с профильным образованием',
+          iconName: 'graduation-cap',
         },
+        {
+          text: 'Все предметы по ФГОС. Высокий уровень знаний',
+          iconName: 'book-open',
+        },
+        {
+          text: 'Индивидуальный подход к способностям каждого ребенка',
+          iconName: 'users',
+        },
+        {
+          text: 'Дополнительный английский и шахматы в расписании',
+          iconName: 'calendar-days',
+        },
+        {
+          text: 'Работа в элементах лучших финских образовательных технологий',
+          iconName: 'lightbulb',
+        },
+        {
+          text: 'Коммуникативная методика при изучении английского языка',
+          iconName: 'heart-handshake',
+        },
+      ],
+      fields: [
         {
           name: 'text',
           type: 'textarea',
-          label: 'Текст',
-          admin: {
-            description: 'Короткое пояснение к пункту.',
-          },
+          label: 'Заголовок',
+          required: true,
         },
         {
           name: 'image',
