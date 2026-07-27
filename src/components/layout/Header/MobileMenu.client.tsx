@@ -18,40 +18,26 @@ type MobileMenuProps = {
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
-const panelVariants: Variants = {
-  hidden: { x: '100%', opacity: 0.6 },
-  visible: {
-    x: 0,
-    opacity: 1,
-    transition: { type: 'spring', stiffness: 320, damping: 34, mass: 0.9 },
-  },
-  exit: {
-    x: '100%',
-    opacity: 0.6,
-    transition: { duration: 0.32, ease: EASE_OUT },
-  },
+const overlayVariants: Variants = {
+  hidden: { opacity: 0, backdropFilter: 'blur(0px)' },
+  visible: { opacity: 1, backdropFilter: 'blur(6px)', transition: { duration: 0.3, ease: EASE_OUT } },
+  exit: { opacity: 0, backdropFilter: 'blur(0px)', transition: { duration: 0.25, ease: EASE_OUT } },
 }
 
 const listVariants: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.06, delayChildren: 0.16 } },
-  exit: { transition: { staggerChildren: 0.03, staggerDirection: -1 } },
+  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
+  exit: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
 }
 
-const itemVariants: Variants = {
-  hidden: { opacity: 0, x: 28, filter: 'blur(4px)' },
+const bubbleVariants: Variants = {
+  hidden: { opacity: 0, scale: 0.4 },
   visible: {
     opacity: 1,
-    x: 0,
-    filter: 'blur(0px)',
-    transition: { type: 'spring', stiffness: 320, damping: 26 },
+    scale: 1,
+    transition: { type: 'spring', stiffness: 340, damping: 22 },
   },
-  exit: { opacity: 0, x: 16, filter: 'blur(2px)', transition: { duration: 0.15 } },
-}
-
-const linkHoverVariants: Variants = {
-  rest: { x: 0 },
-  hover: { x: 6, transition: { type: 'spring', stiffness: 420, damping: 24 } },
+  exit: { opacity: 0, scale: 0.4, transition: { duration: 0.16, ease: EASE_OUT } },
 }
 
 const arrowHoverVariants: Variants = {
@@ -59,10 +45,13 @@ const arrowHoverVariants: Variants = {
   hover: { opacity: 1, x: 0, rotate: 0, transition: { type: 'spring', stiffness: 420, damping: 22 } },
 }
 
-const pillHoverVariants: Variants = {
-  rest: { opacity: 0, scale: 0.92 },
-  hover: { opacity: 1, scale: 1, transition: { duration: 0.18, ease: EASE_OUT } },
-}
+const PILL_ACCENTS = [
+  { bg: 'var(--main)', fg: 'var(--main-foreground)' },
+  { bg: 'var(--accent-sun)', fg: 'var(--foreground)' },
+  { bg: 'var(--accent-green)', fg: 'var(--foreground)' },
+  { bg: 'var(--accent-coral)', fg: 'var(--foreground)' },
+  { bg: 'var(--accent-sky)', fg: 'var(--foreground)' },
+]
 
 export function MobileMenu({ header, siteSettings }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
@@ -118,93 +107,94 @@ export function MobileMenu({ header, siteSettings }: MobileMenuProps) {
           <Dialog.Portal forceMount>
             <Dialog.Overlay asChild forceMount>
               <motion.div
-                animate={{ opacity: 1, backdropFilter: 'blur(6px)' }}
-                className="fixed inset-0 z-[60] bg-overlay"
-                exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-                initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-                transition={{ duration: 0.3, ease: EASE_OUT }}
+                {...motionProps}
+                className="fixed inset-0 z-60 bg-overlay"
+                variants={shouldReduceMotion ? undefined : overlayVariants}
               />
             </Dialog.Overlay>
 
             <Dialog.Content asChild forceMount>
-              <motion.div
-                {...motionProps}
-                className="fixed inset-y-0 right-0 z-[60] flex h-full w-[85vw] max-w-sm flex-col gap-6 border-l-2 border-border bg-background px-6 pt-6 pb-10"
-                variants={panelVariants}
-              >
-                <div className="flex items-center justify-end">
-                  <Dialog.Title className="sr-only">Меню</Dialog.Title>
-                  <Dialog.Close asChild>
-                    <Button aria-label="Закрыть меню" size="icon" variant="neutral">
-                      <X aria-hidden="true" className="size-5" />
-                    </Button>
-                  </Dialog.Close>
-                </div>
+              <div className="fixed inset-0 z-60 flex flex-col overflow-y-auto px-4 pt-24 pb-10 sm:px-6">
+                <Dialog.Title className="sr-only">Меню</Dialog.Title>
+                <Dialog.Close asChild>
+                  <Button
+                    aria-label="Закрыть меню"
+                    className="fixed top-4 right-4 sm:top-6 sm:right-6"
+                    size="icon"
+                    variant="neutral"
+                  >
+                    <X aria-hidden="true" className="size-5" />
+                  </Button>
+                </Dialog.Close>
 
-                <motion.div
-                  className="flex min-h-0 flex-1 flex-col gap-6"
-                  variants={shouldReduceMotion ? undefined : listVariants}
+                <motion.ul
                   {...motionProps}
+                  aria-label="Мобильное меню"
+                  className="m-0 flex w-full max-w-md flex-1 list-none flex-col justify-center gap-3 self-center py-16"
+                  role="menu"
+                  variants={shouldReduceMotion ? undefined : listVariants}
                 >
-                  <nav aria-label="Мобильное меню" className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
-                    {navigationLinks.map((item) => {
-                      const href = resolveHref(item.link)
+                  {navigationLinks.map((item, index) => {
+                    const href = resolveHref(item.link)
 
-                      if (!href) {
-                        return null
-                      }
+                    if (!href) {
+                      return null
+                    }
 
-                      const isExternal =
-                        href.startsWith('http') ||
-                        href.startsWith('mailto:') ||
-                        href.startsWith('tel:')
+                    const isExternal =
+                      href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
 
-                      const linkProps = {
-                        className: 'relative flex items-center justify-between gap-3 px-3 py-3',
-                        href,
-                        onClick: () => setOpen(false),
-                        rel: item.link.newTab ? 'noopener noreferrer' : undefined,
-                        target: item.link.newTab ? '_blank' : undefined,
-                      }
+                    const linkProps = {
+                      className: 'flex w-full items-center justify-between gap-3',
+                      href,
+                      onClick: () => setOpen(false),
+                      rel: item.link.newTab ? 'noopener noreferrer' : undefined,
+                      target: item.link.newTab ? '_blank' : undefined,
+                    }
 
-                      const linkBody = (
-                        <>
-                          <motion.span
-                            className="pointer-events-none absolute inset-y-0 inset-x-0 -z-10 rounded-base bg-secondary-background"
-                            variants={pillHoverVariants}
-                          />
-                          <motion.span className="text-lg font-medium text-foreground" variants={linkHoverVariants}>
-                            {item.link.label}
-                          </motion.span>
-                          <motion.span className="text-foreground/60" variants={arrowHoverVariants}>
-                            <ArrowRight aria-hidden="true" className="size-5" />
-                          </motion.span>
-                        </>
-                      )
+                    const accent = PILL_ACCENTS[index % PILL_ACCENTS.length]
 
-                      return (
-                        <motion.div key={item.id || item.link.label} variants={itemVariants}>
-                          <motion.div initial="rest" whileHover="hover" whileTap={{ scale: 0.97 }}>
-                            {isExternal ? (
-                              <a {...linkProps}>{linkBody}</a>
-                            ) : (
-                              <Link {...linkProps}>{linkBody}</Link>
-                            )}
-                          </motion.div>
+                    const linkBody = (
+                      <>
+                        <span className="text-lg font-semibold">{item.link.label}</span>
+                        <motion.span variants={arrowHoverVariants}>
+                          <ArrowRight aria-hidden="true" className="size-5" />
+                        </motion.span>
+                      </>
+                    )
+
+                    return (
+                      <motion.li key={item.id || item.link.label} role="none" variants={bubbleVariants}>
+                        <motion.div
+                          className="rounded-full border-2 border-border shadow-[0.25rem_0.25rem_0_0_#222] transition-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                          initial="rest"
+                          style={{ background: accent.bg, color: accent.fg }}
+                          whileHover="hover"
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          {isExternal ? (
+                            <a {...linkProps} className={`${linkProps.className} rounded-full px-6 py-4`}>
+                              {linkBody}
+                            </a>
+                          ) : (
+                            <Link {...linkProps} className={`${linkProps.className} rounded-full px-6 py-4`}>
+                              {linkBody}
+                            </Link>
+                          )}
                         </motion.div>
-                      )
-                    })}
-                  </nav>
+                      </motion.li>
+                    )
+                  })}
 
-                  <motion.div className="mt-auto" variants={itemVariants}>
+                  <motion.li className="mt-3" role="none" variants={bubbleVariants}>
                     <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}>
                       <Button asChild className="w-full shadow-none" onClick={() => setOpen(false)}>
                         <Link href="/clubs">{applicationText}</Link>
                       </Button>
                     </motion.div>
-                  </motion.div>
-                </motion.div>
-              </motion.div>
+                  </motion.li>
+                </motion.ul>
+              </div>
             </Dialog.Content>
           </Dialog.Portal>
         ) : null}
