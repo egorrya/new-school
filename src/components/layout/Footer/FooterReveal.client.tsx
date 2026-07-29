@@ -69,7 +69,7 @@ export function FooterReveal({ className, brand, navigation, legal }: FooterReve
             style={shouldReduceMotion ? undefined : { opacity }}
           >
             <div>{brand}</div>
-            <div>{navigation}</div>
+            <div className="min-w-0 max-w-xs">{navigation}</div>
             <div>{legal}</div>
           </motion.div>
         </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import Link from 'next/link'
-import { type MouseEvent, useLayoutEffect, useRef } from 'react'
+import { type MouseEvent, useEffect, useLayoutEffect, useRef } from 'react'
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react'
 
 import { cn } from '@/utilities/ui'
@@ -21,6 +21,8 @@ type TabsNavProps = {
 export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const navRef = useRef<HTMLDivElement | null>(null)
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null)
+  const tabLinkRefs = useRef(new Map<string, HTMLAnchorElement>())
 
   useLayoutEffect(() => {
     const nav = navRef.current
@@ -51,6 +53,40 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
     }
   }, [])
 
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current
+    const activeLink = tabLinkRefs.current.get(activeId)
+
+    if (!scrollContainer || !activeLink) {
+      return
+    }
+
+    const frameId = window.requestAnimationFrame(() => {
+      const maxScrollLeft = scrollContainer.scrollWidth - scrollContainer.clientWidth
+
+      if (maxScrollLeft <= 0) {
+        return
+      }
+
+      const containerRect = scrollContainer.getBoundingClientRect()
+      const activeRect = activeLink.getBoundingClientRect()
+      const targetLeft =
+        scrollContainer.scrollLeft +
+        activeRect.left -
+        containerRect.left -
+        (containerRect.width - activeRect.width) / 2
+
+      scrollContainer.scrollTo({
+        behavior: shouldReduceMotion ? 'auto' : 'smooth',
+        left: Math.min(maxScrollLeft, Math.max(0, targetLeft)),
+      })
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+    }
+  }, [activeId, shouldReduceMotion])
+
   if (tabs.length === 0) {
     return null
   }
@@ -69,7 +105,7 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
       <motion.div
         ref={navRef}
         className={cn(
-          'sticky z-30 mx-auto flex w-full justify-center',
+          'container z-30 mx-auto flex justify-center sm:sticky',
           className,
         )}
         animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
@@ -77,8 +113,14 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
         transition={{ duration: 0.45, ease: 'easeOut' }}
         style={{ top: 'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + 0.25rem)' }}
       >
-        <div className="inline-flex max-w-full overflow-x-auto rounded-full border-2 border-foreground bg-background p-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-          <nav aria-label="Вкладки" className="inline-flex min-w-max items-center gap-1.5">
+        <div
+          ref={scrollContainerRef}
+          className="flex max-w-full overflow-x-auto rounded-full border-2 border-foreground bg-background p-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
+          <nav
+            aria-label="Вкладки"
+            className="flex min-w-max items-center gap-1.5"
+          >
             {tabs.map((tab) => {
               const isActive = tab.id === activeId
 
@@ -92,6 +134,13 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
                   )}
                   href={`#${tab.id}`}
                   onClick={(event) => handleTabClick(event, tab.id)}
+                  ref={(node) => {
+                    if (node) {
+                      tabLinkRefs.current.set(tab.id, node)
+                    } else {
+                      tabLinkRefs.current.delete(tab.id)
+                    }
+                  }}
                 >
                   {isActive ? (
                     <motion.span

@@ -2316,6 +2316,10 @@ export interface Footer {
    * Например: © 2026 Новая школа
    */
   copyrightText?: string | null;
+  /**
+   * Реквизиты и лицензия, отображаются в третьей колонке подвала.
+   */
+  legalEntityText?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2433,6 +2437,7 @@ export interface FooterSelect<T extends boolean = true> {
         id?: T;
       };
   copyrightText?: T;
+  legalEntityText?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

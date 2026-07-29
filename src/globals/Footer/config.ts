@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { link } from '@/fields/link'
 import { authenticated } from '../../access/authenticated'
+import { defaultLegalEntityText } from './defaults'
 import { revalidateFooter } from './hooks/revalidateFooter'
 
 export const Footer: GlobalConfig = {
@@ -54,6 +55,15 @@ export const Footer: GlobalConfig = {
       label: 'Текст копирайта',
       admin: {
         description: 'Например: © 2026 Новая школа',
+      },
+    },
+    {
+      name: 'legalEntityText',
+      type: 'textarea',
+      label: 'Юридическая информация',
+      defaultValue: defaultLegalEntityText,
+      admin: {
+        description: 'Реквизиты и лицензия, отображаются в третьей колонке подвала.',
       },
     },
   ],

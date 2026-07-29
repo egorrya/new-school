@@ -28,8 +28,8 @@ const staggerContainer = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.4,
-      delayChildren: 0.1,
+      staggerChildren: 0.2,
+      delayChildren: 0.05,
     },
   },
 }
@@ -40,9 +40,11 @@ const staggerItem = {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
-    transition: { duration: 0.5, ease: 'easeOut' as const },
+    transition: { duration: 0.25, ease: 'easeOut' as const },
   },
 }
+
+const contactsRevealViewport = { amount: 0.1, margin: '0px 0px 15% 0px', once: true } as const
 
 function VkIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -172,7 +174,7 @@ export function SiteSocialLinks({
         className={cn('flex flex-wrap gap-3', className)}
         initial={shouldReduceMotion ? undefined : 'hidden'}
         variants={shouldReduceMotion ? undefined : staggerContainer}
-        viewport={{ amount: 0.4, margin: '0px 0px -10% 0px', once: false }}
+        viewport={contactsRevealViewport}
         whileInView={shouldReduceMotion ? undefined : 'visible'}
       >
         {socialLinks.map((item) => {
@@ -257,7 +259,7 @@ export function SiteContacts({ siteSettings, className, variant = 'card' }: Site
         className={cn('flex flex-col gap-4', className)}
         initial={shouldReduceMotion ? undefined : 'hidden'}
         variants={shouldReduceMotion ? undefined : staggerContainer}
-        viewport={{ amount: 0.4, margin: '0px 0px -10% 0px', once: false }}
+        viewport={contactsRevealViewport}
         whileInView={shouldReduceMotion ? undefined : 'visible'}
       >
         {contactEntries.map((item) => {

@@ -10,19 +10,25 @@ import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import { Card, CardContent } from '@/components/ui/card'
 
-export function ProgramBlock({ hideHeader, title, description, items }: ProgramBlockType) {
+export function ProgramBlock({
+  hideHeader,
+  title,
+  description,
+  items,
+  insideTabs,
+}: ProgramBlockType & { insideTabs?: boolean }) {
   const programItems = items ?? []
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
+      <PageBlockContainer container={!insideTabs}>
         <div className="space-y-8">
           {hideHeader ? null : (
             <PageBlockHeader
-              className="mx-auto max-w-4xl text-center"
+              className={insideTabs ? undefined : 'mx-auto max-w-4xl text-center'}
               description={description || 'Описание программы пока не заполнено.'}
-              descriptionClassName="mx-auto max-w-3xl text-center"
-              title={title}
+              descriptionClassName={insideTabs ? 'max-w-3xl' : 'mx-auto max-w-3xl text-center'}
+              title={insideTabs ? null : title}
               titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
             />
           )}

@@ -8,6 +8,7 @@ import { useEffect, useState, type CSSProperties } from 'react'
 
 import type { Header, SiteSetting } from '@/payload-types'
 
+import { SiteSocialLinks } from '@/components/layout/SiteContacts'
 import { Button } from '@/components/ui/button'
 import { getItemTextColor, itemBackgroundColors } from '@/components/ui/marquee'
 import { resolveHref } from './Nav'
@@ -85,7 +86,7 @@ const pillSizeClassName = cn(
 )
 
 const requiredNavigationPillSizeClassName = cn(
-  'min-h-[72px] w-auto max-w-[calc(100%-1.5rem)] px-4 py-4 font-medium whitespace-nowrap',
+  'min-h-[80px] px-6 py-[clamp(1rem,2vw,2rem)] font-medium whitespace-nowrap',
   'min-[900px]:min-h-[130px] min-[900px]:max-w-[calc(100%-4rem)] min-[900px]:px-8 min-[900px]:py-[clamp(1rem,2vw,3rem)] min-[900px]:font-normal',
 )
 
@@ -220,7 +221,8 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
 
     const isExternal =
       href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
-    const rotation = isDesktop && !isRequiredNavigation ? PILL_ROTATIONS[index % PILL_ROTATIONS.length] : 0
+    const rotation =
+      isDesktop && !isRequiredNavigation ? PILL_ROTATIONS[index % PILL_ROTATIONS.length] : 0
     const hoverBg = itemBackgroundColors[index % itemBackgroundColors.length]
 
     const sharedClassName = cn(
@@ -231,7 +233,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
       '--pill-hover-bg': hoverBg,
       '--pill-hover-text': getItemTextColor(hoverBg),
       fontSize: isRequiredNavigation
-        ? 'clamp(0.55rem, calc((100vw - 3rem) / 34), 3.4rem)'
+        ? 'clamp(0.72rem, calc((100vw - 3rem) / 28), 3.4rem)'
         : undefined,
     } as CSSProperties
 
@@ -260,7 +262,9 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
         key={key}
         role="none"
         variants={shouldReduceMotion ? undefined : bubbleVariants}
-        whileHover={shouldReduceMotion ? undefined : { scale: 1.06, transition: itemHoverTransition }}
+        whileHover={
+          shouldReduceMotion ? undefined : { scale: 1.06, transition: itemHoverTransition }
+        }
         whileTap={shouldReduceMotion ? undefined : { scale: 0.94, transition: itemTapTransition }}
       >
         {onExpand ? (
@@ -324,7 +328,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
 
           <Dialog.Content asChild forceMount>
             <div
-              className="fixed inset-0 z-60 flex cursor-pointer flex-col items-center justify-center overflow-y-auto px-4 pt-24 pb-10 sm:px-6"
+              className="fixed inset-0 z-60 flex cursor-pointer flex-col items-center justify-center overflow-y-auto px-4 pt-24 pb-28 sm:px-6 min-[900px]:pb-10"
               onClick={handleBackdropClick}
             >
               <Dialog.Title className="sr-only">Меню</Dialog.Title>
@@ -419,9 +423,15 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
                             className="h-auto min-h-18 w-full rounded-full py-4 text-lg shadow-none min-[900px]:min-h-24 min-[900px]:text-2xl"
                             onClick={closeMenu}
                           >
-                            <Link className="flex select-none items-center justify-center gap-2" href="/contacts">
+                            <Link
+                              className="flex select-none items-center justify-center gap-2"
+                              href="/contacts"
+                            >
                               {applicationText}
-                              <ArrowRight aria-hidden="true" className="size-5 min-[900px]:size-6" />
+                              <ArrowRight
+                                aria-hidden="true"
+                                className="size-5 min-[900px]:size-6"
+                              />
                             </Link>
                           </Button>
                         </motion.li>
@@ -430,6 +440,17 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
                   </AnimatePresence>
                 </div>
               </LayoutGroup>
+
+              <div
+                className="fixed inset-x-0 bottom-0 z-10 flex cursor-default justify-center px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] min-[900px]:hidden"
+                onClick={(event) => event.stopPropagation()}
+              >
+                <SiteSocialLinks
+                  className="pointer-events-auto justify-center gap-6 rounded-full border-2 border-border bg-white px-5 py-3 shadow-shadow"
+                  siteSettings={siteSettings}
+                  variant="plain"
+                />
+              </div>
             </div>
           </Dialog.Content>
         </Dialog.Portal>

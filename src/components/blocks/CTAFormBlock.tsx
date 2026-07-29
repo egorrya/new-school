@@ -24,6 +24,7 @@ type Props = {
   buttonLabel: string
   description?: string | null
   formType: CTAFormType
+  insideTabs?: boolean
   pageUrl: string
   title: string
 }
@@ -68,6 +69,7 @@ export async function CTAFormBlock({
   description,
   buttonLabel,
   formType,
+  insideTabs,
   pageUrl,
 }: Props) {
   const siteSettings = clubId ? undefined : await getGlobal('site-settings', 1)
@@ -190,14 +192,14 @@ export async function CTAFormBlock({
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
-        <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+      <PageBlockContainer container={!insideTabs}>
+        <MotionReveal amount={0.1} blur={2} duration={0.235} margin="0px 0px 15% 0px" once y={18}>
           <div className={cn('grid items-center gap-0 overflow-hidden', !clubId && 'lg:grid-cols-12')}>
             {!clubId ? (
-              <div className="p-6 sm:p-8 lg:col-span-7 lg:p-10">
+              <div className="py-6 sm:p-8 lg:col-span-7 lg:p-10">
                 <PageBlockHeader
                   description={description}
-                  title="Есть вопросы? Мы рядом"
+                  title={insideTabs ? null : 'Есть вопросы? Мы рядом'}
                   titleClassName="text-2xl sm:text-3xl lg:text-4xl"
                 />
 
@@ -208,7 +210,7 @@ export async function CTAFormBlock({
               </div>
             ) : null}
 
-            <div className={cn('p-6 sm:p-8 lg:p-10', !clubId && 'lg:col-span-5')}>
+            <div className={cn('py-6 sm:p-8 lg:p-10', !clubId && 'lg:col-span-5')}>
               <CTAFormClient
                 action={submitCTAForm as CTAFormAction}
                 buttonLabel={buttonLabel}

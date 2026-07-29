@@ -3,16 +3,27 @@ import * as React from 'react'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import { cn } from '@/utilities/ui'
 
-type PageBlockSectionProps = React.ComponentProps<'section'>
-
-export function PageBlockSection({ className, ...props }: PageBlockSectionProps) {
-  return <section className={cn('py-8 sm:py-12 lg:py-16', className)} {...props} />
+type PageBlockSectionProps = React.ComponentProps<'section'> & {
+  spacing?: 'default' | 'none'
 }
 
-type PageBlockContainerProps = React.ComponentProps<'div'>
+export function PageBlockSection({
+  className,
+  spacing = 'default',
+  ...props
+}: PageBlockSectionProps) {
+  return (
+    <section
+      className={cn(spacing === 'default' && 'py-8 sm:py-12 lg:py-16', className)}
+      {...props}
+    />
+  )
+}
 
-export function PageBlockContainer({ className, ...props }: PageBlockContainerProps) {
-  return <div className={cn('container', className)} {...props} />
+type PageBlockContainerProps = React.ComponentProps<'div'> & { container?: boolean }
+
+export function PageBlockContainer({ className, container = true, ...props }: PageBlockContainerProps) {
+  return <div className={cn(container && 'container', className)} {...props} />
 }
 
 type PageBlockSurfaceProps = React.ComponentProps<'div'>
@@ -27,7 +38,7 @@ export function PageBlockSurface({ className, ...props }: PageBlockSurfaceProps)
 }
 
 type PageBlockHeaderProps = {
-  title: string
+  title?: string | null
   description?: string | null
   className?: string
   titleClassName?: string
@@ -66,16 +77,18 @@ export function PageBlockHeader({
 }: PageBlockHeaderProps) {
   return (
     <div className={cn('space-y-3', className)}>
-      <MotionReveal amount={0.35} duration={0.47} margin="0px 0px -25% 0px" y={14}>
-        {renderHeading(
-          headingLevel,
-          cn(
-            'max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl',
-            titleClassName,
-          ),
-          title,
-        )}
-      </MotionReveal>
+      {title ? (
+        <MotionReveal amount={0.35} duration={0.47} margin="0px 0px -25% 0px" y={14}>
+          {renderHeading(
+            headingLevel,
+            cn(
+              'max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl',
+              titleClassName,
+            ),
+            title,
+          )}
+        </MotionReveal>
+      ) : null}
       {description ? (
         <MotionReveal
           amount={0.35}

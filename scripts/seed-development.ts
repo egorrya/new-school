@@ -5,6 +5,7 @@ import path from 'path'
 import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
+import { defaultLegalEntityText } from '@/globals/Footer/defaults'
 import type { Header } from '@/payload-types'
 
 type SeedMediaInput = {
@@ -583,6 +584,7 @@ function makeRichTextMixed(blocks: RichTextBlockInput[]) {
 }
 
 type NavigationLink = NonNullable<Header['navigationLinks']>[number]
+type NavigationSubLink = NonNullable<NavigationLink['subLinks']>[number]
 
 function makePageNavigationLink(label: string, pageId: number): NavigationLink {
   return {
@@ -598,7 +600,32 @@ function makePageNavigationLink(label: string, pageId: number): NavigationLink {
   }
 }
 
+function makePageNavigationSubLink(label: string, pageId: number): NavigationSubLink {
+  return {
+    link: {
+      label,
+      newTab: false,
+      reference: {
+        relationTo: 'pages',
+        value: pageId,
+      },
+      type: 'reference',
+    },
+  }
+}
+
 function makeUrlNavigationLink(label: string, url: string): NavigationLink {
+  return {
+    link: {
+      label,
+      newTab: false,
+      type: 'custom',
+      url,
+    },
+  }
+}
+
+function makeUrlNavigationSubLink(label: string, url: string): NavigationSubLink {
   return {
     link: {
       label,
@@ -671,6 +698,42 @@ async function upsertPublishedDoc(
   }
 
   return payload.create(createOptions)
+}
+
+async function unlockPageDocument(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  pageId: number,
+) {
+  const locks = await payload.find({
+    collection: 'payload-locked-documents',
+    depth: 0,
+    limit: 100,
+    overrideAccess: true,
+    pagination: false,
+    where: {
+      and: [
+        {
+          'document.relationTo': {
+            equals: 'pages',
+          },
+        },
+        {
+          'document.value': {
+            equals: pageId,
+          },
+        },
+      ],
+    } as never,
+  })
+
+  for (const lock of locks.docs) {
+    await payload.delete({
+      id: lock.id,
+      collection: 'payload-locked-documents',
+      context: SEED_CONTEXT,
+      overrideAccess: true,
+    })
+  }
 }
 
 async function upsertUpload(
@@ -1536,6 +1599,7 @@ async function seedCollections(
       category: programCategories['podgotovka-k-shkole'].id,
       previewImage: media.clubPodgotovkaKShkole.id,
       coverImage: media.clubPodgotovkaKShkole.id,
+      coverImagePosition: 'top',
       infoCards: [
         { title: 'Возраст', description: '5–7 лет', icon: 'baby' },
         { title: 'Группа', description: 'До 6–8 детей', icon: 'users' },
@@ -1910,14 +1974,14 @@ async function seedCollections(
       text: 'Волею судеб мы часто переезжали с семьей. И ребёнок мой успел поучиться в 4-х разных школах, с разными системами. Именно «Новая школа» в Королеве осталась любимой, и по этой причине щемит сердце, что теперь она от нас очень далеко. Сейчас понимаю, что «Новая школа», действительно, одна из лучших школ в нашем Московском регионе. Очень хороший педагогический состав. «Наталья Вячеславовна — моя самая любимая учительница навсегда», — так сказал сын.\n\nОчень ценно, что в школе позаботятся обо всем: о занятиях и домашних заданиях, о закупке учебных принадлежностей, об организации экскурсий и праздников... Позаботятся с любовью и всей ответственностью.\n\nЕсли возникают проблемы, то коллектив пытается их решить, а не искать виноватых, как часто бывает.\n\nВ этом году мы уже были в качестве гостей в школе, в новом помещении. Очень уютное, стильное, большое, светлое. Я считаю, повезло жителям Королёва, что имеют возможность отдать детей в такую школу.',
       avatarPreset: 'women/micah-1784914470498.svg',
       isPublished: true,
-      sortOrder: 1,
+      sortOrder: 2,
     },
     {
       authorName: 'Ольга',
       text: 'Вспоминаем с теплотой о вашей продленке. Мне, как маме, было очень спокойно и надежно, а дочь до сих пор просится в гости.',
       avatarPreset: 'women/micah-1784914502367.svg',
       isPublished: true,
-      sortOrder: 2,
+      sortOrder: 1,
     },
     {
       authorName: 'Ирина',
@@ -2248,8 +2312,8 @@ async function seedPages(
       layout: [
         makeHeroBlock({
           primaryButtonLink: '/contacts',
-          secondaryButtonLabel: 'Подготовка к школе',
-          secondaryButtonLink: '/school-preparation',
+          secondaryButtonLabel: 'Кружки',
+          secondaryButtonLink: '/programs',
           image: media.hero.id,
         }),
         makeMarqueeBlock(),
@@ -2275,8 +2339,8 @@ async function seedPages(
           title: 'Демо блоков',
           primaryButtonLabel: 'К программам',
           primaryButtonLink: '/programs',
-          secondaryButtonLabel: 'О школе',
-          secondaryButtonLink: '/about',
+          secondaryButtonLabel: 'Контакты',
+          secondaryButtonLink: '/contacts',
           image: media.hero.id,
         }),
         makeMarqueeBlock([
@@ -2308,134 +2372,6 @@ async function seedPages(
       meta: {
         title: 'Демо блоков',
         description: 'Демонстрационная страница со всеми доступными блоками сайта.',
-        image: media.hero.id,
-      },
-    },
-    {
-      slug: 'family-classes',
-      title: 'Семейные классы',
-      pageTitle: 'Семейные классы',
-      layout: [
-        makeHeroBlock({
-          title: 'Семейные классы',
-          primaryButtonLabel: 'Подготовка к школе',
-          primaryButtonLink: '/school-preparation',
-          secondaryButtonLabel: 'Школа английского языка',
-          secondaryButtonLink: '/english-school',
-          image: media.hero.id,
-        }),
-        makeTextImageBlock('Обучение в семейном формате', 'right', media.hero.id),
-        makeTextImageBlock('Начальная школа', 'left', media.hero.id),
-        makeTextImageBlock('Средняя школа', 'right', media.hero.id),
-        makeTextImageBlock('Старшая школа — подготовка к ГИА (ОГЭ) и ЕГЭ', 'left', media.hero.id),
-        makeProgramBlock('Условия приёма', ['Шаг 1', 'Шаг 2', 'Шаг 3']),
-      ],
-      meta: {
-        title: 'Семейные классы',
-        description: PLACEHOLDER_TEXT,
-        image: media.hero.id,
-      },
-    },
-    {
-      slug: 'school-preparation',
-      title: 'Подготовка к школе',
-      pageTitle: 'Подготовка к школе',
-      layout: [
-        makeHeroBlock({
-          title: 'Подготовка к школе',
-          primaryButtonLabel: 'Семейные классы',
-          primaryButtonLink: '/family-classes',
-          secondaryButtonLabel: 'Школа английского языка',
-          secondaryButtonLink: '/english-school',
-          image: media.hero.id,
-        }),
-        makeTextImageBlock('Подготовка к школе', 'right', media.hero.id),
-        makeTextImageBlock('0-й класс', 'left', media.hero.id),
-        makeTextImageBlock('Интенсив', 'right', media.hero.id),
-      ],
-      meta: {
-        title: 'Подготовка к школе',
-        description: PLACEHOLDER_TEXT,
-        image: media.hero.id,
-      },
-    },
-    {
-      slug: 'after-school',
-      title: 'Группа продлённого дня',
-      pageTitle: 'Группа продлённого дня',
-      layout: [
-        makeHeroBlock({
-          title: 'Группа продлённого дня',
-          primaryButtonLabel: 'Программы',
-          primaryButtonLink: '/programs',
-          secondaryButtonLabel: 'Активные каникулы',
-          secondaryButtonLink: '/active-holidays',
-          image: media.hero.id,
-        }),
-        makeTextImageBlock('Продлённый день', 'right', media.hero.id),
-        makeAudienceBlock('Для кого', ['Группа 1', 'Группа 2', 'Группа 3']),
-        makeProgramBlock('Программа', ['Пункт 1', 'Пункт 2', 'Пункт 3']),
-        makeScheduleBlock('Расписание', ['День 1', 'День 2', 'День 3']),
-      ],
-      meta: {
-        title: 'Группа продлённого дня',
-        description: PLACEHOLDER_TEXT,
-        image: media.hero.id,
-      },
-    },
-    {
-      slug: 'active-holidays',
-      title: 'Активные каникулы',
-      pageTitle: 'Активные каникулы',
-      layout: [
-        makeHeroBlock({
-          title: 'Активные каникулы',
-          primaryButtonLabel: 'Школа английского языка',
-          primaryButtonLink: '/english-school',
-          secondaryButtonLabel: 'О Новой школе',
-          secondaryButtonLink: '/about',
-          image: media.hero.id,
-        }),
-        makeTextImageBlock('Летние смены с английским', 'right', media.hero.id),
-        makeAudienceBlock('Для кого', ['Группа 1', 'Группа 2', 'Группа 3']),
-        makeProgramBlock('Сюжеты', ['Сюжет 1', 'Сюжет 2', 'Сюжет 3']),
-        makeProgramBlock('Программа', ['Этап 1', 'Этап 2', 'Этап 3']),
-        makeScheduleBlock('Расписание', ['День 1', 'День 2', 'День 3']),
-        makeTextImageBlock('Промежуточные каникулы', 'right', media.hero.id),
-        makeAudienceBlock('Для кого', ['Группа 1', 'Группа 2', 'Группа 3']),
-        makeProgramBlock('Сюжеты', ['Сюжет 1', 'Сюжет 2', 'Сюжет 3']),
-        makeProgramBlock('Программа', ['Этап 1', 'Этап 2', 'Этап 3']),
-        makeScheduleBlock('Расписание', ['День 1', 'День 2', 'День 3']),
-      ],
-      meta: {
-        title: 'Активные каникулы',
-        description: PLACEHOLDER_TEXT,
-        image: media.hero.id,
-      },
-    },
-    {
-      slug: 'english-school',
-      title: 'Школа английского языка',
-      pageTitle: 'Школа английского языка',
-      layout: [
-        makeHeroBlock({
-          title: 'Школа английского языка',
-          primaryButtonLabel: 'Программы',
-          primaryButtonLink: '/programs',
-          secondaryButtonLabel: 'Сведения об образовательной организации',
-          secondaryButtonLink: '/organization-info',
-          image: media.hero.id,
-        }),
-        makeTextImageBlock('Общее описание', 'right', media.hero.id),
-        makeTextImageBlock('Дошкольники', 'left', media.hero.id),
-        makeTextImageBlock('Школьники', 'right', media.hero.id),
-        makeTextImageBlock('Подготовка к экзаменам', 'left', media.hero.id),
-        makeTextImageBlock('Взрослые', 'right', media.hero.id),
-        makeTextImageBlock('Индивидуальные занятия', 'left', media.hero.id),
-      ],
-      meta: {
-        title: 'Школа английского языка',
-        description: PLACEHOLDER_TEXT,
         image: media.hero.id,
       },
     },
@@ -2581,6 +2517,10 @@ async function seedPages(
     seededPages[page.slug] = {
       id: createdPage.id as number,
     }
+
+    if (page.slug === 'contacts') {
+      await unlockPageDocument(payload, createdPage.id as number)
+    }
   }
 
   // Superseded by the dedicated /organization-info collection + routes.
@@ -2605,6 +2545,28 @@ async function seedPages(
     })
   }
 
+  const removedStandardPageSlugs = [
+    'about',
+    'english-school',
+    'active-holidays',
+    'after-school',
+    'school-preparation',
+    'family-classes',
+  ] as const
+
+  for (const slug of removedStandardPageSlugs) {
+    const stalePage = await findOneByField(payload, 'pages', 'slug', slug)
+
+    if (stalePage) {
+      await payload.delete({
+        id: stalePage.id,
+        collection: 'pages',
+        context: SEED_CONTEXT,
+        overrideAccess: true,
+      })
+    }
+  }
+
   return seededPages
 }
 
@@ -2613,10 +2575,19 @@ async function seedHeader(
   pages: Record<string, SeededPage>,
 ) {
   const navigationLinks: NavigationLink[] = [
-    pages.home ? makePageNavigationLink('Главная', pages.home.id) : makeUrlNavigationLink('Главная', '/'),
+    {
+      ...makeUrlNavigationLink('О школе', '/'),
+      subLinks: [
+        pages.home ? makePageNavigationSubLink('Главная', pages.home.id) : makeUrlNavigationSubLink('Главная', '/'),
+        makeUrlNavigationSubLink('Вакансии', '/vacancies'),
+        makeUrlNavigationSubLink('Новости', '/news'),
+        pages.contacts
+          ? makePageNavigationSubLink('Контакты', pages.contacts.id)
+          : makeUrlNavigationSubLink('Контакты', '/contacts'),
+      ],
+    },
     makeUrlNavigationLink('Сведения об образовательной организации', '/organization-info'),
-    pages.programs ? makePageNavigationLink('Кружки', pages.programs.id) : makeUrlNavigationLink('Кружки', '/programs'),
-    makeUrlNavigationLink('Новости', '/news'),
+    pages.programs ? makePageNavigationLink('Программы', pages.programs.id) : makeUrlNavigationLink('Программы', '/programs'),
   ]
 
   const secondaryHeaderLinks: NavigationLink[] = []
@@ -2629,6 +2600,16 @@ async function seedHeader(
       showSecondaryHeader: false,
     },
     slug: 'header',
+  })
+}
+
+async function seedFooter(payload: Awaited<ReturnType<typeof getPayload>>) {
+  await payload.updateGlobal({
+    context: SEED_CONTEXT,
+    data: {
+      legalEntityText: defaultLegalEntityText,
+    },
+    slug: 'footer',
   })
 }
 
@@ -2659,6 +2640,7 @@ async function main() {
     await seedOrgInfoSections(payload, media)
     const pages = await seedPages(payload, media)
     await seedHeader(payload, pages)
+    await seedFooter(payload)
     await seedSiteSettings(payload)
 
     console.log('Development seed completed successfully.')

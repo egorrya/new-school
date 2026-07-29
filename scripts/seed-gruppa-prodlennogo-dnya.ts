@@ -155,7 +155,7 @@ async function main() {
         'По будням с 13:00 до 19:00: прогулки на свежем воздухе, полдник и полноценный ужин, помощь с домашним заданием, чтение и игры — интересный день в дружественной среде с выполненными уроками и без гаджетов.',
       previewImage: media.id,
       coverImage: media.id,
-      coverImagePosition: 'center',
+      coverImagePosition: 'top',
       infoCards: [
         { title: 'Возраст', description: 'Дети школьного возраста', icon: 'baby' },
         { title: 'Время работы', description: 'Пн–Пт, 13:00–19:00', icon: 'clock' },

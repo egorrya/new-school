@@ -5,10 +5,18 @@ import {
   PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
+import { cn } from '@/utilities/ui'
 
-export function TitleDescriptionBlock({ description, title }: TitleDescriptionBlockType) {
+export function TitleDescriptionBlock({
+  compactAfter,
+  description,
+  title,
+}: TitleDescriptionBlockType & { compactAfter?: boolean }) {
   return (
-    <PageBlockSection>
+    <PageBlockSection
+      className={cn(compactAfter && 'pt-8 pb-3 sm:pt-12 sm:pb-3 lg:pt-16 lg:pb-3')}
+      spacing={compactAfter ? 'none' : 'default'}
+    >
       <PageBlockContainer>
         <PageBlockHeader
           className="mx-auto max-w-4xl text-center"

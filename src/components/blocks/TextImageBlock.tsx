@@ -6,12 +6,18 @@ import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import { cn } from '@/utilities/ui'
 
-export function TextImageBlock({ title, text, image, imagePosition }: TextImageBlockType) {
+export function TextImageBlock({
+  title,
+  text,
+  image,
+  imagePosition,
+  insideTabs,
+}: TextImageBlockType & { insideTabs?: boolean }) {
   const isImageLeft = imagePosition === 'left'
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
+      <PageBlockContainer container={!insideTabs}>
         <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
           <div className="grid grid-cols-1 gap-0 lg:grid-cols-2">
             <div
@@ -21,9 +27,11 @@ export function TextImageBlock({ title, text, image, imagePosition }: TextImageB
               )}
             >
               <div className="space-y-3">
-                <h2 className="max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">
-                  {title}
-                </h2>
+                {insideTabs ? null : (
+                  <h2 className="max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">
+                    {title}
+                  </h2>
+                )}
                 <p className="max-w-3xl text-base leading-relaxed text-foreground/80 sm:text-lg">
                   {text || 'Основной текст этого блока пока не добавлен.'}
                 </p>

@@ -104,7 +104,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   }
 
   return (
-    <article className={slug === 'contacts' ? undefined : 'pb-24'}>
+    <article className={slug === 'contacts' ? undefined : 'pb-12 sm:pb-16'}>
       <RenderBlocks blocks={page.layout} pageUrl={pageUrl} />
     </article>
   )

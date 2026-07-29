@@ -8,25 +8,31 @@ import {
   PageBlockSection,
 } from '@/components/shared/PageBlock'
 
-export function FaqBlock({ title, description, hideTitle, items }: FaqBlockType) {
+export function FaqBlock({
+  title,
+  description,
+  hideTitle,
+  items,
+  insideTabs,
+}: FaqBlockType & { insideTabs?: boolean }) {
   const faqItems = items ?? []
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
+      <PageBlockContainer container={!insideTabs}>
         <div className="space-y-8">
           {!hideTitle && (
             <PageBlockHeader
-              className="mx-auto max-w-4xl text-center"
+              className={insideTabs ? undefined : 'mx-auto max-w-4xl text-center'}
               description={description}
-              descriptionClassName="mx-auto max-w-3xl text-center"
-              title={title}
+              descriptionClassName={insideTabs ? 'max-w-3xl' : 'mx-auto max-w-3xl text-center'}
+              title={insideTabs ? null : title}
               titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
             />
           )}
 
           {faqItems.length > 0 ? (
-            <div className="mx-auto max-w-3xl">
+            <div className={insideTabs ? undefined : 'mx-auto max-w-3xl'}>
               <Faq items={faqItems} />
             </div>
           ) : (

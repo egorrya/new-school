@@ -26,6 +26,7 @@ type RenderBlocksProps = {
   pageUrl: string
   allowFullScreenHero?: boolean
   clubId?: number | null
+  insideTabs?: boolean
 }
 
 function assertNever(value: never): never {
@@ -36,41 +37,54 @@ function renderBlock(
   block: PageBlock,
   pageUrl: string,
   isFirstBlock: boolean,
+  nextBlock?: PageBlock,
+  previousBlock?: PageBlock,
   clubId?: number | null,
+  insideTabs?: boolean,
 ) {
   switch (block.blockType) {
     case 'hero':
       return <HeroBlock {...block} fullScreen={isFirstBlock} />
     case 'titleDescription':
-      return <TitleDescriptionBlock {...block} />
+      return (
+        <TitleDescriptionBlock
+          {...block}
+          compactAfter={nextBlock?.blockType === 'programCategories'}
+        />
+      )
     case 'marquee':
       return <MarqueeBlock {...block} />
     case 'textImage':
-      return <TextImageBlock {...block} />
+      return <TextImageBlock {...block} insideTabs={insideTabs} />
     case 'featureCards':
-      return <FeatureCardsBlock {...block} />
+      return <FeatureCardsBlock {...block} insideTabs={insideTabs} />
     case 'audience':
-      return <AudienceBlock {...block} />
+      return <AudienceBlock {...block} insideTabs={insideTabs} />
     case 'program':
-      return <ProgramBlock {...block} />
+      return <ProgramBlock {...block} insideTabs={insideTabs} />
     case 'programCategories':
-      return <ProgramCategoriesBlock {...block} />
+      return (
+        <ProgramCategoriesBlock
+          {...block}
+          hasMobileTopGap={previousBlock?.blockType === 'marquee'}
+        />
+      )
     case 'schedule':
-      return <ScheduleBlock {...block} />
+      return <ScheduleBlock {...block} insideTabs={insideTabs} />
     case 'tabs':
       return <TabsBlock {...block} clubId={clubId} pageUrl={pageUrl} />
     case 'teacherList':
-      return <TeacherListBlock {...block} />
+      return <TeacherListBlock {...block} insideTabs={insideTabs} />
     case 'testimonials':
-      return <TestimonialsBlock {...block} />
+      return <TestimonialsBlock {...block} insideTabs={insideTabs} />
     case 'collectionGrid':
-      return <CollectionGridBlock {...block} />
+      return <CollectionGridBlock {...block} insideTabs={insideTabs} />
     case 'faq':
-      return <FaqBlock {...block} />
+      return <FaqBlock {...block} insideTabs={insideTabs} />
     case 'contacts':
       return <ContactsBlock {...block} />
     case 'ctaForm':
-      return <CTAFormBlock {...block} clubId={clubId} pageUrl={pageUrl} />
+      return <CTAFormBlock {...block} clubId={clubId} insideTabs={insideTabs} pageUrl={pageUrl} />
     default:
       return assertNever(block)
   }
@@ -81,6 +95,7 @@ export function RenderBlocks({
   pageUrl,
   allowFullScreenHero = true,
   clubId,
+  insideTabs,
 }: RenderBlocksProps) {
   if (!blocks || blocks.length === 0) {
     return null
@@ -92,7 +107,15 @@ export function RenderBlocks({
         <Fragment key={block.id || `${block.blockType}-${index}`}>
           {(block as { blockType?: string }).blockType === 'bannerSlider'
             ? null
-            : renderBlock(block, pageUrl, allowFullScreenHero && index === 0, clubId)}
+            : renderBlock(
+                block,
+                pageUrl,
+                allowFullScreenHero && index === 0,
+                blocks[index + 1],
+                blocks[index - 1],
+                clubId,
+                insideTabs,
+              )}
         </Fragment>
       ))}
     </>

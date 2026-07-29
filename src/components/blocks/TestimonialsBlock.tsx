@@ -85,20 +85,21 @@ export async function TestimonialsBlock({
   itemLimit,
   selectedReviews,
   title,
-}: TestimonialsBlockType) {
+  insideTabs,
+}: TestimonialsBlockType & { insideTabs?: boolean }) {
   const reviews = await getReviews({ itemLimit, selectedReviews })
   const testimonials = toTestimonialItems(reviews)
 
   return (
     <PageBlockSection className="flex min-h-[calc(100dvh-var(--site-header-height,0px)-var(--site-secondary-header-height,0px))] items-center">
-      <PageBlockContainer>
-        <div className="space-y-8 py-8 sm:py-12 lg:py-16">
-          {title || description ? (
+      <PageBlockContainer container={!insideTabs}>
+        <div className="space-y-12 py-8 sm:space-y-8 sm:py-12 lg:py-16">
+          {(insideTabs ? description : title || description) ? (
             <PageBlockHeader
-              className="mx-auto flex max-w-4xl flex-col items-center text-center"
+              className={insideTabs ? undefined : 'mx-auto flex max-w-4xl flex-col items-center text-center'}
               description={description}
-              descriptionClassName="mx-auto w-full max-w-3xl text-center"
-              title={title || 'Отзывы'}
+              descriptionClassName={insideTabs ? 'w-full max-w-3xl' : 'mx-auto w-full max-w-3xl text-center'}
+              title={insideTabs ? null : title || 'Отзывы'}
               titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
             />
           ) : null}

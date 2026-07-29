@@ -73,11 +73,11 @@ function PaginationPrevious({
       data-slot="pagination-previous"
       aria-label="На предыдущую страницу"
       size="sm"
-      className={cn("gap-1 pl-3", className)}
+      className={cn("gap-1 px-3 sm:pl-3", className)}
       {...props}
     >
       <ChevronLeft className="size-4" />
-      <span>Предыдущая</span>
+      <span className="hidden sm:inline">Предыдущая</span>
     </PaginationLink>
   )
 }
@@ -91,10 +91,10 @@ function PaginationNext({
       data-slot="pagination-next"
       aria-label="На следующую страницу"
       size="sm"
-      className={cn("gap-1 pr-3", className)}
+      className={cn("gap-1 px-3 sm:pr-3", className)}
       {...props}
     >
-      <span>Следующая</span>
+      <span className="hidden sm:inline">Следующая</span>
       <ChevronRight className="size-4" />
     </PaginationLink>
   )

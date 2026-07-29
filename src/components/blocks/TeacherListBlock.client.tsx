@@ -108,12 +108,11 @@ function TeacherCard({ groupId, index, isOpen, onOpen, shouldReduceMotion, teach
   return (
     <motion.button
       className={cn('teacher-card group relative flex flex-col cursor-pointer rounded-base overflow-hidden border-2 border-border bg-background text-left outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2', isOpen && 'pointer-events-none opacity-0')}
+      animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
       initial={shouldReduceMotion ? undefined : { opacity: 0, y: 28 }}
       layoutId={shouldReduceMotion ? undefined : cardLayoutId(groupId, teacher.id)}
       transition={cardRevealTransition(index)}
       type="button"
-      viewport={{ amount: 0.3, once: false }}
-      whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
       onClick={onOpen}
     >
       <TeacherPhoto

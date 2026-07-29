@@ -45,7 +45,7 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
         }}
       >
         <div className="space-y-8">
-          <div className="mx-auto max-w-3xl space-y-6">
+          <div className="mx-auto max-w-3xl space-y-8">
             <h3 className="text-xl font-semibold sm:text-2xl">{tab.title}</h3>
 
             {showRichText ? (
@@ -65,11 +65,12 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
           </div>
 
           {nestedBlocks.length > 0 ? (
-            <div className="-mx-5 -mb-7 [&>section:first-child]:pt-0 sm:-mx-6 sm:-mb-8 lg:-mx-8 lg:-mb-10">
+            <div className="mx-auto -mb-7 max-w-3xl [&>section:first-child]:pt-0 sm:-mb-8 lg:-mb-10">
               <RenderBlocks
                 allowFullScreenHero={false}
                 blocks={nestedBlocks}
                 clubId={clubId}
+                insideTabs
                 pageUrl={pageUrl}
               />
             </div>
@@ -81,9 +82,9 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
-        <div className="space-y-8">
-          {title ? (
+      <div className="space-y-8">
+        {title ? (
+          <PageBlockContainer>
             <PageBlockHeader
               className="mx-auto max-w-4xl text-center"
               description={description}
@@ -91,20 +92,22 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
               title={title}
               titleClassName="text-2xl sm:text-3xl lg:text-4xl"
             />
-          ) : null}
+          </PageBlockContainer>
+        ) : null}
 
-          {tabItems.length > 0 ? (
-            <TabsBlockClient tabs={tabsNavItems}>
-              {tabPanels}
-            </TabsBlockClient>
-          ) : (
+        {tabItems.length > 0 ? (
+          <TabsBlockClient panelContainerClassName="container" tabs={tabsNavItems}>
+            {tabPanels}
+          </TabsBlockClient>
+        ) : (
+          <PageBlockContainer>
             <PageBlockEmptyState
               description="Добавьте хотя бы одну вкладку, чтобы этот screen появился на сайте."
               title="Вкладки пока не добавлены"
             />
-          )}
-        </div>
-      </PageBlockContainer>
+          </PageBlockContainer>
+        )}
+      </div>
     </PageBlockSection>
   )
 }

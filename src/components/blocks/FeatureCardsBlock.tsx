@@ -76,8 +76,8 @@ function FeatureCard({
     <MotionReveal
       amount={0.35}
       blur={2}
-      delay={index * 0.3}
-      duration={0.47}
+      delay={index * 0.15}
+      duration={0.235}
       margin="0px 0px -25% 0px"
       y={18}
     >
@@ -95,19 +95,25 @@ function FeatureCard({
   )
 }
 
-export function FeatureCardsBlock({ title, description, hideTitle, cards }: FeatureCardsBlockType) {
+export function FeatureCardsBlock({
+  title,
+  description,
+  hideTitle,
+  cards,
+  insideTabs,
+}: FeatureCardsBlockType & { insideTabs?: boolean }) {
   const featureCards = cards ?? []
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
+      <PageBlockContainer container={!insideTabs}>
         <div className="space-y-8">
           {!hideTitle && (
             <PageBlockHeader
               description={description}
-              descriptionClassName="mx-auto w-full max-w-3xl text-center"
-              className="mx-auto flex max-w-4xl flex-col items-center text-center"
-              title={title}
+              descriptionClassName={insideTabs ? 'w-full max-w-3xl' : 'mx-auto w-full max-w-3xl text-center'}
+              className={insideTabs ? undefined : 'mx-auto flex max-w-4xl flex-col items-center text-center'}
+              title={insideTabs ? null : title}
               titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
             />
           )}

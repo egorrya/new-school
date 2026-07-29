@@ -3,7 +3,7 @@
 import type React from 'react'
 
 import { LayoutGroup, motion, motionValue, useReducedMotion, type MotionValue } from 'motion/react'
-import { Children, useEffect, useMemo, useRef, useState } from 'react'
+import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { cn } from '@/utilities/ui'
 
@@ -17,6 +17,7 @@ type TabsBlockTab = {
 type TabsBlockClientProps = {
   children: React.ReactNode
   className?: string
+  panelContainerClassName?: string
   tabs: TabsBlockTab[]
 }
 
@@ -63,25 +64,41 @@ function getTabsScrollOffset(extraGap = 0) {
   return getFixedHeaderBottom(rootStyles, rootFontSize) + getTabsNavHeight(rootStyles) + extraGap
 }
 
-export function TabsBlockClient({ children, className, tabs }: TabsBlockClientProps) {
+export function TabsBlockClient({
+  children,
+  className,
+  panelContainerClassName,
+  tabs,
+}: TabsBlockClientProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const panels = useMemo(() => Children.toArray(children), [children])
   const [activeId, setActiveId] = useState(tabs[0]?.id ?? '')
   const activeIdRef = useRef(activeId)
   const isProgrammaticScrollRef = useRef(false)
   const unlockScrollSyncTimeoutRef = useRef<number | null>(null)
-  const panelMotionRef = useRef<Map<string, PanelMotionValues>>(new Map())
+  const panelMotionById = useMemo(() => {
+    const valuesById = new Map<string, PanelMotionValues>()
 
-  const getPanelMotion = (id: string) => {
-    let values = panelMotionRef.current.get(id)
+    tabs.forEach((tab) => {
+      valuesById.set(tab.id, {
+        opacity: motionValue(0),
+        y: motionValue(10),
+        blur: motionValue('blur(2px)'),
+      })
+    })
 
-    if (!values) {
-      values = { opacity: motionValue(0), y: motionValue(10), blur: motionValue('blur(2px)') }
-      panelMotionRef.current.set(id, values)
-    }
+    return valuesById
+  }, [tabs])
 
-    return values
-  }
+  const getPanelMotion = useCallback(
+    (id: string) =>
+      panelMotionById.get(id) ?? {
+        opacity: motionValue(0),
+        y: motionValue(10),
+        blur: motionValue('blur(2px)'),
+      },
+    [panelMotionById],
+  )
 
   useEffect(() => {
     activeIdRef.current = activeId
@@ -205,7 +222,7 @@ export function TabsBlockClient({ children, className, tabs }: TabsBlockClientPr
         window.clearTimeout(unlockScrollSyncTimeoutRef.current)
       }
     }
-  }, [tabs, shouldReduceMotion])
+  }, [getPanelMotion, tabs, shouldReduceMotion])
 
   const handleTabChange = (nextId: string) => {
     if (!nextId || nextId === activeId) {
@@ -249,9 +266,13 @@ export function TabsBlockClient({ children, className, tabs }: TabsBlockClientPr
   return (
     <LayoutGroup id="tabs-block">
       <div className={cn('space-y-8', className)}>
-        <TabsNav activeId={activeTab?.id ?? tabs[0].id} onTabChange={handleTabChange} tabs={tabs} />
+        <TabsNav
+          activeId={activeTab?.id ?? tabs[0].id}
+          onTabChange={handleTabChange}
+          tabs={tabs}
+        />
 
-        <div className="space-y-8 sm:pt-4 lg:pt-8">
+        <div className={cn('space-y-8 sm:pt-4 lg:pt-8', panelContainerClassName)}>
           {panels.map((panel, index) => {
             const tab = tabs[index]
 

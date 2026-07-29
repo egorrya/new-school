@@ -1,4 +1,7 @@
-import type { ProgramCategoriesBlock as ProgramCategoriesBlockType, ProgramCategory } from '@/payload-types'
+import type {
+  ProgramCategoriesBlock as ProgramCategoriesBlockType,
+  ProgramCategory,
+} from '@/payload-types'
 
 import { getPayload } from 'payload'
 
@@ -16,6 +19,10 @@ import { cn } from '@/utilities/ui'
 
 const categoryColors = ['#06336f', '#FF6824', '#00B590', '#FF1E24', '#FFCB00']
 
+type ProgramCategoriesBlockProps = ProgramCategoriesBlockType & {
+  hasMobileTopGap?: boolean
+}
+
 async function getProgramCategories(): Promise<ProgramCategory[]> {
   const payload = await getPayload({ config: configPromise })
 
@@ -31,18 +38,76 @@ async function getProgramCategories(): Promise<ProgramCategory[]> {
   return result.docs
 }
 
+// A category page with a single active club immediately redirects to that
+// club's page, so link straight there to avoid an extra navigation hop
+// (which briefly flashes the footer while the redirect resolves).
+async function getSingleClubHrefByCategory(): Promise<Map<number, string>> {
+  const payload = await getPayload({ config: configPromise })
+
+  const result = await payload.find({
+    collection: 'clubs',
+    depth: 0,
+    limit: 0,
+    overrideAccess: false,
+    pagination: false,
+    select: {
+      category: true,
+      slug: true,
+    },
+    where: {
+      isActive: {
+        equals: true,
+      },
+    },
+  })
+
+  const slugsByCategory = new Map<number, string[]>()
+
+  for (const club of result.docs) {
+    const categoryId = typeof club.category === 'object' ? club.category?.id : club.category
+
+    if (!categoryId) {
+      continue
+    }
+
+    const slugs = slugsByCategory.get(categoryId) ?? []
+    slugs.push(club.slug)
+    slugsByCategory.set(categoryId, slugs)
+  }
+
+  const hrefByCategory = new Map<number, string>()
+
+  for (const [categoryId, slugs] of slugsByCategory) {
+    if (slugs.length === 1) {
+      hrefByCategory.set(categoryId, `/programs/${slugs[0]}`)
+    }
+  }
+
+  return hrefByCategory
+}
+
 export async function ProgramCategoriesBlock({
   description,
+  hasMobileTopGap = false,
   hideTitle,
   title,
-}: ProgramCategoriesBlockType) {
-  const categories = await getProgramCategories()
+}: ProgramCategoriesBlockProps) {
+  const [categories, singleClubHrefByCategory] = await Promise.all([
+    getProgramCategories(),
+    getSingleClubHrefByCategory(),
+  ])
   const showHeader = !hideTitle && Boolean(title)
 
   return (
-    <PageBlockSection className={cn(!showHeader && 'py-6 sm:py-8 lg:py-10')}>
+    <PageBlockSection
+      className={cn(
+        showHeader ? 'py-5 sm:py-7 lg:py-9' : 'pt-0 pb-5 sm:pb-7 lg:pb-9',
+        hasMobileTopGap && 'pt-4 sm:pt-0',
+      )}
+      spacing="none"
+    >
       <PageBlockContainer>
-        <div className="space-y-8">
+        <div className={cn(showHeader ? 'space-y-3' : 'space-y-8')}>
           {showHeader ? (
             <PageBlockHeader
               className="mx-auto max-w-4xl text-center"
@@ -62,19 +127,23 @@ export async function ProgramCategoriesBlock({
 
                 return (
                   <MotionReveal
-                    amount={0.35}
+                    amount={0.15}
                     blur={2}
                     className={cn('lg:col-span-2', isCenteredLastPair && 'lg:col-start-2')}
                     delay={index * 0.08}
                     duration={0.47}
                     key={category.id}
-                    margin="0px 0px -25% 0px"
+                    margin="0px 0px -10% 0px"
+                    once
                     y={18}
                   >
                     <ProgramCategoryCard
                       color={color}
                       description={category.description}
-                      href={`/programs/category/${category.slug}`}
+                      href={
+                        singleClubHrefByCategory.get(category.id) ??
+                        `/programs/category/${category.slug}`
+                      }
                       previewImage={category.previewImage}
                       title={category.title}
                     />

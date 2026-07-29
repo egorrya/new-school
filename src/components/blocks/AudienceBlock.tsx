@@ -8,19 +8,25 @@ import {
 } from '@/components/shared/PageBlock'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 
-export function AudienceBlock({ hideHeader, title, text, items }: AudienceBlockType) {
+export function AudienceBlock({
+  hideHeader,
+  title,
+  text,
+  items,
+  insideTabs,
+}: AudienceBlockType & { insideTabs?: boolean }) {
   const audienceItems = items ?? []
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
+      <PageBlockContainer container={!insideTabs}>
         <div className="space-y-8">
           {hideHeader ? null : (
             <PageBlockHeader
-              className="mx-auto max-w-4xl text-center"
+              className={insideTabs ? undefined : 'mx-auto max-w-4xl text-center'}
               description={text || 'Короткое описание аудитории пока не заполнено.'}
-              descriptionClassName="mx-auto max-w-3xl text-center"
-              title={title}
+              descriptionClassName={insideTabs ? 'max-w-3xl' : 'mx-auto max-w-3xl text-center'}
+              title={insideTabs ? null : title}
               titleClassName="text-2xl sm:text-3xl lg:text-4xl"
             />
           )}
@@ -37,22 +43,39 @@ export function AudienceBlock({ hideHeader, title, text, items }: AudienceBlockT
           ) : audienceItems.length > 0 ? (
             <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
               <div className="flex flex-wrap justify-center gap-6">
-                {audienceItems.map((item, index) => (
-                  <div
-                    className="flex w-full gap-4 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)]"
-                    key={item.id || `${item.title}-${index}`}
-                  >
-                    <div className="flex size-12 shrink-0 items-center justify-center rounded-base border-2 border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
-                      {String(index + 1).padStart(2, '0')}
+                {audienceItems.map((item, index) => {
+                  const stackSingleColumn = insideTabs && audienceItems.length === 3
+                  const isLastOfOddPair =
+                    insideTabs &&
+                    !stackSingleColumn &&
+                    audienceItems.length % 2 === 1 &&
+                    index === audienceItems.length - 1
+
+                  return (
+                    <div
+                      className={
+                        insideTabs
+                          ? stackSingleColumn
+                            ? 'flex w-full gap-4'
+                            : isLastOfOddPair
+                              ? 'mx-auto flex w-full max-w-[calc(50%-0.75rem)] gap-4'
+                              : 'flex w-[calc(50%-0.75rem)] gap-4'
+                          : 'flex w-full gap-4 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)]'
+                      }
+                      key={item.id || `${item.title}-${index}`}
+                    >
+                      <div className="flex size-12 shrink-0 items-center justify-center rounded-base border-2 border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
+                        {String(index + 1).padStart(2, '0')}
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="font-heading text-xl leading-[1.1]">{item.title}</h3>
+                        <p className="text-sm leading-relaxed text-foreground/80">
+                          {item.text || 'Пояснение к этому пункту пока не добавлено.'}
+                        </p>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <h3 className="font-heading text-xl leading-[1.1]">{item.title}</h3>
-                      <p className="text-sm leading-relaxed text-foreground/80">
-                        {item.text || 'Пояснение к этому пункту пока не добавлено.'}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             </MotionReveal>
           ) : (

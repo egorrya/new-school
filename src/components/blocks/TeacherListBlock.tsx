@@ -60,19 +60,20 @@ export async function TeacherListBlock({
   itemLimit,
   selectedTeachers,
   title,
-}: TeacherListBlockType) {
+  insideTabs,
+}: TeacherListBlockType & { insideTabs?: boolean }) {
   const teachers = await getTeachers({ itemLimit, selectedTeachers })
 
   return (
     <PageBlockSection>
-      <PageBlockContainer>
+      <PageBlockContainer container={!insideTabs}>
         <div className="space-y-8">
-          {title || description ? (
+          {(insideTabs ? description : title || description) ? (
             <PageBlockHeader
-              className="mx-auto max-w-4xl text-center"
+              className={insideTabs ? undefined : 'mx-auto max-w-4xl text-center'}
               description={description}
-              descriptionClassName="mx-auto max-w-3xl text-center"
-              title={title || 'Наши преподаватели'}
+              descriptionClassName={insideTabs ? 'max-w-3xl' : 'mx-auto max-w-3xl text-center'}
+              title={insideTabs ? null : title || 'Наши преподаватели'}
               titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
             />
           ) : null}

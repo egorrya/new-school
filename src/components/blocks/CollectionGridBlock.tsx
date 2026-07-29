@@ -183,7 +183,8 @@ export async function CollectionGridBlock({
   showViewAllButton,
   title,
   viewAllButtonLabel,
-}: CollectionGridBlockType) {
+  insideTabs,
+}: CollectionGridBlockType & { insideTabs?: boolean }) {
   const { isEnabled: draft } = await draftMode()
   const items = await getCollectionDocuments(collectionType, itemLimit, draft, galleryAlbum)
   const gallerySlides =
@@ -200,13 +201,13 @@ export async function CollectionGridBlock({
           : undefined
       }
     >
-      <PageBlockContainer>
-        <div className="space-y-8">
+      <PageBlockContainer container={!insideTabs}>
+        <div className={cn('space-y-8', collectionType === 'reviews' && 'space-y-12 sm:space-y-8')}>
           <CollectionGridHeader
-            className="mx-auto max-w-4xl text-center"
+            className={insideTabs ? undefined : 'mx-auto max-w-4xl text-center'}
             description={description}
-            descriptionClassName="mx-auto max-w-3xl text-center"
-            title={hideTitle ? null : title}
+            descriptionClassName={insideTabs ? 'max-w-3xl' : 'mx-auto max-w-3xl text-center'}
+            title={insideTabs ? null : hideTitle ? null : title}
             titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
           />
 

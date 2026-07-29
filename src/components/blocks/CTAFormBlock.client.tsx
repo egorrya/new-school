@@ -31,9 +31,11 @@ const cardReveal = {
     opacity: 1,
     y: 0,
     filter: 'blur(0px)',
-    transition: { delay: 1.8, duration: 0.5, ease: 'easeOut' as const },
+    transition: { delay: 0.9, duration: 0.25, ease: 'easeOut' as const },
   },
 }
+
+const cardRevealViewport = { amount: 0.1, margin: '0px 0px 15% 0px', once: true } as const
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus()
@@ -148,7 +150,7 @@ export function CTAFormClient({ action, buttonLabel, clubId, formType, pageUrl, 
     <motion.div
       initial={shouldReduceMotion ? undefined : 'hidden'}
       variants={shouldReduceMotion ? undefined : cardReveal}
-      viewport={{ amount: 0.35, margin: '0px 0px -10% 0px', once: false }}
+      viewport={cardRevealViewport}
       whileInView={shouldReduceMotion ? undefined : 'visible'}
     >
       <Card className="bg-background">

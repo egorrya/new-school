@@ -1,4 +1,4 @@
-import { getCachedGlobal, getGlobal } from '@/utilities/getGlobals'
+import { getGlobal } from '@/utilities/getGlobals'
 import Link from 'next/link'
 import React from 'react'
 
@@ -8,16 +8,19 @@ import { FooterReveal } from './FooterReveal.client'
 
 export async function Footer() {
   const [footerData, headerData, siteSettings] = await Promise.all([
-    getCachedGlobal('footer', 1)(),
-    getCachedGlobal('header', 1)(),
+    getGlobal('footer', 1),
+    getGlobal('header', 1),
     getGlobal('site-settings', 1),
   ])
 
   const navigationLinks = headerData?.navigationLinks || []
+  const footerNavigationLinks = navigationLinks.flatMap((item) =>
+    item.subLinks?.length ? item.subLinks : [item],
+  )
   const secondaryLinks = headerData?.secondaryHeaderLinks || []
   const siteName = siteSettings?.siteName || 'Новая школа'
-  const copyrightText =
-    footerData?.copyrightText || `© ${new Date().getFullYear()} ${siteName}`
+  const copyrightText = footerData?.copyrightText || `© ${new Date().getFullYear()} ${siteName}`
+  const legalEntityText = footerData?.legalEntityText
 
   return (
     <FooterReveal
@@ -35,29 +38,32 @@ export async function Footer() {
         </div>
       }
       legal={
-        <div className="space-y-4">
-          <p className="text-sm text-foreground/60">Ещё</p>
+        <div className="space-y-4 font-base font-normal">
           <nav className="grid gap-2">
             {secondaryLinks.map(({ link }, i) => {
               return (
                 <CMSLink
-                  className="text-sm text-foreground/80 transition-colors hover:text-foreground"
+                  className="text-sm font-normal text-foreground/80 transition-colors hover:text-foreground"
                   key={i}
                   {...link}
                 />
               )
             })}
           </nav>
+          {legalEntityText ? (
+            <p className="whitespace-pre-line text-xs font-normal leading-relaxed text-foreground/60">
+              {legalEntityText}
+            </p>
+          ) : null}
         </div>
       }
       navigation={
-        <div className="space-y-4">
-          <p className="text-sm text-foreground/60">Навигация</p>
-          <nav className="grid gap-2">
-            {navigationLinks.map(({ link }, i) => {
+        <div className="min-w-0 space-y-4">
+          <nav className="grid min-w-0 gap-2">
+            {footerNavigationLinks.map(({ link }, i) => {
               return (
                 <CMSLink
-                  className="text-sm text-foreground/80 transition-colors hover:text-foreground"
+                  className="min-w-0 wrap-break-word text-sm text-foreground/80 transition-colors hover:text-foreground"
                   key={i}
                   {...link}
                 />
