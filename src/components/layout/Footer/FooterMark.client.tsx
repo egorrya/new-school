@@ -43,7 +43,7 @@ export function FooterMark({ inView }: FooterMarkProps) {
 
   return (
     <div
-      className="pointer-events-none relative w-full select-none overflow-x-hidden overflow-y-visible [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
+      className="pointer-events-none relative w-full select-none overflow-hidden [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
       aria-hidden="true"
     >
       <motion.div

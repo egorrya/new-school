@@ -294,6 +294,7 @@
   --site-header-top-offset: 0.25rem;
   --site-header-fixed-bottom: var(--site-header-height);
   --site-tabs-nav-height: 0px;
+  --site-tabs-nav-top-gap: 0.75rem;
 }
 
 @variant sm {
@@ -304,6 +305,7 @@
     --site-header-top-offset: 0.5rem;
     --site-header-fixed-bottom: var(--site-header-height);
     --site-tabs-nav-height: 0px;
+    --site-tabs-nav-top-gap: 0.25rem;
   }
 }
 

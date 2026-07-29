@@ -111,7 +111,9 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
         animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
         initial={shouldReduceMotion ? false : { opacity: 0, y: -8, filter: 'blur(2px)' }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
-        style={{ top: 'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + 0.25rem)' }}
+        style={{
+          top: 'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + var(--site-tabs-nav-top-gap, 0.25rem))',
+        }}
       >
         <div
           ref={scrollContainerRef}
