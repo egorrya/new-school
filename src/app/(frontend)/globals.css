@@ -288,9 +288,9 @@
   --accent-sky: oklch(92.5% 0.05 236deg);
   --accent-sun: oklch(90.5% 0.14 92deg);
   --school-grid-line: rgb(18 14 10 / 0.045);
-  --site-header-height: 3.4rem;
-  --site-header-logo-height: 2.4rem;
-  --site-header-logo-height-expanded: 2.4rem;
+  --site-header-height: 3.6rem;
+  --site-header-logo-height: 2.6rem;
+  --site-header-logo-height-expanded: 2.6rem;
   --site-header-top-offset: 0.25rem;
   --site-header-fixed-bottom: var(--site-header-height);
   --site-tabs-nav-height: 0px;

@@ -36,6 +36,15 @@ const cardReveal = {
   },
 }
 
+const mobileCardReveal = {
+  hidden: { opacity: 0, y: 8 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { delay: 0.12, duration: 0.28, ease: 'easeOut' as const },
+  },
+}
+
 const cardRevealViewport = { amount: 0.1, margin: '0px 0px 15% 0px', once: true } as const
 
 function SubmitButton({ label }: { label: string }) {
@@ -134,7 +143,7 @@ export function CTAFormClient({ action, buttonLabel, clubId, formType, pageUrl, 
   const [state, formAction] = useActionState(action, initialCTAFormState)
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
-  const shouldSimplifyMotion = shouldReduceMotion || isMobile
+  const revealVariants = isMobile ? mobileCardReveal : cardReveal
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -151,10 +160,10 @@ export function CTAFormClient({ action, buttonLabel, clubId, formType, pageUrl, 
 
   return (
     <motion.div
-      initial={shouldSimplifyMotion ? undefined : 'hidden'}
-      variants={shouldSimplifyMotion ? undefined : cardReveal}
+      initial={shouldReduceMotion ? undefined : 'hidden'}
+      variants={shouldReduceMotion ? undefined : revealVariants}
       viewport={cardRevealViewport}
-      whileInView={shouldSimplifyMotion ? undefined : 'visible'}
+      whileInView={shouldReduceMotion ? undefined : 'visible'}
     >
       <Card className="bg-background">
         <CardContent className="space-y-4 p-5 sm:p-6">

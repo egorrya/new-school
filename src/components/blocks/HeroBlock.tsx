@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import { useLayoutEffect, useState } from 'react'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import type { HeroBlock as HeroBlockType } from '@/payload-types'
@@ -16,6 +17,61 @@ type HeroBlockProps = HeroBlockType & {
   fullScreen?: boolean
 }
 
+const MOBILE_HERO_MEDIA_QUERY = '(width < 40rem)'
+
+function getViewportWidth() {
+  return document.documentElement.clientWidth || window.innerWidth
+}
+
+function useStableMobileHeroHeight(enabled: boolean) {
+  const [stableHeight, setStableHeight] = useState<string | null>(null)
+
+  useLayoutEffect(() => {
+    if (!enabled) {
+      setStableHeight(null)
+      return
+    }
+
+    const mobileQuery = window.matchMedia(MOBILE_HERO_MEDIA_QUERY)
+    let lastWidth = getViewportWidth()
+
+    const updateHeight = () => {
+      setStableHeight(mobileQuery.matches ? `${window.innerHeight}px` : null)
+    }
+
+    const handleResize = () => {
+      const nextWidth = getViewportWidth()
+
+      if (!mobileQuery.matches) {
+        lastWidth = nextWidth
+        setStableHeight(null)
+        return
+      }
+
+      if (Math.abs(nextWidth - lastWidth) >= 1) {
+        lastWidth = nextWidth
+        updateHeight()
+      }
+    }
+
+    const handleQueryChange = () => {
+      lastWidth = getViewportWidth()
+      updateHeight()
+    }
+
+    updateHeight()
+    window.addEventListener('resize', handleResize)
+    mobileQuery.addEventListener('change', handleQueryChange)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      mobileQuery.removeEventListener('change', handleQueryChange)
+    }
+  }, [enabled])
+
+  return stableHeight
+}
+
 export function HeroBlock({
   title,
   description,
@@ -29,9 +85,10 @@ export function HeroBlock({
 }: HeroBlockProps) {
   const hasPrimaryAction = Boolean(primaryButtonLabel && primaryButtonLink)
   const primaryHref = primaryButtonLink || '/'
+  const stableMobileHeroHeight = useStableMobileHeroHeight(fullScreen)
   const fullScreenStyle = fullScreen
     ? {
-        minHeight: '100dvh',
+        minHeight: stableMobileHeroHeight ?? '100dvh',
         marginTop:
           'calc(-1 * (var(--site-header-height, 0px) + var(--site-secondary-header-height, 0px)))',
       }

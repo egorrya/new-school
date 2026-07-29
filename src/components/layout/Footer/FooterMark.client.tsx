@@ -42,9 +42,12 @@ export function FooterMark({ inView }: FooterMarkProps) {
   const letters = Array.from(BRAND_MARK)
 
   return (
-    <div className="relative w-full overflow-x-hidden overflow-y-visible" aria-hidden="true">
+    <div
+      className="pointer-events-none relative w-full select-none overflow-x-hidden overflow-y-visible [-webkit-touch-callout:none] [-webkit-user-select:none] [user-select:none]"
+      aria-hidden="true"
+    >
       <motion.div
-        className="font-heading flex w-full translate-y-[30%] cursor-default select-none justify-center whitespace-nowrap leading-none text-foreground"
+        className="font-heading pointer-events-none flex w-full translate-y-[30%] cursor-default select-none justify-center whitespace-nowrap leading-none text-foreground [-webkit-user-select:none] [user-select:none]"
         style={{ fontSize: 'clamp(2.15rem, 11.9vw, 15.3rem)' }}
         initial={shouldReduceMotion ? undefined : 'hidden'}
         animate={shouldReduceMotion ? undefined : inView ? 'visible' : 'hidden'}

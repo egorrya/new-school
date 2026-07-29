@@ -105,7 +105,7 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
       <motion.div
         ref={navRef}
         className={cn(
-          'container z-30 mx-auto flex justify-center sm:sticky',
+          'container sticky z-30 mx-auto flex justify-center',
           className,
         )}
         animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
