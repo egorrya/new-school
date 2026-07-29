@@ -2,7 +2,7 @@ import 'dotenv/config'
 
 import path from 'path'
 
-import { getPayload } from 'payload'
+import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
 
@@ -54,7 +54,7 @@ function makeRichTextMixed(blocks: Array<{ type: 'paragraph'; text: string } | {
 
 async function findOneByField(
   payload: Awaited<ReturnType<typeof getPayload>>,
-  collection: 'programCategories' | 'clubs' | 'media',
+  collection: CollectionSlug,
   fieldName: string,
   value: string,
 ) {
@@ -76,7 +76,7 @@ async function findOneByField(
 
 async function upsertPublishedDoc(
   payload: Awaited<ReturnType<typeof getPayload>>,
-  collection: 'programCategories' | 'clubs',
+  collection: CollectionSlug,
   fieldName: string,
   fieldValue: string,
   data: Record<string, unknown>,
@@ -84,21 +84,25 @@ async function upsertPublishedDoc(
   const existing = await findOneByField(payload, collection, fieldName, fieldValue)
 
   if (existing) {
-    return payload.update({
+    const updateOptions: Parameters<typeof payload.update>[0] = {
       collection,
       context: SEED_CONTEXT,
       data,
       id: existing.id,
       overrideAccess: true,
-    })
+    }
+
+    return payload.update(updateOptions)
   }
 
-  return payload.create({
+  const createOptions: Parameters<typeof payload.create>[0] = {
     collection,
     context: SEED_CONTEXT,
     data,
     overrideAccess: true,
-  })
+  }
+
+  return payload.create(createOptions)
 }
 
 async function upsertUpload(

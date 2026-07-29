@@ -6,8 +6,8 @@ import { motion, useReducedMotion } from 'motion/react'
 
 import type { HeroBlock as HeroBlockType } from '@/payload-types'
 
-import blobFallback from '../../../public/media/blob.webp'
-import kidsFallback from '../../../public/media/kids.webp'
+import blobFallback from '../../../public/hero/blob.webp'
+import kidsFallback from '../../../public/hero/kids.webp'
 
 import { ImageMedia } from '@/components/shared/Media/ImageMedia'
 import { cn } from '@/utilities/ui'
@@ -120,7 +120,7 @@ export function HeroBlobIllustration({
             shouldReduceMotion={shouldReduceMotion}
           >
             <div className="relative h-full w-full">
-              <OrnamentImage loading="eager" src="/media/hero-ornaments/Bookoraa.svg" />
+              <OrnamentImage loading="eager" src="/hero/ornaments/Bookoraa.svg" />
             </div>
           </HeroReveal>
         ) : null}
@@ -160,7 +160,7 @@ export function HeroBlobIllustration({
                 aria-hidden="true"
                 fill
                 sizes="100vw"
-                src="/media/puzzle.webp"
+                src="/hero/puzzle.webp"
                 className="object-contain"
                 loading="lazy"
                 unoptimized
@@ -172,7 +172,7 @@ export function HeroBlobIllustration({
         {showWiggleLine ? (
           <div className="absolute right-[-2%] top-[-1%] sm:top-[0%] h-[clamp(3rem,6vw,4.5rem)] w-[clamp(7rem,12vw,10rem)] rotate-25 origin-center">
             <div className="relative h-full w-full">
-              <OrnamentImage loading="eager" src="/media/hero-ornaments/wiggle-line.svg" />
+              <OrnamentImage loading="eager" src="/hero/ornaments/wiggle-line.svg" />
             </div>
           </div>
         ) : null}
@@ -185,7 +185,7 @@ export function HeroBlobIllustration({
           shouldReduceMotion={shouldReduceMotion}
         >
           <div className="relative h-full w-full">
-            <OrnamentImage loading="eager" src="/media/hero-ornaments/stars.svg" />
+            <OrnamentImage loading="eager" src="/hero/ornaments/stars.svg" />
           </div>
         </HeroReveal>
       ) : null}
