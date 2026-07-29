@@ -116,8 +116,10 @@ async function upsertUpload(
       collection: 'media',
       context: SEED_CONTEXT,
       data: { alt },
+      filePath,
       id: existing.id,
       overrideAccess: true,
+      overwriteExistingFiles: true,
     })
   }
 

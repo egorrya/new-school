@@ -749,8 +749,10 @@ async function upsertUpload(
       data: {
         alt,
       },
+      filePath,
       id: existing.id,
       overrideAccess: true,
+      overwriteExistingFiles: true,
     })
   }
 
