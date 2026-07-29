@@ -2,7 +2,6 @@ import type { DefaultTypedEditorState } from '@payloadcms/richtext-lexical'
 
 import type { TabsBlock as TabsBlockType } from '@/payload-types'
 
-import { AnimatedTabs } from '@/components/shadcn-space/tabs/tabs-01'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
@@ -10,21 +9,75 @@ import {
   PageBlockSection,
   PageBlockSurface,
 } from '@/components/shared/PageBlock'
-import { MotionReveal } from '@/components/shared/MotionReveal'
 import RichText from '@/components/shared/RichText'
 
 import { RenderBlocks } from './RenderBlocks'
+import { TabsBlockClient } from './TabsBlock/TabsBlock.client'
 
 type TabsBlockProps = TabsBlockType & {
   pageUrl: string
+  clubId?: number | null
 }
 
 function hasRichText(data?: DefaultTypedEditorState | null) {
   return Boolean(data?.root?.children?.length)
 }
 
-export function TabsBlock({ title, description, tabs, pageUrl }: TabsBlockProps) {
+export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlockProps) {
   const tabItems = tabs ?? []
+  const tabsNavItems = tabItems.map((tab, index) => ({
+    id: `tab-${index}`,
+    title: tab.title,
+  }))
+  const tabPanels = tabItems.map((tab, index) => {
+    const nestedBlocks = tab.layout ?? []
+    const showRichText = hasRichText(tab.content)
+    const tabId = `tab-${index}`
+
+    return (
+      <PageBlockSurface
+        key={tabId}
+        id={tabId}
+        className="overflow-hidden bg-background px-5 py-7 sm:px-6 sm:py-8 lg:px-8 lg:py-10"
+        style={{
+          scrollMarginTop:
+            'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + var(--site-tabs-nav-height, 0px) + 2rem)',
+        }}
+      >
+        <div className="space-y-8">
+          <div className="mx-auto max-w-3xl space-y-6">
+            <h3 className="text-xl font-semibold sm:text-2xl">{tab.title}</h3>
+
+            {showRichText ? (
+              <RichText
+                data={tab.content as DefaultTypedEditorState}
+                enableGutter={false}
+                enableProse
+              />
+            ) : null}
+
+            {!showRichText && nestedBlocks.length === 0 ? (
+              <PageBlockEmptyState
+                description="Добавьте текст или вложенные screens в эту вкладку."
+                title="Вкладка пока пустая"
+              />
+            ) : null}
+          </div>
+
+          {nestedBlocks.length > 0 ? (
+            <div className="-mx-5 -mb-7 [&>section:first-child]:pt-0 sm:-mx-6 sm:-mb-8 lg:-mx-8 lg:-mb-10">
+              <RenderBlocks
+                allowFullScreenHero={false}
+                blocks={nestedBlocks}
+                clubId={clubId}
+                pageUrl={pageUrl}
+              />
+            </div>
+          ) : null}
+        </div>
+      </PageBlockSurface>
+    )
+  })
 
   return (
     <PageBlockSection>
@@ -41,50 +94,9 @@ export function TabsBlock({ title, description, tabs, pageUrl }: TabsBlockProps)
           ) : null}
 
           {tabItems.length > 0 ? (
-            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
-              <AnimatedTabs
-                tabs={tabItems.map((tab, index) => {
-                  const nestedBlocks = tab.layout ?? []
-                  const showRichText = hasRichText(tab.content)
-
-                  return {
-                    title: tab.title,
-                    value: tab.id || `${tab.title}-${index}`,
-                    content: (
-                      <PageBlockSurface className="overflow-hidden bg-background p-5 sm:p-6 lg:p-8">
-                        <div className="space-y-8">
-                          {showRichText ? (
-                            <RichText
-                              data={tab.content as DefaultTypedEditorState}
-                              enableGutter={false}
-                              enableProse
-                              className="max-w-3xl"
-                            />
-                          ) : null}
-
-                          {nestedBlocks.length > 0 ? (
-                            <div className="-mx-5 -mb-5 sm:-mx-6 sm:-mb-6 lg:-mx-8 lg:-mb-8">
-                              <RenderBlocks
-                                allowFullScreenHero={false}
-                                blocks={nestedBlocks}
-                                pageUrl={pageUrl}
-                              />
-                            </div>
-                          ) : null}
-
-                          {!showRichText && nestedBlocks.length === 0 ? (
-                            <PageBlockEmptyState
-                              description="Добавьте текст или вложенные screens в эту вкладку."
-                              title="Вкладка пока пустая"
-                            />
-                          ) : null}
-                        </div>
-                      </PageBlockSurface>
-                    ),
-                  }
-                })}
-              />
-            </MotionReveal>
+            <TabsBlockClient tabs={tabsNavItems}>
+              {tabPanels}
+            </TabsBlockClient>
           ) : (
             <PageBlockEmptyState
               description="Добавьте хотя бы одну вкладку, чтобы этот screen появился на сайте."

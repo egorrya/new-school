@@ -42,7 +42,7 @@ export function FooterMark({ inView }: FooterMarkProps) {
   const letters = Array.from(BRAND_MARK)
 
   return (
-    <div className="relative w-full overflow-visible" aria-hidden="true">
+    <div className="relative w-full overflow-x-hidden overflow-y-visible" aria-hidden="true">
       <motion.div
         className="font-heading flex w-full translate-y-[30%] cursor-default select-none justify-center whitespace-nowrap leading-none text-foreground"
         style={{ fontSize: 'clamp(2.15rem, 11.9vw, 15.3rem)' }}

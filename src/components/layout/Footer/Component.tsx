@@ -7,13 +7,14 @@ import { Logo } from '@/components/shared/Logo/Logo'
 import { FooterReveal } from './FooterReveal.client'
 
 export async function Footer() {
-  const [footerData, siteSettings] = await Promise.all([
+  const [footerData, headerData, siteSettings] = await Promise.all([
     getCachedGlobal('footer', 1)(),
+    getCachedGlobal('header', 1)(),
     getGlobal('site-settings', 1),
   ])
 
-  const footerNavigation = footerData?.footerNavigation || []
-  const legalLinks = footerData?.legalLinks || []
+  const navigationLinks = headerData?.navigationLinks || []
+  const secondaryLinks = headerData?.secondaryHeaderLinks || []
   const siteName = siteSettings?.siteName || 'Новая школа'
   const copyrightText =
     footerData?.copyrightText || `© ${new Date().getFullYear()} ${siteName}`
@@ -30,13 +31,14 @@ export async function Footer() {
               siteName={siteName}
             />
           </Link>
+          <p className="text-xs leading-relaxed text-foreground/60">{copyrightText}</p>
         </div>
       }
       legal={
         <div className="space-y-4">
-          <p className="text-sm text-foreground/60">Правовая информация</p>
+          <p className="text-sm text-foreground/60">Ещё</p>
           <nav className="grid gap-2">
-            {legalLinks.map(({ link }, i) => {
+            {secondaryLinks.map(({ link }, i) => {
               return (
                 <CMSLink
                   className="text-sm text-foreground/80 transition-colors hover:text-foreground"
@@ -46,14 +48,13 @@ export async function Footer() {
               )
             })}
           </nav>
-          <p className="pt-2 text-xs leading-relaxed text-foreground/60">{copyrightText}</p>
         </div>
       }
       navigation={
         <div className="space-y-4">
           <p className="text-sm text-foreground/60">Навигация</p>
           <nav className="grid gap-2">
-            {footerNavigation.map(({ link }, i) => {
+            {navigationLinks.map(({ link }, i) => {
               return (
                 <CMSLink
                   className="text-sm text-foreground/80 transition-colors hover:text-foreground"

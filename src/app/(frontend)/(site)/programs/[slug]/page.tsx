@@ -60,6 +60,33 @@ const queryClubBySlug = cache(async (slug: string) => {
   return (result.docs?.[0] as Club | undefined) || null
 })
 
+const queryCategoryClubCount = cache(async (categoryId: number, draft: boolean) => {
+  const payload = await getPayload({ config: configPromise })
+
+  const result = await payload.find({
+    collection: 'clubs',
+    draft,
+    limit: 0,
+    overrideAccess: draft,
+    where: {
+      and: [
+        {
+          category: {
+            equals: categoryId,
+          },
+        },
+        {
+          isActive: {
+            equals: true,
+          },
+        },
+      ],
+    },
+  })
+
+  return result.totalDocs
+})
+
 export default async function ClubPage({ params: paramsPromise }: Args) {
   const params = paramsPromise ? await paramsPromise : null
   const slug = params?.slug
@@ -74,16 +101,19 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
     notFound()
   }
 
+  const { isEnabled: draft } = await draftMode()
   const clubPageUrl = new URL(`/programs/${club.slug}`, getServerSideURL()).toString()
   const hasCoverImage = typeof club.coverImage === 'object' && club.coverImage !== null
   const category = typeof club.category === 'object' && club.category !== null ? club.category : null
+  const categoryClubCount = category ? await queryCategoryClubCount(category.id, draft) : 0
+  const showCategoryBadge = Boolean(category) && categoryClubCount > 1
 
   return (
     <>
       <PageBlockSection className="-mb-8 sm:-mb-12 lg:-mb-16">
         <PageBlockContainer>
           <div className="space-y-8">
-            {category ? (
+            {showCategoryBadge && category ? (
               <MotionReveal amount={0.35} duration={0.4} y={10}>
                 <div className="flex justify-center">
                   <Badge asChild variant="solid">

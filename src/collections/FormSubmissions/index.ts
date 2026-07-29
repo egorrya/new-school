@@ -4,7 +4,7 @@ import { authenticated } from '../../access/authenticated'
 import { CTA_FORM_TYPES, buildCTAFormSubmissionKey } from '@/utilities/ctaForm'
 
 const formTypeOptions = CTA_FORM_TYPES.map((value) => ({
-  label: value === 'application' ? 'Заявка' : value === 'callback' ? 'Обратный звонок' : 'Кружок',
+  label: value === 'application' ? 'Заявка' : value === 'callback' ? 'Обратный звонок' : 'Программа',
   value,
 }))
 
@@ -59,10 +59,10 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
       name: 'club',
       type: 'relationship',
       relationTo: 'clubs',
-      label: 'Кружок',
+      label: 'Программа',
       admin: {
         condition: (_, siblingData: { formType?: string } | undefined) => siblingData?.formType === 'club',
-        description: 'Заполняется только для заявки из страницы кружка.',
+        description: 'Заполняется только для заявки из страницы программы.',
       },
     },
     {

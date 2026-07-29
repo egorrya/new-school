@@ -13,6 +13,7 @@ import { Pages } from './collections/Pages'
 import { GalleryAlbums } from './collections/GalleryAlbums'
 import { Jobs } from './collections/Jobs'
 import { OrgInfoSections } from './collections/OrgInfoSections'
+import { ProgramCategories } from './collections/ProgramCategories'
 import { Reviews } from './collections/Reviews'
 import { Teachers } from './collections/Teachers'
 import { Users } from './collections/Users'
@@ -88,6 +89,7 @@ export default buildConfig({
   collections: [
     Pages,
     Clubs,
+    ProgramCategories,
     News,
     Teachers,
     Reviews,

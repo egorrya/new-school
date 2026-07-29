@@ -12,7 +12,7 @@ import { TestimonialsBlock } from '@/blocks/TestimonialsBlock/config'
 import { TextImageBlock } from '@/blocks/TextImageBlock/config'
 import { defaultLexical } from '@/fields/defaultLexical'
 
-const nestedTabBlocks: Block[] = [
+export const nestedTabBlocks: Block[] = [
   TextImageBlock,
   FeatureCardsBlock,
   AudienceBlock,

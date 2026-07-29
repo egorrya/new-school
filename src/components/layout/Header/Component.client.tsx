@@ -18,25 +18,29 @@ interface HeaderClientProps {
 
 const HEADER_SCROLL_BORDER_DISTANCE = 140
 const HEADER_SCROLL_BACKGROUND_DISTANCE = 220
-const HEADER_SCROLL_COMPACT_THRESHOLD = 48
+const HEADER_SCROLL_LOGO_DISTANCE = 140
 
 const headerShellClassName =
   'relative overflow-visible rounded-base border-2 border-transparent bg-transparent shadow-none'
 const headerRowClassName =
-  'flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-6'
-const headerLogoClassName =
-  'inline-flex h-[var(--site-header-logo-height)] shrink-0 items-center transition-[height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] data-[header-state=expanded]:h-[var(--site-header-logo-height-expanded)] lg:justify-self-start'
-const headerNavClassName = 'hidden lg:flex lg:justify-self-center'
-const headerActionsClassName = 'lg:justify-self-end'
+  'flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:gap-6'
+const headerLogoClassName = 'inline-flex shrink-0 items-center'
+// Height is tied directly to scroll position (see applyScrollState) instead of a
+// threshold-triggered CSS transition, so it shrinks in lockstep with the scroll
+// gesture at any speed instead of racing through a fixed-duration animation.
+const headerLogoHeightStyle = {
+  height:
+    'calc(var(--site-header-logo-height-expanded) - (var(--site-header-logo-height-expanded) - var(--site-header-logo-height)) * var(--site-header-logo-progress, 0))',
+} as const
+const headerNavClassName = 'hidden'
 const headerNavRevealDelay = 0.88
-const headerNavItemDelayStep = 0.18
-const headerNavAfterItemsDelay = 0.3
+const headerActionsRevealDelay = 0.7
 
 export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings }) => {
   const pathname = usePathname()
   const [logoState, setLogoState] = useState<'expanded' | 'compact'>('expanded')
+  const [menuOpen, setMenuOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion() ?? false
-  const navigationLinkCount = header.navigationLinks?.length ?? 0
   const shellRef = useRef<HTMLDivElement | null>(null)
   const rowRef = useRef<HTMLDivElement | null>(null)
   const logoRef = useRef<HTMLDivElement | null>(null)
@@ -72,18 +76,23 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
       const scrollY = window.scrollY
       const borderProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_BORDER_DISTANCE))
       const backgroundProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_BACKGROUND_DISTANCE))
+      const logoProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_LOGO_DISTANCE))
       const borderAlpha = 0.72 * borderProgress
-      const nextLogoState: 'expanded' | 'compact' =
-        scrollY >= HEADER_SCROLL_COMPACT_THRESHOLD ? 'compact' : 'expanded'
+      const nextLogoState: 'expanded' | 'compact' = logoProgress >= 0.5 ? 'compact' : 'expanded'
 
       shell.style.borderColor = `rgba(34, 34, 34, ${borderAlpha.toFixed(3)})`
       shell.style.backgroundColor = `rgba(255, 255, 255, ${backgroundProgress.toFixed(3)})`
+      logo.style.setProperty('--site-header-logo-progress', logoProgress.toFixed(3))
       setLogoState((current) => (current === nextLogoState ? current : nextLogoState))
 
       const fixedHeader = fixedHeaderRef.current
       if (fixedHeader) {
         const nextTop = Math.max(0, secondaryHeaderHeightRef.current - scrollY)
         fixedHeader.style.top = `${nextTop}px`
+        document.documentElement.style.setProperty(
+          '--site-header-fixed-bottom',
+          `${fixedHeader.getBoundingClientRect().bottom}px`,
+        )
       }
     }
     applyScrollStateRef.current = applyScrollState
@@ -121,6 +130,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
     if (!secondaryHeader) {
       secondaryHeaderHeightRef.current = 0
       document.documentElement.style.setProperty('--site-secondary-header-height', '0px')
+      document.documentElement.style.setProperty('--site-header-fixed-bottom', '0px')
       applyScrollStateRef.current?.()
       return
     }
@@ -130,6 +140,13 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
       secondaryHeaderHeightRef.current = height
       document.documentElement.style.setProperty('--site-secondary-header-height', `${height}px`)
       applyScrollStateRef.current?.()
+      const fixedHeader = fixedHeaderRef.current
+      if (fixedHeader) {
+        document.documentElement.style.setProperty(
+          '--site-header-fixed-bottom',
+          `${fixedHeader.getBoundingClientRect().bottom}px`,
+        )
+      }
     }
 
     updateHeight()
@@ -151,7 +168,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
       ) : null}
       <header
         ref={fixedHeaderRef}
-        className="container fixed inset-x-0 z-50 pt-(--site-header-top-offset)"
+        className={cn(
+          'container fixed inset-x-0 pt-(--site-header-top-offset)',
+          menuOpen ? 'z-50' : 'z-70',
+        )}
         style={{ top: 0 }}
         suppressHydrationWarning
       >
@@ -176,7 +196,6 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
           >
             <motion.div
               ref={logoRef}
-              data-header-state={logoState}
               className={cn(headerLogoClassName)}
               initial={shouldReduceMotion ? false : { opacity: 0, y: -10, filter: 'blur(2px)' }}
               transition={{ delay: 0.62, duration: 0.55, ease: 'easeOut' }}
@@ -184,7 +203,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
               whileInView={
                 shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }
               }
-              style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity, filter' }}
+              style={{
+                ...headerLogoHeightStyle,
+                ...(shouldReduceMotion ? undefined : { willChange: 'transform, opacity, filter' }),
+              }}
             >
               <Link
                 aria-label={siteSettings?.siteName || 'Новая школа'}
@@ -207,30 +229,15 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
               <HeaderNavLinks header={header} revealDelay={headerNavRevealDelay} />
             </div>
 
-            <motion.div
-              ref={actionsRef}
-              className={cn(headerActionsClassName)}
-              initial={shouldReduceMotion ? false : { opacity: 0, y: -10, filter: 'blur(2px)' }}
-              transition={{
-                delay:
-                  headerNavRevealDelay +
-                  navigationLinkCount * headerNavItemDelayStep +
-                  headerNavAfterItemsDelay,
-                duration: 0.3,
-                ease: 'easeOut',
-              }}
-              viewport={{ amount: 0.1, once: true }}
-              whileInView={
-                shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }
-              }
-              style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity, filter' }}
-            >
+            <div ref={actionsRef}>
               <HeaderNavActions
-                className="lg:justify-self-end"
                 header={header}
+                menuOpen={menuOpen}
+                onMenuOpenChange={setMenuOpen}
+                revealDelay={headerActionsRevealDelay}
                 siteSettings={siteSettings}
               />
-            </motion.div>
+            </div>
           </motion.div>
         </motion.div>
       </header>

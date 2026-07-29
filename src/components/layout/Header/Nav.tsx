@@ -2,11 +2,13 @@
 
 import Link from 'next/link'
 import React from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 
 import type { Header, SiteSetting } from '@/payload-types'
 
 import { Button } from '@/components/ui/button'
 import { MotionReveal } from '@/components/shared/MotionReveal'
+import { SiteSocialLinks } from '@/components/layout/SiteContacts'
 import { MobileMenu } from './MobileMenu.client'
 import { getDocumentHref } from '@/utilities/getDocumentHref'
 import { cn } from '@/utilities/ui'
@@ -25,6 +27,9 @@ type HeaderNavActionsProps = {
   className?: string
   header: Header
   siteSettings?: SiteSetting
+  menuOpen: boolean
+  onMenuOpenChange: (open: boolean) => void
+  revealDelay?: number
 }
 
 type SecondaryHeaderLinksProps = {
@@ -34,9 +39,10 @@ type SecondaryHeaderLinksProps = {
 
 const navigationLinkClassName =
   'inline-flex text-sm font-medium leading-none text-foreground transition-[font-size] duration-200 ease-out hover:text-base'
-const desktopCtaWrapperClassName = 'hidden lg:flex lg:items-center'
-const desktopCtaButtonClassName = 'w-auto'
 const navigationItemDelayStep = 0.18
+// Hamburger reveals slightly after the CTA button so the two don't pop in as one blob.
+const headerActionsStagger = 0.1
+const headerActionsRevealDuration = 0.22
 
 export function resolveHref(link: HeaderNavigationItem['link'] | SecondaryHeaderItem['link']) {
   if (link.type === 'reference') {
@@ -132,17 +138,65 @@ export function HeaderNavLinks({
   )
 }
 
-export function HeaderNavActions({ className, header, siteSettings }: HeaderNavActionsProps) {
+export function HeaderNavActions({
+  className,
+  header,
+  siteSettings,
+  menuOpen,
+  onMenuOpenChange,
+  revealDelay = 0,
+}: HeaderNavActionsProps) {
   const applicationText = siteSettings?.defaultApplicationCtaText || 'Оставить заявку'
+  const shouldReduceMotion = useReducedMotion() ?? false
+
+  const revealInitial = shouldReduceMotion ? false : { opacity: 0, y: -10, filter: 'blur(2px)' }
+  const revealWhileInView = shouldReduceMotion
+    ? undefined
+    : { opacity: 1, y: 0, filter: 'blur(0px)' }
+  const revealStyle = shouldReduceMotion ? undefined : { willChange: 'transform, opacity, filter' }
 
   return (
-    <div className={cn('flex items-center justify-end gap-2', className)}>
-      <MobileMenu header={header} siteSettings={siteSettings} />
-
-      <div className={desktopCtaWrapperClassName}>
-        <Button asChild className={desktopCtaButtonClassName}>
-          <Link href="/clubs">{applicationText}</Link>
-        </Button>
+    <div className={cn('flex items-center justify-end gap-6', className)}>
+      <motion.div
+        className="hidden min-[900px]:flex"
+        initial={revealInitial}
+        transition={{ delay: revealDelay, duration: headerActionsRevealDuration, ease: 'easeOut' }}
+        viewport={{ amount: 0.1, once: true }}
+        whileInView={revealWhileInView}
+        style={revealStyle}
+      >
+        <SiteSocialLinks siteSettings={siteSettings} variant="plain" />
+      </motion.div>
+      <div className="flex items-center gap-2">
+        <motion.div
+          className="hidden min-[900px]:inline-flex"
+          initial={revealInitial}
+          transition={{
+            delay: revealDelay + headerActionsStagger,
+            duration: headerActionsRevealDuration,
+            ease: 'easeOut',
+          }}
+          viewport={{ amount: 0.1, once: true }}
+          whileInView={revealWhileInView}
+          style={revealStyle}
+        >
+          <Button asChild>
+            <Link href="/contacts">{applicationText}</Link>
+          </Button>
+        </motion.div>
+        <motion.div
+          initial={revealInitial}
+          transition={{
+            delay: revealDelay + headerActionsStagger * 2,
+            duration: headerActionsRevealDuration,
+            ease: 'easeOut',
+          }}
+          viewport={{ amount: 0.1, once: true }}
+          whileInView={revealWhileInView}
+          style={revealStyle}
+        >
+          <MobileMenu header={header} onOpenChange={onMenuOpenChange} open={menuOpen} siteSettings={siteSettings} />
+        </motion.div>
       </div>
     </div>
   )

@@ -47,7 +47,7 @@ export const CTAFormBlock: Block = {
           value: 'callback',
         },
         {
-          label: 'Кружок',
+          label: 'Программа',
           value: 'club',
         },
       ],

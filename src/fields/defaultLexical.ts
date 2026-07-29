@@ -6,6 +6,7 @@ import {
   ParagraphFeature,
   lexicalEditor,
   UnderlineFeature,
+  UnorderedListFeature,
   type LinkFields,
 } from '@payloadcms/richtext-lexical'
 
@@ -17,6 +18,7 @@ export const defaultLexical = lexicalEditor({
     UnderlineFeature(),
     BoldFeature(),
     ItalicFeature(),
+    UnorderedListFeature(),
     LinkFeature({
       enabledCollections: internalLinkCollections,
       fields: ({ defaultFields }) => {

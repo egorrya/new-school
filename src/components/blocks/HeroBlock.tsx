@@ -46,7 +46,7 @@ export function HeroBlock({
       )}
     >
       <PageBlockContainer className="w-full">
-        <div className="relative w-full overflow-visible">
+        <div className="relative w-full overflow-x-clip">
           <div
             className={cn(
               'relative grid w-full gap-8 p-4 sm:p-6 lg:p-8 items-center',

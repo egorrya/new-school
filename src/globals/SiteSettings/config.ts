@@ -96,6 +96,14 @@ export const SiteSettings: GlobalConfig = {
       },
     },
     {
+      name: 'workingHours',
+      type: 'text',
+      label: 'Время работы',
+      admin: {
+        description: 'Например: 8:00 — 20:00.',
+      },
+    },
+    {
       name: 'vkUrl',
       type: 'text',
       label: 'Ссылка VK',

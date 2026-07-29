@@ -1,6 +1,6 @@
 'use client'
 
-import { Mail, MapPin, MessageCircle, Phone, type LucideIcon } from 'lucide-react'
+import { Clock, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react'
 import { motion, useReducedMotion } from 'motion/react'
 import React from 'react'
 
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
 
 type SiteContactProps = {
-  siteSettings?: Pick<SiteSetting, 'phone' | 'email' | 'address'>
+  siteSettings?: Pick<SiteSetting, 'phone' | 'email' | 'address' | 'workingHours'>
   className?: string
   variant?: 'card' | 'plain'
 }
@@ -19,7 +19,7 @@ type SocialLinkProps = {
   siteSettings?: Pick<SiteSetting, 'vkUrl' | 'maxUrl' | 'telegramUrl' | 'whatsappUrl'>
   className?: string
   size?: React.ComponentProps<typeof Button>['size']
-  variant?: 'button' | 'icon'
+  variant?: 'button' | 'icon' | 'plain'
 }
 
 type IconComponent = LucideIcon | React.ComponentType<React.SVGProps<SVGSVGElement>>
@@ -60,6 +60,26 @@ function TelegramIcon(props: React.SVGProps<SVGSVGElement>) {
   )
 }
 
+function MaxIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 1000 1000" fill="currentColor" {...props}>
+      <defs>
+        <linearGradient id="maxGradB">
+          <stop offset="0" stopColor="currentColor" />
+          <stop offset="1" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="maxGradA">
+          <stop offset="0" stopColor="currentColor" />
+          <stop offset=".662" stopColor="currentColor" />
+          <stop offset="1" stopColor="currentColor" />
+        </linearGradient>
+      </defs>
+      <rect width="1000" height="1000" fill="url(#maxGradA)" ry="249.681" />
+      <path fill="white" fillRule="evenodd" d="M508.211 878.328c-75.007 0-109.864-10.95-170.453-54.75-38.325 49.275-159.686 87.783-164.979 21.9 0-49.456-10.95-91.248-23.36-136.873-14.782-56.21-31.572-118.807-31.572-209.508 0-216.626 177.754-379.597 388.357-379.597 210.785 0 375.947 171.001 375.947 381.604.707 207.346-166.595 376.118-373.94 377.224m3.103-571.585c-102.564-5.292-182.499 65.7-200.201 177.024-14.6 92.162 11.315 204.398 33.397 210.238 10.585 2.555 37.23-18.98 53.837-35.587a189.8 189.8 0 0 0 92.71 33.032c106.273 5.112 197.08-75.794 204.215-181.95 4.154-106.382-77.67-196.486-183.958-202.574Z" clipRule="evenodd" />
+    </svg>
+  )
+}
+
 function WhatsappIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
@@ -70,7 +90,7 @@ function WhatsappIcon(props: React.SVGProps<SVGSVGElement>) {
 
 const socialItems: Array<{ key: string; label: string; icon: IconComponent }> = [
   { key: 'vk', label: 'VK', icon: VkIcon },
-  { key: 'max', label: 'MAX', icon: MessageCircle },
+  { key: 'max', label: 'MAX', icon: MaxIcon },
   { key: 'telegram', label: 'Telegram', icon: TelegramIcon },
   { key: 'whatsapp', label: 'WhatsApp', icon: WhatsappIcon },
 ]
@@ -121,6 +141,29 @@ export function SiteSocialLinks({
 
   if (socialLinks.length === 0) {
     return null
+  }
+
+  if (variant === 'plain') {
+    return (
+      <div className={cn('flex items-center gap-4', className)}>
+        {socialLinks.map((item) => {
+          const Icon = item.icon
+
+          return (
+            <a
+              aria-label={item.label}
+              className="inline-flex size-5 items-center justify-center text-foreground transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:text-main motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100"
+              href={item.href}
+              key={item.key}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <Icon aria-hidden="true" className="size-full" />
+            </a>
+          )
+        })}
+      </div>
+    )
   }
 
   if (variant === 'icon') {
@@ -184,6 +227,14 @@ export function SiteContacts({ siteSettings, className, variant = 'card' }: Site
       icon: MapPin,
       label: 'Адрес',
       value: siteSettings.address,
+    })
+  }
+
+  if (siteSettings?.workingHours) {
+    contactEntries.push({
+      icon: Clock,
+      label: 'Время работы',
+      value: siteSettings.workingHours,
     })
   }
 

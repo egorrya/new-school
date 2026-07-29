@@ -11,5 +11,13 @@ export const getDocumentHref = (relationTo: string, slug?: string | null) => {
     return `/organization-info/${slug}`
   }
 
+  if (relationTo === 'clubs') {
+    return `/programs/${slug}`
+  }
+
+  if (relationTo === 'programCategories') {
+    return `/programs/category/${slug}`
+  }
+
   return `/${relationTo}/${slug}`
 }

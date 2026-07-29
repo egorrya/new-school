@@ -5,7 +5,6 @@ import type {
   News,
   OrgInfoSection,
   Review,
-  Teacher,
 } from '@/payload-types'
 import type { ReactNode } from 'react'
 
@@ -17,7 +16,6 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, type cardVariants } from '@/components/ui/card'
-import RichText from '@/components/shared/RichText'
 import { MediaFrame } from '@/components/shared/MediaFrame'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import { getDocumentHref } from '@/utilities/getDocumentHref'
@@ -102,60 +100,32 @@ export function NewsCard({
 
   return (
     <MotionReveal blur={2} delay={index * 0.08} duration={0.47} y={18}>
-      <div className="flex h-full flex-col space-y-3 transition-transform duration-300 ease-out hover:-translate-y-2">
-        <Link aria-label={news.title} className="block" href={href}>
-          <MediaFrame
-            alt={news.title}
-            aspectClassName="aspect-[16/10]"
-            fallbackImageSrc="/seed-media/seed-banner-1.svg"
-            priority={priority}
-            resource={news.coverImage}
-          >
-            <Badge className="absolute right-3 bottom-3" variant="solid">
-              {formatRussianDate(news.publishedAt)}
-            </Badge>
-          </MediaFrame>
-        </Link>
+      <Link
+        aria-label={news.title}
+        className="group flex h-full flex-col space-y-3 transition-transform duration-300 ease-out hover:-translate-y-2"
+        href={href}
+      >
+        <MediaFrame
+          alt={news.title}
+          aspectClassName="aspect-[16/10]"
+          fallbackImageSrc="/seed-media/seed-banner-1.svg"
+          priority={priority}
+          resource={news.coverImage}
+        >
+          <Badge className="absolute right-3 bottom-3" variant="solid">
+            {formatRussianDate(news.publishedAt)}
+          </Badge>
+        </MediaFrame>
 
-        <h3 className="font-heading text-2xl leading-[1.1]">
-          <Link className="transition-colors hover:text-main" href={href}>
-            {news.title}
-          </Link>
+        <h3 className="font-heading text-2xl leading-[1.1] transition-colors group-hover:text-main">
+          {news.title}
         </h3>
 
         <p className="text-sm leading-relaxed text-foreground/80">
           {news.excerpt || 'Анонс новости пока не добавлен.'}
         </p>
-      </div>
+      </Link>
     </MotionReveal>
-  )
-}
-
-export function TeacherCard({ teacher }: { teacher: Teacher }) {
-  return (
-    <CollectionCardShell>
-      <div className="grid gap-4 sm:grid-cols-[minmax(7rem,0.7fr)_minmax(0,1fr)] sm:items-start">
-        <MediaFrame
-          alt={teacher.name}
-          aspectClassName="aspect-square"
-          resource={teacher.photo}
-        />
-
-        <div className="space-y-3">
-          <Badge variant="neutral">{teacher.position || 'Преподаватель'}</Badge>
-          <h3 className="font-heading text-2xl leading-[1.1]">{teacher.name}</h3>
-          {teacher.description ? (
-            <div className="text-sm leading-relaxed text-foreground/80">
-              <RichText data={teacher.description} enableGutter={false} enableProse={false} />
-            </div>
-          ) : (
-            <p className="text-sm leading-relaxed text-foreground/70">
-              Профиль преподавателя пока не заполнен.
-            </p>
-          )}
-        </div>
-      </div>
-    </CollectionCardShell>
   )
 }
 

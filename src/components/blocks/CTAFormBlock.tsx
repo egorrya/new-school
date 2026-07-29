@@ -8,6 +8,7 @@ import { PageBlockHeader } from '@/components/shared/PageBlock'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import { SiteContacts, SiteSocialLinks } from '@/components/layout/SiteContacts'
 import { getGlobal } from '@/utilities/getGlobals'
+import { cn } from '@/utilities/ui'
 import {
   CTA_FORM_TYPES,
   buildCTAFormSubmissionKey,
@@ -69,7 +70,7 @@ export async function CTAFormBlock({
   formType,
   pageUrl,
 }: Props) {
-  const siteSettings = await getGlobal('site-settings', 1)
+  const siteSettings = clubId ? undefined : await getGlobal('site-settings', 1)
 
   async function submitCTAForm(
     _previousState: CTAFormState,
@@ -191,21 +192,23 @@ export async function CTAFormBlock({
     <PageBlockSection>
       <PageBlockContainer>
         <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
-          <div className="grid items-center gap-0 overflow-hidden lg:grid-cols-12">
-            <div className="border-b-2 border-border p-6 sm:p-8 lg:border-b-0 lg:col-span-7 lg:p-10">
-              <PageBlockHeader
-                description={description}
-                title="Есть вопросы? Мы рядом"
-                titleClassName="text-2xl sm:text-3xl lg:text-4xl"
-              />
+          <div className={cn('grid items-center gap-0 overflow-hidden', !clubId && 'lg:grid-cols-12')}>
+            {!clubId ? (
+              <div className="p-6 sm:p-8 lg:col-span-7 lg:p-10">
+                <PageBlockHeader
+                  description={description}
+                  title="Есть вопросы? Мы рядом"
+                  titleClassName="text-2xl sm:text-3xl lg:text-4xl"
+                />
 
-              <div className="mt-8 space-y-6">
-                <SiteContacts siteSettings={siteSettings} variant="plain" />
-                <SiteSocialLinks siteSettings={siteSettings} variant="icon" />
+                <div className="mt-8 space-y-6">
+                  <SiteContacts siteSettings={siteSettings} variant="plain" />
+                  <SiteSocialLinks siteSettings={siteSettings} variant="icon" />
+                </div>
               </div>
-            </div>
+            ) : null}
 
-            <div className="p-6 sm:p-8 lg:col-span-5 lg:p-10">
+            <div className={cn('p-6 sm:p-8 lg:p-10', !clubId && 'lg:col-span-5')}>
               <CTAFormClient
                 action={submitCTAForm as CTAFormAction}
                 buttonLabel={buttonLabel}

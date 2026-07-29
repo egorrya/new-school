@@ -16,6 +16,12 @@ export async function SiteContactsSection() {
 
   const headersList = await headers()
   const pathname = headersList.get('x-pathname') || '/'
+  const normalizedPathname = pathname.replace(/\/$/, '') || '/'
+
+  if (normalizedPathname === '/contacts') {
+    return null
+  }
+
   const pageUrl = new URL(pathname, getServerSideURL()).toString()
 
   return (

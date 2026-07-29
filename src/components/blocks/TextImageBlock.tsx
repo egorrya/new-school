@@ -13,7 +13,7 @@ export function TextImageBlock({ title, text, image, imagePosition }: TextImageB
     <PageBlockSection>
       <PageBlockContainer>
         <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
-          <div className="grid gap-0 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-0 lg:grid-cols-2">
             <div
               className={cn(
                 'flex flex-col justify-center gap-6 p-6 sm:p-8 lg:p-10',

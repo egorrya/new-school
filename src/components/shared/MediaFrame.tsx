@@ -33,7 +33,7 @@ export function MediaFrame({
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-base border-2 border-border bg-secondary-background shadow-shadow',
+        'relative w-full min-w-0 overflow-hidden rounded-base border-2 border-border bg-secondary-background shadow-shadow',
         aspectClassName,
         className,
       )}

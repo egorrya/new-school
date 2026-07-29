@@ -23,6 +23,15 @@ export const ProgramBlock: Block = {
       },
     },
     {
+      name: 'hideHeader',
+      type: 'checkbox',
+      label: 'Скрыть заголовок и текст',
+      defaultValue: false,
+      admin: {
+        description: 'Показать только пункты программы, без заголовка и текста над ними.',
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       label: 'Пункты',

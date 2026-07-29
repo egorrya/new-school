@@ -1,0 +1,18 @@
+export const clubInfoCardIconOptions = [
+  { label: 'Ребёнок (возраст)', value: 'baby' },
+  { label: 'Группа людей', value: 'users' },
+  { label: 'Звезда', value: 'star' },
+  { label: 'Календарь', value: 'calendar-days' },
+  { label: 'Часы', value: 'clock' },
+  { label: 'Выпускная шапка', value: 'graduation-cap' },
+  { label: 'Книга', value: 'book-open' },
+  { label: 'Рукопожатие', value: 'heart-handshake' },
+  { label: 'Искры', value: 'sparkles' },
+  { label: 'Палитра', value: 'palette' },
+  { label: 'Нота', value: 'music' },
+  { label: 'Микрофон', value: 'mic' },
+  { label: 'Столовые приборы', value: 'utensils' },
+  { label: 'Перо', value: 'pen-tool' },
+  { label: 'Кубок', value: 'trophy' },
+  { label: 'Медаль', value: 'award' },
+]

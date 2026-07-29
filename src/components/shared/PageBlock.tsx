@@ -100,7 +100,7 @@ export function PageBlockHeader({
 
 type PageBlockEmptyStateProps = {
   title?: string
-  description?: string
+  description?: string | null
   className?: string
 }
 
@@ -117,7 +117,11 @@ export function PageBlockEmptyState({
       )}
     >
       <p className="font-heading text-lg leading-tight">{title}</p>
-      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/80">{description}</p>
+      {description ? (
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/80">
+          {description}
+        </p>
+      ) : null}
     </div>
   )
 }

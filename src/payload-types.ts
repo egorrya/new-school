@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     pages: Page;
     clubs: Club;
+    programCategories: ProgramCategory;
     news: News;
     teachers: Teacher;
     reviews: Review;
@@ -94,6 +95,7 @@ export interface Config {
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     clubs: ClubsSelect<false> | ClubsSelect<true>;
+    programCategories: ProgramCategoriesSelect<false> | ProgramCategoriesSelect<true>;
     news: NewsSelect<false> | NewsSelect<true>;
     teachers: TeachersSelect<false> | TeachersSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
@@ -176,17 +178,20 @@ export interface Page {
   layout?:
     | (
         | HeroBlock
+        | TitleDescriptionBlock
         | MarqueeBlock
         | TextImageBlock
         | FeatureCardsBlock
         | AudienceBlock
         | ProgramBlock
+        | ProgramCategoriesBlock
         | ScheduleBlock
         | TabsBlock
         | TeacherListBlock
         | TestimonialsBlock
         | CollectionGridBlock
         | FaqBlock
+        | ContactsBlock
         | CTAFormBlock
       )[]
     | null;
@@ -366,6 +371,20 @@ export interface FolderInterface {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TitleDescriptionBlock".
+ */
+export interface TitleDescriptionBlock {
+  title: string;
+  /**
+   * Краткий текст под заголовком.
+   */
+  description?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'titleDescription';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "MarqueeBlock".
  */
 export interface MarqueeBlock {
@@ -454,6 +473,10 @@ export interface AudienceBlock {
    */
   text?: string | null;
   /**
+   * Показать только карточки с пунктами, без заголовка и текста над ними.
+   */
+  hideHeader?: boolean | null;
+  /**
    * Добавьте пункты для блока.
    */
   items?:
@@ -481,6 +504,10 @@ export interface ProgramBlock {
    */
   description?: string | null;
   /**
+   * Показать только пункты программы, без заголовка и текста над ними.
+   */
+  hideHeader?: boolean | null;
+  /**
    * Добавьте пункты программы.
    */
   items?:
@@ -499,6 +526,24 @@ export interface ProgramBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgramCategoriesBlock".
+ */
+export interface ProgramCategoriesBlock {
+  title?: string | null;
+  /**
+   * Если отмечено, заголовок не будет отображаться.
+   */
+  hideTitle?: boolean | null;
+  /**
+   * Краткий текст под заголовком.
+   */
+  description?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'programCategories';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ScheduleBlock".
  */
 export interface ScheduleBlock {
@@ -507,6 +552,10 @@ export interface ScheduleBlock {
    * Краткий текст перед расписанием.
    */
   description?: string | null;
+  /**
+   * Показать только расписание, без заголовка и текста над ним.
+   */
+  hideHeader?: boolean | null;
   /**
    * Добавьте строки с расписанием.
    */
@@ -794,6 +843,20 @@ export interface CTAFormBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactsBlock".
+ */
+export interface ContactsBlock {
+  title?: string | null;
+  /**
+   * Короткое пояснение над контактами.
+   */
+  description?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contacts';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "clubs".
  */
 export interface Club {
@@ -805,30 +868,115 @@ export interface Club {
   generateSlug?: boolean | null;
   slug: string;
   /**
+   * Категория программы.
+   */
+  category?: (number | null) | ProgramCategory;
+  /**
    * Короткий анонс для карточек и списков.
    */
   shortDescription?: string | null;
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
+  /**
+   * Используется в карточках на странице списка программ. Если не указано, используется обложка.
+   */
+  previewImage?: (number | null) | Media;
+  /**
+   * Короткие карточки под описанием программы: например возраст, формат занятий, расписание.
+   */
+  infoCards?:
+    | {
+        title: string;
+        description: string;
+        icon:
+          | 'baby'
+          | 'users'
+          | 'star'
+          | 'calendar-days'
+          | 'clock'
+          | 'graduation-cap'
+          | 'book-open'
+          | 'heart-handshake'
+          | 'sparkles'
+          | 'palette'
+          | 'music'
+          | 'mic'
+          | 'utensils'
+          | 'pen-tool'
+          | 'trophy'
+          | 'award';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Крупное изображение на странице программы, под мини-карточками.
+   */
   coverImage?: (number | null) | Media;
-  ageText?: string | null;
-  scheduleText?: string | null;
-  priceText?: string | null;
+  /**
+   * Широкая обложка обрезается по высоте — выберите, какую часть изображения показывать.
+   */
+  coverImagePosition?: ('top' | 'center' | 'bottom') | null;
+  /**
+   * Содержимое страницы программы: заголовок выводится по центру, а вкладки — под ним. В каждой вкладке можно добавить текст и вложенные screens (расписание, программа занятий, FAQ и т.д.).
+   */
+  tabs?:
+    | {
+        title: string;
+        content?: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+        /**
+         * Можно добавлять любые screens, кроме блока вкладок.
+         */
+        layout?:
+          | (
+              | TextImageBlock
+              | FeatureCardsBlock
+              | AudienceBlock
+              | ProgramBlock
+              | ScheduleBlock
+              | TeacherListBlock
+              | TestimonialsBlock
+              | CollectionGridBlock
+              | FaqBlock
+              | CTAFormBlock
+            )[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
   isActive?: boolean | null;
   sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programCategories".
+ */
+export interface ProgramCategory {
+  id: number;
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  description?: string | null;
+  /**
+   * Используется как фон карточки категории на странице списка программ.
+   */
+  previewImage?: (number | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -963,7 +1111,7 @@ export interface FormSubmission {
   pageUrl: string;
   formType: 'application' | 'callback' | 'club';
   /**
-   * Заполняется только для заявки из страницы кружка.
+   * Заполняется только для заявки из страницы программы.
    */
   club?: (number | null) | Club;
   submissionKey: string;
@@ -1158,6 +1306,10 @@ export interface PayloadLockedDocument {
         value: number | Club;
       } | null)
     | ({
+        relationTo: 'programCategories';
+        value: number | ProgramCategory;
+      } | null)
+    | ({
         relationTo: 'news';
         value: number | News;
       } | null)
@@ -1254,17 +1406,20 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        titleDescription?: T | TitleDescriptionBlockSelect<T>;
         marquee?: T | MarqueeBlockSelect<T>;
         textImage?: T | TextImageBlockSelect<T>;
         featureCards?: T | FeatureCardsBlockSelect<T>;
         audience?: T | AudienceBlockSelect<T>;
         program?: T | ProgramBlockSelect<T>;
+        programCategories?: T | ProgramCategoriesBlockSelect<T>;
         schedule?: T | ScheduleBlockSelect<T>;
         tabs?: T | TabsBlockSelect<T>;
         teacherList?: T | TeacherListBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
         collectionGrid?: T | CollectionGridBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
+        contacts?: T | ContactsBlockSelect<T>;
         ctaForm?: T | CTAFormBlockSelect<T>;
       };
   meta?:
@@ -1293,6 +1448,16 @@ export interface HeroBlockSelect<T extends boolean = true> {
   kidsImage?: T;
   primaryButtonLabel?: T;
   primaryButtonLink?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TitleDescriptionBlock_select".
+ */
+export interface TitleDescriptionBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
   id?: T;
   blockName?: T;
 }
@@ -1349,6 +1514,7 @@ export interface FeatureCardsBlockSelect<T extends boolean = true> {
 export interface AudienceBlockSelect<T extends boolean = true> {
   title?: T;
   text?: T;
+  hideHeader?: T;
   items?:
     | T
     | {
@@ -1366,6 +1532,7 @@ export interface AudienceBlockSelect<T extends boolean = true> {
 export interface ProgramBlockSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  hideHeader?: T;
   items?:
     | T
     | {
@@ -1378,11 +1545,23 @@ export interface ProgramBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProgramCategoriesBlock_select".
+ */
+export interface ProgramCategoriesBlockSelect<T extends boolean = true> {
+  title?: T;
+  hideTitle?: T;
+  description?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "ScheduleBlock_select".
  */
 export interface ScheduleBlockSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  hideHeader?: T;
   scheduleItems?:
     | T
     | {
@@ -1496,20 +1675,71 @@ export interface CTAFormBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ContactsBlock_select".
+ */
+export interface ContactsBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "clubs_select".
  */
 export interface ClubsSelect<T extends boolean = true> {
   title?: T;
   generateSlug?: T;
   slug?: T;
+  category?: T;
   shortDescription?: T;
-  description?: T;
+  previewImage?: T;
+  infoCards?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        icon?: T;
+        id?: T;
+      };
   coverImage?: T;
-  ageText?: T;
-  scheduleText?: T;
-  priceText?: T;
+  coverImagePosition?: T;
+  tabs?:
+    | T
+    | {
+        title?: T;
+        content?: T;
+        layout?:
+          | T
+          | {
+              textImage?: T | TextImageBlockSelect<T>;
+              featureCards?: T | FeatureCardsBlockSelect<T>;
+              audience?: T | AudienceBlockSelect<T>;
+              program?: T | ProgramBlockSelect<T>;
+              schedule?: T | ScheduleBlockSelect<T>;
+              teacherList?: T | TeacherListBlockSelect<T>;
+              testimonials?: T | TestimonialsBlockSelect<T>;
+              collectionGrid?: T | CollectionGridBlockSelect<T>;
+              faq?: T | FaqBlockSelect<T>;
+              ctaForm?: T | CTAFormBlockSelect<T>;
+            };
+        id?: T;
+      };
   isActive?: T;
   sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programCategories_select".
+ */
+export interface ProgramCategoriesSelect<T extends boolean = true> {
+  title?: T;
+  generateSlug?: T;
+  slug?: T;
+  description?: T;
+  previewImage?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1872,6 +2102,10 @@ export interface SiteSetting {
    */
   address?: string | null;
   /**
+   * Например: 8:00 — 20:00.
+   */
+  workingHours?: string | null;
+  /**
    * Ссылка на сообщество VK.
    */
   vkUrl?: string | null;
@@ -1938,6 +2172,37 @@ export interface Header {
           url?: string | null;
           label: string;
         };
+        /**
+         * Если добавлены подпункты, при клике на этот пункт меню будет открываться список подпунктов вместо перехода по ссылке.
+         */
+        subLinks?:
+          | {
+              link: {
+                type?: ('reference' | 'custom') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'news';
+                      value: number | News;
+                    } | null)
+                  | ({
+                      relationTo: 'clubs';
+                      value: number | Club;
+                    } | null)
+                  | ({
+                      relationTo: 'org-info-sections';
+                      value: number | OrgInfoSection;
+                    } | null);
+                url?: string | null;
+                label: string;
+              };
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -2066,6 +2331,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   phone?: T;
   email?: T;
   address?: T;
+  workingHours?: T;
   vkUrl?: T;
   maxUrl?: T;
   telegramUrl?: T;
@@ -2097,6 +2363,20 @@ export interface HeaderSelect<T extends boolean = true> {
               reference?: T;
               url?: T;
               label?: T;
+            };
+        subLinks?:
+          | T
+          | {
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
             };
         id?: T;
       };

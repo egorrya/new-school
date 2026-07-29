@@ -15,6 +15,17 @@ export const CollectionGridBlock: Block = {
       type: 'text',
       label: 'Заголовок',
       required: true,
+      hooks: {
+        beforeValidate: [
+          ({ value, siblingData }) => {
+            if (!value && siblingData?.collectionType === 'reviews') {
+              return 'О нас говорят'
+            }
+
+            return value
+          },
+        ],
+      },
     },
     {
       name: 'hideTitle',
@@ -36,7 +47,7 @@ export const CollectionGridBlock: Block = {
       label: 'Тип материалов',
       required: true,
       options: [
-        { label: 'Кружки', value: 'clubs' },
+        { label: 'Программы', value: 'clubs' },
         { label: 'Новости', value: 'news' },
         { label: 'Преподаватели', value: 'teachers' },
         { label: 'Отзывы', value: 'reviews' },
@@ -54,7 +65,8 @@ export const CollectionGridBlock: Block = {
       defaultValue: 6,
       min: 1,
       admin: {
-        condition: (_data, siblingData) => siblingData?.collectionType !== 'galleryAlbums',
+        condition: (_data, siblingData) =>
+          siblingData?.collectionType !== 'galleryAlbums' && siblingData?.collectionType !== 'teachers',
         description: 'Максимум карточек в выдаче.',
       },
     },

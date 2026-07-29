@@ -92,7 +92,7 @@ const getPagesSitemap = unstable_cache(
         lastmod: news.updatedAt || dateFallback,
       })),
       ...(clubsResult.docs || []).map((club) => ({
-        loc: `${SITE_URL}/clubs/${club.slug}`,
+        loc: `${SITE_URL}/programs/${club.slug}`,
         lastmod: club.updatedAt || dateFallback,
       })),
       ...(galleryAlbumsResult.docs || []).map((album) => ({

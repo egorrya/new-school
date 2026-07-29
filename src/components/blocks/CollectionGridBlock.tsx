@@ -12,7 +12,6 @@ import { ClubCard } from '@/components/clubs/ClubCard'
 import {
   JobCard,
   NewsCard,
-  TeacherCard,
 } from '@/components/collections/CollectionCards'
 import {
   GalleryPhotoSlider,
@@ -20,9 +19,11 @@ import {
 import { buildGalleryPhotoSlides } from '@/components/collections/galleryPhotoSlides'
 import { CollectionGridHeader } from '@/components/blocks/CollectionGridHeader'
 import { CollectionGridReveal } from '@/components/blocks/CollectionGridReveal'
+import { TeacherListGrid } from '@/components/blocks/TeacherListBlock.client'
 import { TestimonialsCarousel } from '@/components/blocks/TestimonialsCarousel.client'
 import { toTestimonialItems } from '@/components/blocks/testimonials'
 import { collectionListingPaths } from '@/blocks/CollectionGridBlock/collectionListingPaths'
+import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import configPromise from '@payload-config'
 import { draftMode } from 'next/headers'
@@ -105,7 +106,6 @@ async function getCollectionDocuments<T extends CollectionType>(
       const result = await payload.find({
         collection: 'teachers',
         depth: 1,
-        limit: resolvedItemLimit,
         overrideAccess: false,
         sort: collectionSorts.teachers,
         pagination: false,
@@ -222,6 +222,8 @@ export async function CollectionGridBlock({
               )
             ) : collectionType === 'reviews' && items.length > 0 ? (
               <TestimonialsCarousel testimonials={toTestimonialItems(items as Review[])} />
+            ) : collectionType === 'teachers' && items.length > 0 ? (
+              <TeacherListGrid teachers={items as Teacher[]} />
             ) : items.length > 0 ? (
               <div
                 className={cn(
@@ -231,7 +233,12 @@ export async function CollectionGridBlock({
               >
                 {collectionType === 'clubs'
                   ? (items as Club[]).map((item, index) => (
-                      <ClubCard key={item.id || `${item.title}-${index}`} club={item} />
+                      <ClubCard
+                        club={item}
+                        index={index}
+                        key={item.id || `${item.title}-${index}`}
+                        priority={index === 0}
+                      />
                     ))
                   : null}
                 {collectionType === 'news'
@@ -244,11 +251,6 @@ export async function CollectionGridBlock({
                       />
                     ))
                   : null}
-                {collectionType === 'teachers'
-                  ? (items as Teacher[]).map((item, index) => (
-                      <TeacherCard key={item.id || `${item.name}-${index}`} teacher={item} />
-                    ))
-                  : null}
                 {collectionType === 'jobs'
                   ? (items as Job[]).map((item, index) => (
                       <JobCard index={index} key={item.id || `${item.title}-${index}`} job={item} />
@@ -257,9 +259,10 @@ export async function CollectionGridBlock({
               </div>
             ) : (
               <PageBlockEmptyState
+                className={collectionType === 'jobs' ? 'mx-auto w-fit max-w-full' : undefined}
                 description={
                   collectionType === 'clubs'
-                    ? 'Добавьте хотя бы один активный кружок в Payload, чтобы он появился в этой сетке.'
+                    ? 'Добавьте хотя бы одну активную программу в Payload, чтобы она появилась в этой сетке.'
                     : collectionType === 'news'
                       ? 'Добавьте опубликованные новости в Payload, чтобы они появились в этой сетке.'
                       : collectionType === 'teachers'
@@ -267,12 +270,12 @@ export async function CollectionGridBlock({
                         : collectionType === 'reviews'
                           ? 'Добавьте опубликованные отзывы, чтобы показать социальное доказательство.'
                           : collectionType === 'jobs'
-                            ? 'Добавьте активные вакансии, чтобы их увидели посетители.'
+                            ? null
                             : 'Добавьте альбомы галереи с фотографиями, чтобы показать эту секцию.'
                 }
                 title={
                   collectionType === 'clubs'
-                    ? 'Активные кружки пока не найдены'
+                    ? 'Активные программы пока не найдены'
                     : collectionType === 'news'
                       ? 'Новостей пока нет'
                       : collectionType === 'teachers'
@@ -280,7 +283,7 @@ export async function CollectionGridBlock({
                       : collectionType === 'reviews'
                         ? 'Отзывы пока не добавлены'
                         : collectionType === 'jobs'
-                          ? 'Вакансии пока не добавлены'
+                          ? 'В данный момент вакансий нет'
                           : 'Альбомы галереи пока не добавлены'
                 }
               />
@@ -288,11 +291,13 @@ export async function CollectionGridBlock({
           </CollectionGridReveal>
 
           {showViewAllButton && viewAllHref && items.length > 0 ? (
-            <div className="flex justify-center">
-              <Button asChild>
-                <Link href={viewAllHref}>{viewAllButtonLabel || 'Смотреть все'}</Link>
-              </Button>
-            </div>
+            <MotionReveal once={false}>
+              <div className="flex justify-center">
+                <Button asChild>
+                  <Link href={viewAllHref}>{viewAllButtonLabel || 'Смотреть все'}</Link>
+                </Button>
+              </div>
+            </MotionReveal>
           ) : null}
         </div>
       </PageBlockContainer>

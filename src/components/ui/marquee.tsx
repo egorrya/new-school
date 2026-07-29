@@ -6,7 +6,7 @@ import { cn } from '@/utilities/ui'
 
 const minRepeatCount = 2
 const marqueeDuration = '24s'
-const itemBackgroundColors = [
+export const itemBackgroundColors = [
   '#0878B8',
   '#FD5B19',
   '#FE1922',
@@ -28,7 +28,7 @@ type MarqueeStyle = CSSProperties & {
   '--marquee-duration'?: string
 }
 
-const getItemTextColor = (backgroundColor: string) => {
+export const getItemTextColor = (backgroundColor: string) => {
   if (backgroundColor.toUpperCase() === '#FECA15') {
     return '#ffffff'
   }

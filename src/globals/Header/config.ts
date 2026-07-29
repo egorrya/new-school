@@ -27,6 +27,22 @@ export const Header: GlobalConfig = {
         link({
           appearances: false,
         }),
+        {
+          name: 'subLinks',
+          type: 'array',
+          label: 'Подпункты меню',
+          maxRows: 12,
+          fields: [
+            link({
+              appearances: false,
+            }),
+          ],
+          admin: {
+            initCollapsed: true,
+            description:
+              'Если добавлены подпункты, при клике на этот пункт меню будет открываться список подпунктов вместо перехода по ссылке.',
+          },
+        },
       ],
       admin: {
         initCollapsed: true,

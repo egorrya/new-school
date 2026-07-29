@@ -12,20 +12,22 @@ import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import { cn } from '@/utilities/ui'
 
-export function ScheduleBlock({ title, description, scheduleItems }: ScheduleBlockType) {
+export function ScheduleBlock({ hideHeader, title, description, scheduleItems }: ScheduleBlockType) {
   const items = scheduleItems ?? []
 
   return (
     <PageBlockSection>
       <PageBlockContainer>
         <div className="space-y-8">
-          <PageBlockHeader
-            className="mx-auto max-w-4xl text-center"
-            description={description || 'Расписание этого блока пока не заполнено.'}
-            descriptionClassName="mx-auto max-w-3xl text-center"
-            title={title}
-            titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
-          />
+          {hideHeader ? null : (
+            <PageBlockHeader
+              className="mx-auto max-w-4xl text-center"
+              description={description || 'Расписание этого блока пока не заполнено.'}
+              descriptionClassName="mx-auto max-w-3xl text-center"
+              title={title}
+              titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
+            />
+          )}
 
           {items.length > 0 ? (
             <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>

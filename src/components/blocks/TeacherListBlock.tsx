@@ -9,10 +9,8 @@ import {
   PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
-import { MotionReveal } from '@/components/shared/MotionReveal'
-import { Badge } from '@/components/ui/badge'
 
-import { cn } from '@/utilities/ui'
+import { TeacherListGrid } from './TeacherListBlock.client'
 
 function getSelectedTeacherIds(selectedTeachers: TeacherListBlockType['selectedTeachers']) {
   return (selectedTeachers ?? [])
@@ -30,7 +28,7 @@ async function getTeachers({
   if (selectedIds.length > 0) {
     const result = await payload.find({
       collection: 'teachers',
-      depth: 0,
+      depth: 1,
       limit: selectedIds.length,
       pagination: false,
       where: {
@@ -48,7 +46,7 @@ async function getTeachers({
 
   const result = await payload.find({
     collection: 'teachers',
-    depth: 0,
+    depth: 1,
     limit: itemLimit ?? 6,
     pagination: false,
     sort: 'sortOrder',
@@ -80,34 +78,7 @@ export async function TeacherListBlock({
           ) : null}
 
           {teachers.length > 0 ? (
-            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
-              <div className="rounded-base border-2 border-border bg-card shadow-shadow">
-                {teachers.map((teacher, index) => (
-                  <div
-                    className={cn(
-                      'flex flex-wrap items-baseline gap-x-5 gap-y-2 px-5 py-6 sm:px-8 sm:py-7',
-                      index !== teachers.length - 1 && 'border-b-2 border-border',
-                    )}
-                    key={teacher.id}
-                  >
-                    <span className="font-base text-sm tabular-nums text-foreground/40 sm:text-base">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                    <h3 className="flex-1 font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">
-                      {teacher.name}
-                    </h3>
-                    {teacher.position ? (
-                      <Badge
-                        className="text-xs tracking-widest text-foreground/60 uppercase sm:text-sm"
-                        variant="neutral"
-                      >
-                        {teacher.position}
-                      </Badge>
-                    ) : null}
-                  </div>
-                ))}
-              </div>
-            </MotionReveal>
+            <TeacherListGrid teachers={teachers} />
           ) : (
             <PageBlockEmptyState
               description="Добавьте преподавателей в разделе «Преподаватели», чтобы показать список здесь."

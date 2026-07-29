@@ -5,7 +5,7 @@ import path from 'path'
 import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
-import type { Footer, Header } from '@/payload-types'
+import type { Header } from '@/payload-types'
 
 type SeedMediaInput = {
   key: string
@@ -46,6 +46,52 @@ const seedMediaFiles: SeedMediaInput[] = [
     alt: 'Абстрактный баннер 2',
     filePath: path.resolve(process.cwd(), 'public/seed-media/seed-banner-2.svg'),
   },
+]
+
+function programImageDoc(key: string, filename: string, alt: string): SeedMediaInput {
+  return {
+    key,
+    filename,
+    alt,
+    filePath: path.resolve(process.cwd(), 'public/seed-media/programs', filename),
+  }
+}
+
+const programMediaFiles: SeedMediaInput[] = [
+  programImageDoc('clubKulinariya', 'kulinariya.jpg', 'Кулинарный мастер-класс в «Новой школе»'),
+  programImageDoc('clubRukodelie', 'rukodelie.jpg', 'Занятие по рукоделию в «Новой школе»'),
+  programImageDoc(
+    'clubHudozhestvennayaStudiya',
+    'hudozhestvennaya-studiya.jpg',
+    'Занятие художественной студии в «Новой школе»',
+  ),
+  programImageDoc(
+    'clubTeatralnayaStudiya',
+    'muzykalno-teatralnaya-studiya.jpg',
+    'Занятие музыкально-театральной студии в «Новой школе»',
+  ),
+  programImageDoc('clubKrasivoePismo', 'krasivoe-pismo.jpg', 'Занятие по каллиграфии в «Новой школе»'),
+  programImageDoc('clubAnglDoshkolniki', 'angl-doshkolniki.jpg', 'Английский для дошкольников в «Новой школе»'),
+  programImageDoc('clubAnglShkolniki', 'angl-shkolniki.jpg', 'Английский для школьников в «Новой школе»'),
+  programImageDoc('clubAnglOgeEge', 'angl-oge-ege.jpg', 'Подготовка к ЕГЭ и ОГЭ по английскому языку в «Новой школе»'),
+  programImageDoc('clubAnglVzroslye', 'angl-vzroslye.jpg', 'Английский для взрослых в «Новой школе»'),
+  programImageDoc('clubLetnyayaSmenaCover', 'letnyaya-smena-cover.jpg', 'Дети на летних каникулах в английском клубе «Новой школы»'),
+  programImageDoc('clubLetnyayaSmenaPreview', 'letnyaya-smena-preview.jpg', 'Стрельба из лука на летней смене в «Новой школе»'),
+  programImageDoc(
+    'clubPromezhutochnyeKanikulyCover',
+    'promezhutochnye-kanikuly-cover.jpg',
+    'Творческая мастерская на каникулярной смене в «Новой школе»',
+  ),
+  programImageDoc(
+    'clubPromezhutochnyeKanikulyPreview',
+    'promezhutochnye-kanikuly-preview.jpg',
+    'Занятие творческой мастерской на каникулярной смене в «Новой школе»',
+  ),
+  programImageDoc(
+    'clubPodgotovkaKShkole',
+    'podgotovka-k-shkole.jpg',
+    'Занятие по подготовке к школе в «Новой школе»',
+  ),
 ]
 
 function orgInfoDoc(key: string, filename: string, alt: string): SeedMediaInput {
@@ -237,6 +283,14 @@ function makeHeroBlock({
   }
 }
 
+function makeTitleDescriptionBlock(title: string, description: string = PLACEHOLDER_TEXT) {
+  return {
+    blockType: 'titleDescription',
+    title,
+    description,
+  }
+}
+
 const DEFAULT_MARQUEE_ITEMS = [
   'Собираем роботов',
   'Пишем код',
@@ -269,6 +323,29 @@ function makeTextImageBlock(
     text: PLACEHOLDER_TEXT,
     image: image ?? null,
     imagePosition,
+  }
+}
+
+function makeTextSectionBlock(
+  title: string,
+  text: string,
+  imagePosition: 'left' | 'right',
+  image?: number | null,
+) {
+  return {
+    blockType: 'textImage',
+    title,
+    text,
+    image: image ?? null,
+    imagePosition,
+  }
+}
+
+function makeContactsBlock(title?: string, description?: string) {
+  return {
+    blockType: 'contacts',
+    title: title ?? null,
+    description: description ?? null,
   }
 }
 
@@ -375,6 +452,19 @@ function makeWhyUsFeatureCardsBlock() {
   }
 }
 
+function makeProgramCategoriesBlock(
+  title: string,
+  description: string = PLACEHOLDER_TEXT,
+  hideTitle = false,
+) {
+  return {
+    blockType: 'programCategories',
+    title,
+    hideTitle,
+    description,
+  }
+}
+
 function makeCollectionGridBlock(
   title: string,
   collectionType: 'clubs' | 'news' | 'teachers' | 'reviews' | 'jobs' | 'galleryAlbums',
@@ -405,6 +495,85 @@ function makeRichText(paragraphs: string[]) {
         indent: 0,
         version: 1,
       })),
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      version: 1,
+    },
+  }
+}
+
+function makeRichTextList(items: string[]) {
+  return {
+    root: {
+      type: 'root',
+      children: [
+        {
+          type: 'list',
+          listType: 'bullet',
+          tag: 'ul',
+          start: 1,
+          children: items.map((text, index) => ({
+            type: 'listitem',
+            value: index + 1,
+            children: [{ type: 'text', text, version: 1 }],
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            version: 1,
+          })),
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          version: 1,
+        },
+      ],
+      direction: 'ltr',
+      format: '',
+      indent: 0,
+      version: 1,
+    },
+  }
+}
+
+type RichTextBlockInput = { type: 'paragraph'; text: string } | { type: 'list'; items: string[] }
+
+function makeRichTextMixed(blocks: RichTextBlockInput[]) {
+  return {
+    root: {
+      type: 'root',
+      children: blocks.map((block) => {
+        if (block.type === 'list') {
+          return {
+            type: 'list',
+            listType: 'bullet',
+            tag: 'ul',
+            start: 1,
+            children: block.items.map((text, index) => ({
+              type: 'listitem',
+              value: index + 1,
+              children: [{ type: 'text', text, version: 1 }],
+              direction: 'ltr',
+              format: '',
+              indent: 0,
+              version: 1,
+            })),
+            direction: 'ltr',
+            format: '',
+            indent: 0,
+            version: 1,
+          }
+        }
+
+        return {
+          type: 'paragraph',
+          children: [{ type: 'text', text: block.text, version: 1 }],
+          direction: 'ltr',
+          format: '',
+          indent: 0,
+          version: 1,
+        }
+      }),
       direction: 'ltr',
       format: '',
       indent: 0,
@@ -535,7 +704,7 @@ async function upsertUpload(
 }
 
 async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
-  const allMediaFiles = [...seedMediaFiles, ...orgInfoMediaFiles]
+  const allMediaFiles = [...seedMediaFiles, ...orgInfoMediaFiles, ...programMediaFiles]
   const seededMedia = await Promise.all(allMediaFiles.map((media) => upsertUpload(payload, media)))
 
   return seededMedia.reduce<Record<string, { id: number }>>((accumulator, media, index) => {
@@ -547,16 +716,107 @@ async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
   }, {})
 }
 
+async function seedProgramCategories(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  media: Record<string, { id: number }>,
+): Promise<Record<string, { id: number }>> {
+  const categories = [
+    {
+      slug: 'kruzhki',
+      generateSlug: false,
+      title: 'Кружки',
+      description: 'Кулинария, рукоделие, искусство и театральная студия для детей.',
+      previewImage: media.clubHudozhestvennayaStudiya.id,
+    },
+    {
+      slug: 'anglijskij',
+      generateSlug: false,
+      title: 'Школа английского языка',
+      description: 'Английский для всех возрастов, включая подготовку к ОГЭ и ЕГЭ.',
+      previewImage: media.clubAnglShkolniki.id,
+    },
+    {
+      slug: 'aktivnye-kanikuly',
+      generateSlug: false,
+      title: 'Активные каникулы',
+      description: 'Клуб полного дня на каникулах: игры, творчество и английский язык.',
+      previewImage: media.clubLetnyayaSmenaPreview.id,
+    },
+    {
+      slug: 'podgotovka-k-shkole',
+      generateSlug: false,
+      title: 'Подготовка к школе',
+      description: 'Для дошкольников 5–7 лет: готовим руку к письму, учим читать и считать.',
+      previewImage: media.clubPodgotovkaKShkole.id,
+    },
+  ] as const
+
+  const categoriesMap: Record<string, { id: number }> = {}
+
+  for (const category of categories) {
+    const result = await upsertPublishedDoc(
+      payload,
+      'programCategories',
+      'slug',
+      category.slug,
+      category as Record<string, unknown>,
+    )
+    categoriesMap[category.slug] = result
+  }
+
+  return categoriesMap
+}
+
 async function seedCollections(
   payload: Awaited<ReturnType<typeof getPayload>>,
   media: Record<string, { id: number }>,
+  programCategories: Record<string, { id: number }>,
 ) {
   const collectionSeeds = [
     {
       slug: 'kulinariya',
       generateSlug: false,
       title: 'Кулинария',
-      shortDescription: PLACEHOLDER_TEXT,
+      shortDescription: 'Мастер-классы по кулинарии для детей с 8 лет: готовим блюда и десерты.',
+      category: programCategories.kruzhki.id,
+      previewImage: media.clubKulinariya.id,
+      coverImage: media.clubKulinariya.id,
+      infoCards: [
+        { title: 'Возраст', description: 'От 8 лет', icon: 'baby' },
+        { title: 'Формат', description: 'Блоки по 4 занятия', icon: 'calendar-days' },
+        { title: 'Чему учимся', description: 'Готовим повседневные блюда и десерты', icon: 'utensils' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Дети обожают готовить! А времени на готовку с детьми часто не хватает. Наши мастер-классы по кулинарии — это то, чего не хватает сегодняшним детям: развитие практического жизненно необходимого навыка с огромным удовольствием.',
+          ]),
+        },
+        {
+          title: 'Чему учимся',
+          content: makeRichText([
+            'Занятия по кулинарии проводятся блоками по 4 занятия. В каждом блоке мы учимся не только печь тортики и печенье, но и готовить повседневные блюда, знакомимся с правилами правильного питания и технологией приготовления блюд, осваиваем новые простые и сложные рецепты, которые можно повторить дома.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит кружок',
+              text: 'Кружок подходит детям, которые хотят научиться готовить самостоятельно.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для детей от 8 лет',
+                  text: 'Учатся готовить повседневные блюда и десерты, осваивают новые рецепты и основы правильного питания.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
       isActive: true,
       sortOrder: 1,
     },
@@ -564,7 +824,46 @@ async function seedCollections(
       slug: 'rukodelie',
       generateSlug: false,
       title: 'Рукоделие',
-      shortDescription: PLACEHOLDER_TEXT,
+      shortDescription: 'Вязание, вышивка, бисероплетение и макраме для детей с 6 лет.',
+      category: programCategories.kruzhki.id,
+      previewImage: media.clubRukodelie.id,
+      coverImage: media.clubRukodelie.id,
+      infoCards: [
+        { title: 'Возраст', description: 'От 6 лет', icon: 'baby' },
+        { title: 'Техники', description: 'Вязание, вышивка, бисероплетение, макраме', icon: 'sparkles' },
+        { title: 'Что делаем', description: 'Игрушки, пояса, чехлы и подарки своими руками', icon: 'heart-handshake' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Вязание крючком и спицами, вышивка, бисероплетение, плетение шнуров-поясов, макраме и множество других навыков, незаслуженно забытых, снова входят в моду и являются лучшим лекарством от дефицита внимания, свойственного современным детям.',
+          ]),
+        },
+        {
+          title: 'Что мы делаем',
+          content: makeRichText([
+            'Мы возвращаем в жизнь детей подарки, сделанные своими руками: игрушку-брелок, пояс, чехол для телефона, сумку-несессер, корзинку для мелочей и многое другое, сделанное вручную.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит кружок',
+              text: 'Кружок подходит детям, которым интересно мастерить руками.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для детей от 6 лет',
+                  text: 'Осваивают вязание, вышивку, бисероплетение и другие техники, создавая подарки своими руками.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
       isActive: true,
       sortOrder: 2,
     },
@@ -572,7 +871,50 @@ async function seedCollections(
       slug: 'hudozhestvennaya-studiya',
       generateSlug: false,
       title: 'Художественная студия',
-      shortDescription: PLACEHOLDER_TEXT,
+      shortDescription: 'Рисуем и лепим, знакомясь с творчеством известных художников.',
+      category: programCategories.kruzhki.id,
+      previewImage: media.clubHudozhestvennayaStudiya.id,
+      coverImage: media.clubHudozhestvennayaStudiya.id,
+      infoCards: [
+        { title: 'Формат', description: 'Практические занятия по живописи и скульптуре', icon: 'palette' },
+        { title: 'Цель', description: 'Формируем художественную насмотренность и кругозор', icon: 'sparkles' },
+      ],
+      tabs: [
+        {
+          title: 'О студии',
+          content: makeRichText([
+            'Изучение мировой художественной культуры на практических занятиях: не просто учить живописи и скульптуре, но и просвещать, формировать общий кругозор в сфере искусства — главная задача нашей студии.',
+            'В «Новой школе» детям рассказывают о художнике, показывают его картины, обсуждают их, формируя художественную насмотренность, а затем предлагают нарисовать картину в стиле этого художника. Даже если ребёнок не свяжет свою жизнь с искусством, он будет в нём разбираться и сможет поддержать беседу.',
+          ]),
+        },
+        {
+          title: 'Что мы изучаем',
+          content: makeRichText([
+            'Мы изучаем художественные стили, воплощая их в живописных и скульптурных работах — от народного творчества до современных направлений в живописи и скульптуре.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит студия',
+              text: 'Студия подходит и детям, и взрослым — программа адаптируется под возраст и уровень подготовки.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для детей',
+                  text: 'Рисуют и лепят, знакомясь с разными художественными стилями.',
+                },
+                {
+                  title: 'Для взрослых',
+                  text: 'Мастер-классы по выходным в том же направлении.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
       isActive: true,
       sortOrder: 3,
     },
@@ -580,7 +922,48 @@ async function seedCollections(
       slug: 'muzykalno-teatralnaya-studiya',
       generateSlug: false,
       title: 'Музыкально-театральная студия',
-      shortDescription: PLACEHOLDER_TEXT,
+      shortDescription: 'Актёрское мастерство, сценическая речь и движение для детей.',
+      category: programCategories.kruzhki.id,
+      previewImage: media.clubTeatralnayaStudiya.id,
+      coverImage: media.clubTeatralnayaStudiya.id,
+      coverImagePosition: 'top',
+      infoCards: [
+        { title: 'Направления', description: 'Актёрское мастерство, сценическая речь и движение', icon: 'mic' },
+        { title: 'Развиваем', description: 'Коммуникативные навыки и уверенность в себе', icon: 'heart-handshake' },
+        { title: 'Формат', description: 'Групповые занятия и постановки', icon: 'users' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Театральная студия — это мир фантазии, ярких образов, огромных возможностей для актёрского перевоплощения. Программа занятий включает такие направления, как актёрское мастерство, сценическое движение, сценическая речь и другие.',
+          ]),
+        },
+        {
+          title: 'Что развивают занятия',
+          content: makeRichText([
+            'Занятия актёрским мастерством помогают развивать коммуникативные навыки, эмоциональный интеллект, творческие навыки, уверенность в себе, концентрацию и память.',
+            'Неоценима и воспитательная роль театрализованной деятельности. Она учит доброте, чуткости, честности, смелости, формирует понятия добра и зла. Робкому ребёнку игра поможет стать более смелым и решительным, застенчивому — преодолеть неуверенность в себе.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит студия',
+              text: 'Студия подходит детям, которым интересно сценическое творчество.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для детей',
+                  text: 'Развивают актёрское мастерство, сценическую речь и уверенность в себе на групповых занятиях и постановках.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
       isActive: true,
       sortOrder: 4,
     },
@@ -588,9 +971,724 @@ async function seedCollections(
       slug: 'krasivoe-pismo',
       generateSlug: false,
       title: 'Красивое письмо',
-      shortDescription: PLACEHOLDER_TEXT,
+      shortDescription: 'Искусство красивого письма для детей с 7 лет: почерк и скорость письма.',
+      category: programCategories.kruzhki.id,
+      previewImage: media.clubKrasivoePismo.id,
+      coverImage: media.clubKrasivoePismo.id,
+      infoCards: [
+        { title: 'Возраст', description: 'От 7 лет', icon: 'baby' },
+        { title: 'Развиваем', description: 'Аккуратный почерк и скорость письма', icon: 'pen-tool' },
+        { title: 'Формат', description: 'Регулярные занятия чистописанием', icon: 'calendar-days' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Каллиграфия — искусство красивого письма, в котором отражена целостность отдельных букв и всего текста, его гармоничность, форма и ритм.',
+            'Чистописание — это искусство аккуратного письма, правила письма и соединений. По сути, это две части одного целого: чистописание помогает писать аккуратно и быстро, а каллиграфия — это творчество, стиль, эстетика. Для школьников начать стоит с чистописания — формирования аккуратного и разборчивого почерка, что положительно скажется не только на успеваемости, но и на самооценке ребёнка.',
+          ]),
+        },
+        {
+          title: 'Чем полезна каллиграфия',
+          content: makeRichTextList([
+            'Аккуратный разборчивый почерк.',
+            'Высокая скорость письма.',
+            'Внимательность к деталям.',
+            'Красота письма и грамотность.',
+            'Развитие мышления и памяти в целом.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит кружок',
+              text: 'Кружок подходит детям, которые хотят писать аккуратно и красиво.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для детей от 7 лет',
+                  text: 'Формируют аккуратный почерк и осваивают основы каллиграфии.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
       isActive: true,
       sortOrder: 5,
+    },
+    {
+      slug: 'anglijskij-dlya-doshkolnikov',
+      generateSlug: false,
+      title: 'Английский для дошкольников',
+      shortDescription: 'Английский для детей 4–6 лет: разговорная речь и подготовка к чтению.',
+      category: programCategories.anglijskij.id,
+      previewImage: media.clubAnglDoshkolniki.id,
+      coverImage: media.clubAnglDoshkolniki.id,
+      infoCards: [
+        { title: 'Возраст', description: '4–6 лет', icon: 'baby' },
+        { title: 'Формат', description: 'Группы до 6 человек, занятие 60 минут', icon: 'users' },
+        { title: 'Расписание', description: 'С сентября по май', icon: 'calendar-days' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Занятия ведут преподаватели с международной квалификацией TKT: Young Learners. Программа учитывает возрастные преимущества восприятия английского языка и психологические особенности дошкольников, поэтому дети занимаются с удовольствием и без напряжения.',
+            'Группы формируются по возрасту и уже имеющемуся уровню английского языка — так каждому ребёнку комфортно заниматься в своём темпе.',
+          ]),
+        },
+        {
+          title: 'Чему учится ребёнок',
+          content: makeRichText([
+            'Основной акцент — на развитии восприятия речи на слух и разговорных навыках: ребёнок учится понимать простую английскую речь и говорить простыми фразами, а также готовится к дальнейшему обучению чтению на английском.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит программа',
+              text: 'Программа подходит детям дошкольного возраста, которые делают первые шаги в английском языке.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для детей 4–6 лет',
+                  text: 'Развивают восприятие речи на слух, учатся говорить простыми фразами и готовятся к чтению.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 6,
+    },
+    {
+      slug: 'anglijskij-dlya-shkolnikov',
+      generateSlug: false,
+      title: 'Английский для школьников',
+      shortDescription: 'Английский для учеников 7–17 лет: 2 занятия в неделю, все навыки языка.',
+      category: programCategories.anglijskij.id,
+      previewImage: media.clubAnglShkolniki.id,
+      coverImage: media.clubAnglShkolniki.id,
+      infoCards: [
+        { title: 'Возраст', description: '7–17 лет', icon: 'baby' },
+        { title: 'Формат', description: '2 занятия в неделю по 80 минут', icon: 'calendar-days' },
+        { title: 'Итог', description: 'Сертификат по итогам итоговой аттестации', icon: 'award' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Интенсивные регулярные занятия проходят два раза в неделю по 80 минут с сентября по май. Группы формируются по возрасту учеников и уровню владения английским языком — до 8 человек в группе.',
+            'Занятия ведут преподаватели с педагогическим образованием или международным сертификатом, подтверждающим право преподавания английского языка, с уровнем владения языком Advanced и выше.',
+          ]),
+        },
+        {
+          title: 'Чему учимся',
+          content: makeRichText([
+            'Развиваем грамотную разговорную речь, восприятие речи на слух, чтение и письмо — программа учитывает возрастные особенности восприятия языка. По итогам обучения и успешной итоговой аттестации ученик получает сертификат.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит программа',
+              text: 'Программа подходит школьникам, которые системно изучают английский язык.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для учеников 7–17 лет',
+                  text: 'Развивают разговорную речь, аудирование, чтение и письмо в группе сверстников своего уровня.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 7,
+    },
+    {
+      slug: 'podgotovka-k-ege-i-oge',
+      generateSlug: false,
+      title: 'Подготовка к ЕГЭ и ОГЭ',
+      shortDescription: 'Подготовка к ОГЭ и ЕГЭ по английскому для 9–11 классов в мини-группах.',
+      category: programCategories.anglijskij.id,
+      previewImage: media.clubAnglOgeEge.id,
+      coverImage: media.clubAnglOgeEge.id,
+      infoCards: [
+        { title: 'Классы', description: '9–11 классы', icon: 'graduation-cap' },
+        { title: 'Формат', description: 'Мини-группы до 4 человек, занятие 90 минут', icon: 'users' },
+        { title: 'Результат', description: '86% выпускников — от 80 баллов на ЕГЭ', icon: 'trophy' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Программа подготовки построена в соответствии с федеральными образовательными стандартами базового и углублённого уровня. Занятия проходят в мини-группах до 4 человек по 90 минут с сентября по май — такой формат позволяет уделить внимание разбору сложных тем и типичных ошибок каждого ученика.',
+          ]),
+        },
+        {
+          title: 'Результаты',
+          content: makeRichText([
+            'Мы делаем ставку на комплексное развитие всех аспектов языка, необходимых для экзамена: грамматики, аудирования, чтения, письма и говорения. 86% наших учеников, сдававших ЕГЭ по английскому языку, получили более 80 баллов. По итогам курса выдаётся сертификат.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит программа',
+              text: 'Программа подходит старшеклассникам, которые готовятся сдавать ОГЭ или ЕГЭ по английскому языку.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для учеников 9–11 классов',
+                  text: 'Разбирают формат экзамена, закрывают пробелы в знаниях и тренируются на реальных заданиях в мини-группе.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 8,
+    },
+    {
+      slug: 'anglijskij-dlya-vzroslyh',
+      generateSlug: false,
+      title: 'Английский для взрослых',
+      shortDescription: 'Английский для взрослых: небольшие группы и разговорная практика.',
+      category: programCategories.anglijskij.id,
+      previewImage: media.clubAnglVzroslye.id,
+      coverImage: media.clubAnglVzroslye.id,
+      infoCards: [
+        { title: 'Возраст', description: 'От 17 лет', icon: 'baby' },
+        { title: 'Формат', description: 'Группы до 10 человек, занятие 100 минут', icon: 'users' },
+        { title: 'Метод', description: 'Разговорная практика с первого занятия', icon: 'mic' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Зачисление в группу проходит по результатам тестирования — так каждый занимается на своём уровне. Занятия проходят с сентября по май, группа — до 10 человек, длительность занятия — 100 минут.',
+            'Занятия ведут преподаватели с педагогическим образованием или международным сертификатом и уровнем владения языком Advanced и выше.',
+          ]),
+        },
+        {
+          title: 'Как проходят занятия',
+          content: makeRichText([
+            'Используем коммуникативную методику: говорить по-английски мы начинаем уже на первом занятии. Развиваем грамотную разговорную речь, восприятие речи на слух, чтение и письмо, но в приоритете — именно живое общение. Свои учебные пособия студенты приобретают самостоятельно.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит программа',
+              text: 'Программа подходит взрослым, которые хотят уверенно говорить по-английски.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для взрослых от 17 лет',
+                  text: 'Занимаются в группе своего уровня и практикуют разговорную речь с первого занятия.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 9,
+    },
+    {
+      slug: 'individualnye-zanyatiya-anglijskim',
+      generateSlug: false,
+      title: 'Индивидуальные занятия',
+      shortDescription: 'Индивидуальные занятия английским: личная программа и гибкий график.',
+      category: programCategories.anglijskij.id,
+      previewImage: media.banner1.id,
+      coverImage: media.banner1.id,
+      infoCards: [
+        { title: 'Формат', description: '1 ученик — 1 преподаватель', icon: 'users' },
+        { title: 'Расписание', description: 'Гибкое, по договорённости', icon: 'clock' },
+        { title: 'Цель', description: 'Под любую задачу — от школьной программы до бизнес-английского', icon: 'star' },
+      ],
+      tabs: [
+        {
+          title: 'О программе',
+          content: makeRichText([
+            'Индивидуальные занятия подходят ученикам любого возраста — от дошкольников до взрослых — которым важен личный темп и содержание курса, полностью подстроенное под их задачу. Расписание согласовывается индивидуально, а преподавателя подбираем с учётом возраста и уровня ученика.',
+            'Формат хорошо дополняет групповые программы «Новой школы» или полностью заменяет их, если ребёнку или взрослому нужно более пристальное внимание преподавателя.',
+          ]),
+        },
+        {
+          title: 'Как строится программа',
+          content: makeRichText([
+            'Перед началом занятий определяем текущий уровень и цель: помощь со школьной программой, подготовка к ОГЭ или ЕГЭ, разговорный английский для путешествий или общения, деловой английский. Исходя из этого преподаватель составляет личный план занятий и корректирует его по ходу обучения.',
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит формат',
+              text: 'Индивидуальные занятия подходят тем, кому нужен личный темп и особое внимание к своей задаче.',
+              hideHeader: true,
+              items: [
+                {
+                  title: 'Для детей и школьников',
+                  text: 'Подтягивают школьную программу, закрывают пробелы или готовятся к экзаменам в своём темпе.',
+                },
+                {
+                  title: 'Для взрослых',
+                  text: 'Осваивают разговорный или деловой английский под свой график и конкретную цель.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 10,
+    },
+    {
+      slug: 'letnie-smeny-s-anglijskim',
+      generateSlug: false,
+      title: 'Летние смены с английским',
+      shortDescription: 'Летний клуб полного дня для детей 7–12 лет: игры, творчество и английский язык.',
+      category: programCategories['aktivnye-kanikuly'].id,
+      previewImage: media.clubLetnyayaSmenaPreview.id,
+      coverImage: media.clubLetnyayaSmenaCover.id,
+      infoCards: [
+        { title: 'Возраст', description: 'От 7 до 12 лет', icon: 'baby' },
+        { title: 'Формат', description: 'Пн–Пт, 8:30–18:30', icon: 'clock' },
+        { title: 'Смена', description: '2 недели, All Inclusive', icon: 'calendar-days' },
+        { title: 'Питание', description: '3-разовое + 2 перекуса', icon: 'utensils' },
+      ],
+      tabs: [
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит клуб',
+              text: 'Полный день с английским языком, играми и творчеством — пока родители спокойно работают.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Дети 7–12 лет',
+                  text: 'Проводят каникулы в кругу сверстников: играют, разговаривают на английском и каждый день пробуют что-то новое.',
+                },
+                {
+                  title: 'Родители',
+                  text: 'Получают ежедневные фото- и видеоотчёты и могут быть спокойны за ребёнка с 8:30 до 18:30.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Сюжеты',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Каждая смена — это отдельная история, вокруг которой строятся игры, мастер-классы и финальный проект:',
+            },
+            {
+              type: 'list',
+              items: [
+                'Мультвселенная — снимаем мультфильм: придумываем персонажей и сценарий, лепим, рисуем, озвучиваем; переозвучиваем сцены из любимых мультфильмов, играем в тематические квизы и викторины.',
+                'Всё в театр — готовим театральную постановку: сценарий, костюмы, реквизит, репетиции и премьера. Экскурсия за кулисы настоящего театра и мастер-классы от актёров.',
+                'Профессия блогер — снимаем ролики с оригинальной подачей и интересным контентом: дети снимают, родители смотрят и комментируют.',
+                'Фабрика звёзд — ищем талант в каждом ребёнке: поём, танцуем, показываем фокусы, готовим номера и костюмы — и выступаем в «Минуту славы» в финале смены.',
+              ],
+            },
+            {
+              type: 'paragraph',
+              text: 'Тематика смен обновляется каждый год — актуальный список уточняйте у администратора.',
+            },
+          ]),
+        },
+        {
+          title: 'Программа',
+          layout: [
+            {
+              blockType: 'program',
+              title: 'Что входит в смену',
+              description:
+                'Английский язык каждый день с лучшими преподавателями, а вокруг него — насыщенная программа для активных каникул.',
+              items: [
+                {
+                  title: 'Английский каждый день',
+                  text: '2 академических часа: разговорная практика, новые слова и фразы из уст героев любимых мультфильмов и фильмов. Дети делятся на группы по возрасту и уровню языка.',
+                },
+                {
+                  title: 'Творческие мастер-классы',
+                  text: 'Поделки из подручных материалов, эксперименты, кулинария — всё своими руками.',
+                },
+                {
+                  title: 'Активные игры на свежем воздухе',
+                  text: 'Футбол, бадминтон, скакалки, салки — каждый день на улице.',
+                },
+                {
+                  title: 'Поход, боулинг или экскурсия',
+                  text: 'В зависимости от погоды — а ещё квест с настоящим поиском сокровищ.',
+                },
+                {
+                  title: 'Финальный фестиваль',
+                  text: 'Проект или спектакль по теме смены, награждение команд и вручение дипломов.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Расписание смен',
+              description: 'Пять дней в неделю, полный день присмотра и занятий.',
+              scheduleItems: [
+                { label: 'Дни недели', value: 'Пн–Пт' },
+                { label: 'Время', value: '8:30–18:30' },
+                { label: 'Смена 1', value: '1–11 июня 2026' },
+                { label: 'Смена 2', value: '15–26 июня 2026' },
+                { label: 'Смена 3', value: '27 июля – 7 августа 2026' },
+                { label: 'Смена 4', value: '10–21 августа 2026' },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Стоимость',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Полная стоимость двухнедельной смены — 41 000 ₽ (All Inclusive): ежедневный английский, трёхразовое питание и два перекуса, поездка на лазертаг или экскурсия, все мастер-классы и материалы.',
+            },
+            {
+              type: 'list',
+              items: [
+                'Раннее бронирование (до 31 марта) — скидка 15%.',
+                'Семьям с детьми, которые идут к нам впервые, — скидка 10%, а если ребёнок уже был в лагере — 15%.',
+                'Постоянным ученикам школы и тем, кто уже был в лагере, — скидка 10%.',
+                'Если день рождения ребёнка приходится на смену — скидка 10%.',
+                'Приведи друга — скидка 10% приведшему и 5% другу.',
+              ],
+            },
+            {
+              type: 'paragraph',
+              text: 'Скидки не суммируются. Точную стоимость и свободные места уточняйте у администратора.',
+            },
+          ]),
+        },
+      ],
+      isActive: true,
+      sortOrder: 11,
+    },
+    {
+      slug: 'promezhutochnye-kanikuly',
+      generateSlug: false,
+      title: 'Промежуточные каникулы',
+      shortDescription: 'Клуб полного дня на каникулах для детей 7–12 лет: творчество и английский язык.',
+      category: programCategories['aktivnye-kanikuly'].id,
+      previewImage: media.clubPromezhutochnyeKanikulyPreview.id,
+      coverImage: media.clubPromezhutochnyeKanikulyCover.id,
+      infoCards: [
+        { title: 'Возраст', description: 'От 7 до 12 лет', icon: 'baby' },
+        { title: 'Формат', description: 'Пн–Пт, 8:30–18:30', icon: 'clock' },
+        { title: 'Смена', description: '1 неделя (5 дней)', icon: 'calendar-days' },
+        { title: 'Питание', description: '3-разовое + 2 перекуса', icon: 'utensils' },
+      ],
+      tabs: [
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит клуб',
+              text: 'Полный день с английским языком, играми и творчеством на осенних, зимних и весенних каникулах — пока родители спокойно работают.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Дети 7–12 лет',
+                  text: 'Не сидят дома у экрана, а проводят каникулы в компании сверстников, играя и разговаривая по-английски.',
+                },
+                {
+                  title: 'Родители',
+                  text: 'Получают ежедневные фото- и видеоотчёты и присмотр за ребёнком на всю рабочую неделю каникул.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Сюжеты',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Каждая смена строится вокруг своего сюжета — с играми, мастер-классами и финальным проектом внутри. Вот несколько тем, которые мы уже проводили:',
+            },
+            {
+              type: 'list',
+              items: [
+                'Мультвселенная — снимаем мультфильм: придумываем персонажей и сценарий, лепим, рисуем, озвучиваем; переозвучиваем сцены из любимых мультфильмов, играем в тематические квизы и викторины.',
+                'Всё в театр — готовим театральную постановку: сценарий, костюмы, реквизит, репетиции и премьера. Экскурсия за кулисы настоящего театра и мастер-классы от актёров.',
+                'Профессия блогер — снимаем ролики с оригинальной подачей и интересным контентом: дети снимают, родители смотрят и комментируют.',
+                'Фабрика звёзд — ищем талант в каждом ребёнке: поём, танцуем, показываем фокусы, готовим номера и костюмы — и выступаем в «Минуту славы» в финале смены.',
+              ],
+            },
+            {
+              type: 'paragraph',
+              text: 'Тема конкретной смены на осенних, зимних и весенних каникулах уточняется отдельно у администратора.',
+            },
+          ]),
+        },
+        {
+          title: 'Программа',
+          layout: [
+            {
+              blockType: 'program',
+              title: 'Что входит в смену',
+              description: 'Тот же формат, что и летом, — только неделя, чтобы уместиться в короткие школьные каникулы.',
+              items: [
+                {
+                  title: 'Английский каждый день',
+                  text: '2 академических часа: разговорная практика, новые слова и фразы из уст героев любимых мультфильмов и фильмов. Дети делятся на группы по возрасту и уровню языка.',
+                },
+                {
+                  title: 'Творческие мастер-классы',
+                  text: 'Поделки из подручных материалов, эксперименты, кулинария — всё своими руками.',
+                },
+                {
+                  title: 'Активные игры',
+                  text: 'Подвижные игры и спорт каждый день — на улице или в зале, в зависимости от погоды.',
+                },
+                {
+                  title: 'Поход, боулинг или экскурсия',
+                  text: 'В зависимости от погоды — а ещё квест с настоящим поиском сокровищ.',
+                },
+                {
+                  title: 'Финальный фестиваль',
+                  text: 'Проект или спектакль по теме смены, награждение команд и вручение дипломов.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Расписание смен',
+              description: 'Одна неделя — пять полных дней в разгар школьных каникул.',
+              scheduleItems: [
+                { label: 'Дни недели', value: 'Пн–Пт' },
+                { label: 'Время', value: '8:30–18:30' },
+                { label: 'Продолжительность', value: '5 дней (1 неделя)' },
+                { label: 'Когда', value: 'Осенние, зимние и весенние каникулы — точные даты по школьному календарю' },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Стоимость',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Стоимость недельной смены на осенних, зимних и весенних каникулах — по запросу: она зависит от конкретных дат и наполнения программы.',
+            },
+            {
+              type: 'list',
+              items: [
+                'В стоимость входит ежедневный английский, трёхразовое питание и два перекуса.',
+                'Все мастер-классы, материалы и активности внутри смены.',
+              ],
+            },
+            {
+              type: 'paragraph',
+              text: 'Оставьте заявку или свяжитесь с администратором, чтобы узнать точную цену и свободные места на ближайшую смену.',
+            },
+          ]),
+        },
+      ],
+      isActive: true,
+      sortOrder: 12,
+    },
+    {
+      slug: 'podgotovka-k-shkole',
+      generateSlug: false,
+      title: 'Подготовка к школе',
+      shortDescription: 'Готовим будущих первоклассников к школе: математика, чтение, письмо и речь.',
+      category: programCategories['podgotovka-k-shkole'].id,
+      previewImage: media.clubPodgotovkaKShkole.id,
+      coverImage: media.clubPodgotovkaKShkole.id,
+      infoCards: [
+        { title: 'Возраст', description: '5–7 лет', icon: 'baby' },
+        { title: 'Группа', description: 'До 6–8 детей', icon: 'users' },
+        { title: 'Формат', description: 'Интенсив или полный день', icon: 'clock' },
+        { title: 'Предметы', description: 'Математика, чтение, письмо, речь', icon: 'book-open' },
+      ],
+      tabs: [
+        {
+          title: '0-й класс',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: '«Нулевой» класс в «Новой школе» — это игра «в школу» не понарошку: качественная подготовка и адаптация к школьному распорядку для тех, кому уже не интересно в саду, а в школу пока рано.',
+            },
+            {
+              type: 'paragraph',
+              text: 'Дети привыкают сидеть за партами, не забывая поиграть на ковре, — а вместо тихого часа их ждёт насыщенный день с английским языком, математикой, чтением и творчеством.',
+            },
+          ]),
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит',
+              text: 'Полный день с адаптацией к школьному распорядку — для детей, которые пойдут в 1-й класс в следующем учебном году.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Дети 5–7 лет',
+                  text: 'Которые собираются в 1-й класс в следующем учебном году и которым нужна полноценная подготовка к школе.',
+                },
+                {
+                  title: 'Дети, которым скучно в саду',
+                  text: 'Но в школу идти ещё рано — «нулевой» класс даёт школьный режим и нагрузку по возрасту.',
+                },
+                {
+                  title: 'Родители',
+                  text: 'Которые хотят, чтобы ребёнок привык к партам, урокам и переменам заранее, а не с первого сентября.',
+                },
+              ],
+            },
+            {
+              blockType: 'program',
+              title: 'Что входит в программу',
+              description:
+                'Каждый день — уроки и переменки, как в школе, а вокруг основных предметов — творчество, музыка, спорт и вкусное питание.',
+              items: [
+                {
+                  title: 'Английский язык',
+                  text: 'Занятия с преподавателями Школы английского языка SkillSet.',
+                },
+                {
+                  title: 'Математика и чтение',
+                  text: 'Основы счёта, подготовка к чтению и работе с текстом.',
+                },
+                {
+                  title: 'Развитие речи и письмо',
+                  text: 'Готовим руку к письму и развиваем связную речь.',
+                },
+                {
+                  title: 'Творчество и игра',
+                  text: 'Много творческой и развивающей игровой деятельности между занятиями.',
+                },
+                {
+                  title: 'Музыка, ИЗО, физкультура, шахматы',
+                  text: 'Дополнительные занятия по всем направлениям.',
+                },
+                {
+                  title: 'Питание',
+                  text: 'Вкусное и здоровое свежеприготовленное питание, соответствующее нормам СанПиНа.',
+                },
+              ],
+            },
+            {
+              blockType: 'schedule',
+              title: 'Расписание',
+              description: 'Полный учебный день по будням.',
+              scheduleItems: [
+                { label: 'Дни недели', value: 'Пн–Пт' },
+                { label: 'Время', value: '8:30–15:30' },
+                { label: 'Размер группы', value: 'До 8 детей' },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Интенсив',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Компактный формат подготовки к школе для тех, кто не готов к полному дню: математика, чтение, подготовка руки к письму и развитие речи в формате школьных уроков и переменок.',
+            },
+            {
+              type: 'paragraph',
+              text: 'Есть два варианта — короткий летний интенсив перед 1 сентября и базовый курс на весь учебный год.',
+            },
+          ]),
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит',
+              text: 'Подходит тем, кто идёт в 1-й класс в этом сентябре, и тем, кто готовится к школе заранее, в течение года.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Будущие первоклассники',
+                  text: 'Дети, которые в сентябре идут в 1-й класс, — для них летний интенсив за 4 недели до школы.',
+                },
+                {
+                  title: 'Дети, готовящиеся к школе заранее',
+                  text: 'Собираются в 1-й класс в следующем учебном году — для них базовый курс в течение года.',
+                },
+              ],
+            },
+            {
+              blockType: 'program',
+              title: 'Что входит в программу',
+              description:
+                'Математика, чтение, письмо и речь в формате школьных уроков и переменок — привыкаем к школьному распорядку заранее.',
+              items: [
+                {
+                  title: 'Математика',
+                  text: 'Базовые математические понятия: сложение и вычитание, сравнение, геометрические фигуры и их свойства, ориентирование в пространстве.',
+                },
+                {
+                  title: 'Чтение',
+                  text: 'Учимся читать и работать с текстом.',
+                },
+                {
+                  title: 'Подготовка руки к письму',
+                  text: 'Развиваем мелкую моторику и готовим руку к письму.',
+                },
+                {
+                  title: 'Развитие речи',
+                  text: 'К концу курса дети умеют не только читать и считать, но и пишут небольшие сочинения.',
+                },
+              ],
+            },
+            {
+              blockType: 'schedule',
+              title: 'Расписание',
+              description: 'Два варианта на выбор — летний интенсив или курс в течение года.',
+              scheduleItems: [
+                { label: 'Летний интенсив', value: '3 раза в неделю по 60 минут, 4 недели перед 1 сентября' },
+                { label: 'Базовый курс (будни)', value: '2 раза в неделю по 60 минут, вечером' },
+                { label: 'Базовый курс (выходные)', value: '1 раз в неделю по субботам, 90 минут' },
+                { label: 'Размер группы', value: 'До 6 детей' },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 13,
     },
   ] as const
 
@@ -773,63 +1871,71 @@ async function seedCollections(
     })
   }
 
-  const teacherSeeds = [
-    {
-      name: 'Преподаватель 1',
-      position: PLACEHOLDER_TEXT,
-      sortOrder: 1,
-    },
-    {
-      name: 'Преподаватель 2',
-      position: PLACEHOLDER_TEXT,
-      sortOrder: 2,
-    },
-    {
-      name: 'Преподаватель 3',
-      position: PLACEHOLDER_TEXT,
-      sortOrder: 3,
-    },
-  ] as const
+  const teacherSeeds: {
+    name: string
+    position: string
+    sortOrder: number
+  }[] = []
 
   for (const teacher of teacherSeeds) {
     await upsertPublishedDoc(payload, 'teachers', 'name', teacher.name, teacher as Record<string, unknown>)
   }
 
+  const placeholderTeacherNames = ['Преподаватель 1', 'Преподаватель 2', 'Преподаватель 3'] as const
+  const placeholderTeachers = await payload.find({
+    collection: 'teachers',
+    depth: 0,
+    limit: 100,
+    overrideAccess: true,
+    pagination: false,
+    where: {
+      name: {
+        in: placeholderTeacherNames,
+      },
+    },
+  })
+
+  for (const teacher of placeholderTeachers.docs) {
+    await payload.delete({
+      id: teacher.id,
+      collection: 'teachers',
+      context: SEED_CONTEXT,
+      overrideAccess: true,
+    })
+  }
+
   const reviewSeeds = [
     {
-      authorName: 'Ирина Соколова',
-      authorDescription: 'мама ученицы 2 класса',
-      text: 'Дочка ходит в «Новую школу» второй год — видно, как учителя находят подход к каждому ребёнку. Особенно нравится, что английский и шахматы уже включены в расписание — не нужно возить по кружкам после уроков.',
+      authorName: 'Ольга',
+      text: 'Волею судеб мы часто переезжали с семьей. И ребёнок мой успел поучиться в 4-х разных школах, с разными системами. Именно «Новая школа» в Королеве осталась любимой, и по этой причине щемит сердце, что теперь она от нас очень далеко. Сейчас понимаю, что «Новая школа», действительно, одна из лучших школ в нашем Московском регионе. Очень хороший педагогический состав. «Наталья Вячеславовна — моя самая любимая учительница навсегда», — так сказал сын.\n\nОчень ценно, что в школе позаботятся обо всем: о занятиях и домашних заданиях, о закупке учебных принадлежностей, об организации экскурсий и праздников... Позаботятся с любовью и всей ответственностью.\n\nЕсли возникают проблемы, то коллектив пытается их решить, а не искать виноватых, как часто бывает.\n\nВ этом году мы уже были в качестве гостей в школе, в новом помещении. Очень уютное, стильное, большое, светлое. Я считаю, повезло жителям Королёва, что имеют возможность отдать детей в такую школу.',
       avatarPreset: 'women/micah-1784914470498.svg',
       isPublished: true,
       sortOrder: 1,
     },
     {
-      authorName: 'Дмитрий Кузнецов',
-      authorDescription: 'папа ученика 4 класса',
-      text: 'Выбирали школу с небольшими классами и вниманием к ребёнку — «Новая школа» полностью оправдала ожидания. Сын стал увереннее отвечать у доски, а учителя всегда на связи и рассказывают, как идут дела.',
-      avatarPreset: 'men/micah-1784914786335.svg',
+      authorName: 'Ольга',
+      text: 'Вспоминаем с теплотой о вашей продленке. Мне, как маме, было очень спокойно и надежно, а дочь до сих пор просится в гости.',
+      avatarPreset: 'women/micah-1784914502367.svg',
       isPublished: true,
       sortOrder: 2,
     },
     {
-      authorName: 'Анна Волкова',
-      authorDescription: 'мама двух учеников',
-      text: 'Оба моих ребёнка учатся здесь — и разница с обычной школой заметна сразу: программа по ФГОС, но подача живая, без зубрёжки. Отдельное спасибо за подготовительные классы — младший пришёл в первый класс уже читающим и считающим.',
-      avatarPreset: 'women/micah-1784914502367.svg',
+      authorName: 'Ирина',
+      text: 'Нам очень нравится воспитатель продленки. Дети делают уроки, гуляют, делают поделки. И, главное, без гаджетов.',
+      avatarPreset: 'women/micah-1784914592082.svg',
       isPublished: true,
       sortOrder: 3,
     },
   ] as const
 
-  const reviewAuthorNames = reviewSeeds.map((review) => review.authorName)
+  const reviewTexts = reviewSeeds.map((review) => review.text)
 
   for (const review of reviewSeeds) {
     await upsertPublishedDoc(
       payload,
       'reviews',
-      'authorName',
-      review.authorName,
+      'text',
+      review.text,
       review as Record<string, unknown>,
     )
   }
@@ -841,8 +1947,8 @@ async function seedCollections(
     overrideAccess: true,
     pagination: false,
     where: {
-      authorName: {
-        not_in: reviewAuthorNames,
+      text: {
+        not_in: reviewTexts,
       },
     },
   })
@@ -1141,16 +2247,17 @@ async function seedPages(
       pageTitle: 'Новая школа',
       layout: [
         makeHeroBlock({
-          primaryButtonLink: '/family-classes',
+          primaryButtonLink: '/contacts',
           secondaryButtonLabel: 'Подготовка к школе',
           secondaryButtonLink: '/school-preparation',
           image: media.hero.id,
         }),
         makeMarqueeBlock(),
-        makeTextImageBlock('О школе', 'right', media.hero.id),
+        makeProgramCategoriesBlock('', '', true),
         makeWhyUsFeatureCardsBlock(),
+        makeCollectionGridBlock('О нас говорят', 'reviews', 3, false, ''),
+        makeCollectionGridBlock('Наши преподаватели', 'teachers', 3, false, ''),
         makeCollectionGridBlock('Галерея', 'galleryAlbums', 6, false, ''),
-        makeCollectionGridBlock('Отзывы', 'reviews', 3),
         makeCollectionGridBlock('Новости', 'news', 3, true, ''),
       ],
       meta: {
@@ -1166,8 +2273,8 @@ async function seedPages(
       layout: [
         makeHeroBlock({
           title: 'Демо блоков',
-          primaryButtonLabel: 'К кружкам',
-          primaryButtonLink: '/clubs',
+          primaryButtonLabel: 'К программам',
+          primaryButtonLink: '/programs',
           secondaryButtonLabel: 'О школе',
           secondaryButtonLink: '/about',
           image: media.hero.id,
@@ -1191,10 +2298,10 @@ async function seedPages(
           'Можно ли менять вопросы в админке?',
           'Сколько вопросов можно добавить?',
         ]),
-        makeCollectionGridBlock('Кружки', 'clubs', 3),
+        makeCollectionGridBlock('Программы', 'clubs', 3),
         makeCollectionGridBlock('Новости', 'news', 3, true),
         makeCollectionGridBlock('Преподаватели', 'teachers', 3),
-        makeCollectionGridBlock('Отзывы', 'reviews', 3),
+        makeCollectionGridBlock('О нас говорят', 'reviews', 3, false, ''),
         makeCollectionGridBlock('Вакансии', 'jobs', 2),
         makeCollectionGridBlock('Галерея', 'galleryAlbums', 2),
       ],
@@ -1259,8 +2366,8 @@ async function seedPages(
       layout: [
         makeHeroBlock({
           title: 'Группа продлённого дня',
-          primaryButtonLabel: 'Кружки',
-          primaryButtonLink: '/clubs',
+          primaryButtonLabel: 'Программы',
+          primaryButtonLink: '/programs',
           secondaryButtonLabel: 'Активные каникулы',
           secondaryButtonLink: '/active-holidays',
           image: media.hero.id,
@@ -1313,8 +2420,8 @@ async function seedPages(
       layout: [
         makeHeroBlock({
           title: 'Школа английского языка',
-          primaryButtonLabel: 'Кружки',
-          primaryButtonLink: '/clubs',
+          primaryButtonLabel: 'Программы',
+          primaryButtonLink: '/programs',
           secondaryButtonLabel: 'Сведения об образовательной организации',
           secondaryButtonLink: '/organization-info',
           image: media.hero.id,
@@ -1333,43 +2440,124 @@ async function seedPages(
       },
     },
     {
-      slug: 'clubs',
-      title: 'Кружки',
-      pageTitle: 'Кружки',
+      slug: 'programs',
+      title: 'Программы',
+      pageTitle: 'Программы',
       layout: [
-        makeHeroBlock({
-          title: 'Кружки',
-          primaryButtonLabel: 'Семейные классы',
-          primaryButtonLink: '/family-classes',
-          secondaryButtonLabel: 'Школа английского языка',
-          secondaryButtonLink: '/english-school',
-          image: media.hero.id,
-        }),
-        makeTextImageBlock('Кружки и секции', 'right', media.hero.id),
-        makeCollectionGridBlock('Кружки', 'clubs', 5),
+        makeTitleDescriptionBlock(
+          'Программы',
+          'Кружки, языковая школа и активные каникулы для детей и взрослых — выберите направление, чтобы посмотреть программы внутри.',
+        ),
+        makeProgramCategoriesBlock('', '', true),
       ],
       meta: {
-        title: 'Кружки',
+        title: 'Программы',
         description: PLACEHOLDER_TEXT,
         image: media.hero.id,
       },
     },
     {
-      slug: 'about',
-      title: 'О Новой школе',
-      pageTitle: 'О Новой школе',
+      slug: 'contacts',
+      title: 'Контакты',
+      pageTitle: 'Контакты',
       layout: [
-        makeTextImageBlock('О Новой школе', 'right', media.hero.id),
-        makeCollectionGridBlock('Новости', 'news', 3, true),
-        makeCollectionGridBlock('Галерея', 'galleryAlbums', 2, true),
-        makeCollectionGridBlock('Отзывы', 'reviews', 3),
-        makeProgramBlock('Способы оплаты', ['Способ 1', 'Способ 2', 'Способ 3']),
-        makeCollectionGridBlock('Преподаватели', 'teachers', 3),
-        makeCollectionGridBlock('Вакансии', 'jobs', 2),
-        makeTextImageBlock('Контакты', 'right', media.hero.id),
+        makeContactsBlock(
+          'Свяжитесь с нами',
+          'Мы всегда на связи: звоните, пишите в мессенджеры или приезжайте в школу.',
+        ),
       ],
       meta: {
-        title: 'О Новой школе',
+        title: 'Контакты',
+        description: PLACEHOLDER_TEXT,
+        image: media.hero.id,
+      },
+    },
+    {
+      slug: 'privacy-policy',
+      title: 'Политика конфиденциальности',
+      pageTitle: 'Политика конфиденциальности',
+      layout: [
+        makeTextSectionBlock(
+          'Общие положения',
+          'Настоящая политика конфиденциальности определяет порядок обработки и защиты персональных данных посетителей сайта «Новая школа» (далее — Школа). Политика разработана в соответствии с Федеральным законом от 27.07.2006 № 152-ФЗ «О персональных данных» и иными нормативными актами Российской Федерации.',
+          'right',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Какие данные мы собираем',
+          'При заполнении форм на сайте (заявка на кружок, обратная связь) Школа может обрабатывать: имя, номер телефона, адрес электронной почты, а также иные сведения, которые пользователь сообщает добровольно.',
+          'left',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Цели обработки данных',
+          'Персональные данные используются исключительно для связи с пользователем, обработки заявок, информирования об услугах Школы и улучшения качества сайта. Данные не передаются третьим лицам, за исключением случаев, предусмотренных законодательством.',
+          'right',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Хранение и защита данных',
+          'Школа принимает необходимые организационные и технические меры для защиты персональных данных от неправомерного доступа, изменения, раскрытия или уничтожения.',
+          'left',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Права пользователя',
+          'Пользователь вправе в любой момент отозвать согласие на обработку персональных данных, запросить информацию об обрабатываемых данных или потребовать их удаления, направив запрос по контактным данным, указанным на сайте.',
+          'right',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Изменения политики',
+          'Школа оставляет за собой право вносить изменения в настоящую политику. Актуальная версия документа всегда доступна на этой странице.',
+          'left',
+          media.hero.id,
+        ),
+      ],
+      meta: {
+        title: 'Политика конфиденциальности',
+        description: PLACEHOLDER_TEXT,
+        image: media.hero.id,
+      },
+    },
+    {
+      slug: 'personal-data',
+      title: 'Документ по персональным данным',
+      pageTitle: 'Согласие на обработку персональных данных',
+      layout: [
+        makeTextSectionBlock(
+          'Общие положения',
+          'Настоящий документ определяет условия согласия субъекта персональных данных на их обработку Школой при заполнении форм обратной связи и заявок на сайте.',
+          'right',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Согласие на обработку',
+          'Заполняя форму на сайте, пользователь подтверждает своё согласие на обработку персональных данных: имени, телефона и иных указанных сведений, свободно, своей волей и в своём интересе.',
+          'left',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Способы обработки',
+          'Обработка персональных данных осуществляется с использованием средств автоматизации и без их использования, включая сбор, запись, систематизацию, хранение, уточнение и удаление данных.',
+          'right',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Срок действия согласия',
+          'Согласие действует бессрочно и может быть отозвано пользователем в любой момент путём направления письменного заявления по контактным данным Школы.',
+          'left',
+          media.hero.id,
+        ),
+        makeTextSectionBlock(
+          'Конфиденциальность',
+          'Школа обязуется соблюдать конфиденциальность персональных данных и не допускать их распространения без согласия пользователя, за исключением случаев, предусмотренных законодательством РФ.',
+          'right',
+          media.hero.id,
+        ),
+      ],
+      meta: {
+        title: 'Документ по персональным данным',
         description: PLACEHOLDER_TEXT,
         image: media.hero.id,
       },
@@ -1406,6 +2594,17 @@ async function seedPages(
     })
   }
 
+  // Superseded by the /programs/category/kruzhki category listing route.
+  const staleKruzhkiPage = await findOneByField(payload, 'pages', 'slug', 'kruzhki')
+  if (staleKruzhkiPage) {
+    await payload.delete({
+      id: staleKruzhkiPage.id,
+      collection: 'pages',
+      context: SEED_CONTEXT,
+      overrideAccess: true,
+    })
+  }
+
   return seededPages
 }
 
@@ -1415,15 +2614,12 @@ async function seedHeader(
 ) {
   const navigationLinks: NavigationLink[] = [
     pages.home ? makePageNavigationLink('Главная', pages.home.id) : makeUrlNavigationLink('Главная', '/'),
-    pages.about ? makePageNavigationLink('О школе', pages.about.id) : makeUrlNavigationLink('О школе', '/about'),
-    pages.clubs ? makePageNavigationLink('Кружки', pages.clubs.id) : makeUrlNavigationLink('Кружки', '/clubs'),
+    makeUrlNavigationLink('Сведения об образовательной организации', '/organization-info'),
+    pages.programs ? makePageNavigationLink('Кружки', pages.programs.id) : makeUrlNavigationLink('Кружки', '/programs'),
     makeUrlNavigationLink('Новости', '/news'),
-    pages.demo ? makePageNavigationLink('Демо', pages.demo.id) : makeUrlNavigationLink('Демо', '/demo'),
   ]
 
-  const secondaryHeaderLinks: NavigationLink[] = [
-    makeUrlNavigationLink('Сведения об образовательной организации', '/organization-info'),
-  ]
+  const secondaryHeaderLinks: NavigationLink[] = []
 
   await payload.updateGlobal({
     context: SEED_CONTEXT,
@@ -1436,52 +2632,18 @@ async function seedHeader(
   })
 }
 
-type FooterLegalLink = NonNullable<Footer['legalLinks']>[number]
-
-function makeFooterUrlLink(label: string, url: string): FooterLegalLink {
-  return {
-    link: {
-      label,
-      newTab: false,
-      type: 'custom',
-      url,
-    },
-  }
-}
-
-async function seedFooter(payload: Awaited<ReturnType<typeof getPayload>>) {
-  const footer = await payload.findGlobal({
-    slug: 'footer',
-    overrideAccess: true,
-  })
-
-  const existingLinks = footer.legalLinks ?? []
-  const alreadyLinked = existingLinks.some((item) => item.link?.url === '/organization-info')
-
-  if (alreadyLinked) return
-
-  await payload.updateGlobal({
-    context: SEED_CONTEXT,
-    data: {
-      legalLinks: [
-        ...existingLinks,
-        makeFooterUrlLink('Сведения об образовательной организации', '/organization-info'),
-      ],
-    },
-    overrideAccess: true,
-    slug: 'footer',
-  })
-}
-
 async function seedSiteSettings(payload: Awaited<ReturnType<typeof getPayload>>) {
   await payload.updateGlobal({
     context: SEED_CONTEXT,
     data: {
       phone: '+7 (925) 292-40-96',
       address: 'г. Королёв, пр-кт Королёва, д. 5Д, пом. 501',
+      workingHours: '8:00 — 20:00',
       vkUrl: 'https://vk.com/newschool_korolev',
+      maxUrl: 'https://vk.me/79252924096',
       telegramUrl: 'https://t.me/New_School_Korolev',
       whatsappUrl: 'https://web.whatsapp.com/send?phone=79252924096',
+      defaultApplicationCtaText: 'Оставить заявку',
     },
     slug: 'site-settings',
   })
@@ -1492,11 +2654,11 @@ async function main() {
 
   try {
     const media = await seedMedia(payload)
-    await seedCollections(payload, media)
+    const programCategories = await seedProgramCategories(payload, media)
+    await seedCollections(payload, media, programCategories)
     await seedOrgInfoSections(payload, media)
     const pages = await seedPages(payload, media)
     await seedHeader(payload, pages)
-    await seedFooter(payload)
     await seedSiteSettings(payload)
 
     console.log('Development seed completed successfully.')

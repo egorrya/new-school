@@ -23,6 +23,15 @@ export const ScheduleBlock: Block = {
       },
     },
     {
+      name: 'hideHeader',
+      type: 'checkbox',
+      label: 'Скрыть заголовок и текст',
+      defaultValue: false,
+      admin: {
+        description: 'Показать только расписание, без заголовка и текста над ним.',
+      },
+    },
+    {
       name: 'scheduleItems',
       type: 'array',
       label: 'Строки расписания',

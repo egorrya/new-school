@@ -23,6 +23,15 @@ export const AudienceBlock: Block = {
       },
     },
     {
+      name: 'hideHeader',
+      type: 'checkbox',
+      label: 'Скрыть заголовок и текст',
+      defaultValue: false,
+      admin: {
+        description: 'Показать только карточки с пунктами, без заголовка и текста над ними.',
+      },
+    },
+    {
       name: 'items',
       type: 'array',
       label: 'Пункты',

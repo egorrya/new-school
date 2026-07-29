@@ -1,204 +1,439 @@
 'use client'
 
 import * as Dialog from '@radix-ui/react-dialog'
-import { AnimatePresence, motion, useReducedMotion, type Variants } from 'motion/react'
-import { ArrowRight, Menu, X } from 'lucide-react'
+import { AnimatePresence, LayoutGroup, motion, useReducedMotion, type Variants } from 'motion/react'
+import { ArrowLeft, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState, type CSSProperties } from 'react'
 
 import type { Header, SiteSetting } from '@/payload-types'
 
 import { Button } from '@/components/ui/button'
+import { getItemTextColor, itemBackgroundColors } from '@/components/ui/marquee'
 import { resolveHref } from './Nav'
+import { cn } from '@/utilities/ui'
 
 type MobileMenuProps = {
   header: Header
   siteSettings?: SiteSetting
+  open: boolean
+  onOpenChange: (open: boolean) => void
 }
 
+type NavigationItem = NonNullable<Header['navigationLinks']>[number]
+type SubNavigationItem = NonNullable<NavigationItem['subLinks']>[number]
+type PillLink = NavigationItem['link'] | SubNavigationItem['link']
+
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
+const POP_EASE = [0.34, 1.56, 0.64, 1] as const
+
+const DESKTOP_QUERY = '(min-width: 900px)'
+const MENU_CLOSE_ANIMATION_MS = 420
 
 const overlayVariants: Variants = {
-  hidden: { opacity: 0, backdropFilter: 'blur(0px)' },
-  visible: { opacity: 1, backdropFilter: 'blur(6px)', transition: { duration: 0.3, ease: EASE_OUT } },
-  exit: { opacity: 0, backdropFilter: 'blur(0px)', transition: { duration: 0.25, ease: EASE_OUT } },
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { duration: 0.35, ease: EASE_OUT } },
+  exit: { opacity: 0, transition: { duration: 0.4, ease: EASE_OUT } },
 }
 
 const listVariants: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
-  exit: { transition: { staggerChildren: 0.04, staggerDirection: -1 } },
+  visible: { transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
+  exit: { transition: { staggerChildren: 0.025, staggerDirection: -1 } },
 }
 
 const bubbleVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.4 },
+  hidden: { opacity: 0, scale: 0 },
+  visible: (rotate: number = 0) => ({
+    opacity: 1,
+    scale: 1,
+    rotate,
+    transition: { duration: 0.5, ease: POP_EASE },
+  }),
+  exit: { opacity: 0, scale: 0.85, transition: { duration: 0.22, ease: EASE_OUT } },
+}
+
+const labelVariants: Variants = {
+  hidden: { y: 24, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { duration: 0.45, ease: EASE_OUT, delay: 0.06 } },
+  exit: { y: 12, opacity: 0, transition: { duration: 0.2, ease: EASE_OUT } },
+}
+
+const backButtonVariants: Variants = {
+  hidden: { opacity: 0, y: -10, scale: 0.96 },
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { type: 'spring', stiffness: 340, damping: 22 },
+    y: 0,
+    transition: { delay: 0.08, duration: 0.28, ease: EASE_OUT },
   },
-  exit: { opacity: 0, scale: 0.4, transition: { duration: 0.16, ease: EASE_OUT } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.18, ease: EASE_OUT } },
 }
 
-const arrowHoverVariants: Variants = {
-  rest: { opacity: 0, x: -10, rotate: -25 },
-  hover: { opacity: 1, x: 0, rotate: 0, transition: { type: 'spring', stiffness: 420, damping: 22 } },
+const itemHoverTransition = { duration: 0.2, ease: EASE_OUT } as const
+const itemTapTransition = { duration: 0.12, ease: EASE_OUT } as const
+
+const PILL_ROTATIONS = [-2.5, 2.5, -2, 2, -2.5, 2.5, -2, 2]
+const REQUIRED_NAVIGATION_HREF = '/organization-info'
+
+const pillClassName =
+  'flex w-full select-none items-center justify-center rounded-full border-2 border-border bg-white text-center text-foreground transition-colors duration-300 hover:bg-(--pill-hover-bg) hover:text-(--pill-hover-text)'
+
+const pillSizeClassName = cn(
+  'min-h-[80px] px-6 py-[clamp(1rem,2vw,2rem)] text-[clamp(1.2rem,3vw,4rem)] font-medium',
+  'min-[900px]:min-h-[160px] min-[900px]:px-4 min-[900px]:py-[clamp(1.5rem,3vw,8rem)] min-[900px]:text-[clamp(1.5rem,4vw,4rem)] min-[900px]:font-normal',
+)
+
+const requiredNavigationPillSizeClassName = cn(
+  'min-h-[72px] w-auto max-w-[calc(100%-1.5rem)] px-4 py-4 font-medium whitespace-nowrap',
+  'min-[900px]:min-h-[130px] min-[900px]:max-w-[calc(100%-4rem)] min-[900px]:px-8 min-[900px]:py-[clamp(1rem,2vw,3rem)] min-[900px]:font-normal',
+)
+
+const hamburgerBarClassName = 'absolute left-0 h-0.5 w-5 rounded-full bg-current'
+
+function HamburgerIcon({ open }: { open: boolean }) {
+  return (
+    <span className="relative flex size-5 items-center justify-center">
+      <motion.span
+        animate={{ y: open ? 4 : 0, rotate: open ? 45 : 0 }}
+        className={cn(hamburgerBarClassName, 'top-[5px]')}
+        transition={{ duration: 0.28, ease: EASE_OUT }}
+      />
+      <motion.span
+        animate={{ opacity: open ? 0 : 1 }}
+        className={cn(hamburgerBarClassName, 'top-[9px]')}
+        transition={{ duration: 0.16, ease: EASE_OUT }}
+      />
+      <motion.span
+        animate={{ y: open ? -4 : 0, rotate: open ? -45 : 0 }}
+        className={cn(hamburgerBarClassName, 'top-[13px]')}
+        transition={{ duration: 0.28, ease: EASE_OUT }}
+      />
+    </span>
+  )
 }
 
-const PILL_ACCENTS = [
-  { bg: 'var(--main)', fg: 'var(--main-foreground)' },
-  { bg: 'var(--accent-sun)', fg: 'var(--foreground)' },
-  { bg: 'var(--accent-green)', fg: 'var(--foreground)' },
-  { bg: 'var(--accent-coral)', fg: 'var(--foreground)' },
-  { bg: 'var(--accent-sky)', fg: 'var(--foreground)' },
-]
+/** Mirrors the 3-column snake layout: centers a 1- or 2-item trailing row. */
+function getSnakeOffsetClassName(index: number, total: number) {
+  const remainder = total % 3
+  const position = index + 1
 
-export function MobileMenu({ header, siteSettings }: MobileMenuProps) {
-  const [open, setOpen] = useState(false)
+  if (remainder === 1 && position === total) {
+    return 'min-[900px]:ml-[calc(100%/3)]'
+  }
+
+  if (remainder === 2 && position === total - 1) {
+    return 'min-[900px]:ml-[calc(100%/6)]'
+  }
+
+  return ''
+}
+
+function useIsDesktopMenu() {
+  const [isDesktop, setIsDesktop] = useState(false)
+
+  useEffect(() => {
+    const query = window.matchMedia(DESKTOP_QUERY)
+    const update = () => setIsDesktop(query.matches)
+
+    update()
+    query.addEventListener('change', update)
+    return () => query.removeEventListener('change', update)
+  }, [])
+
+  return isDesktop
+}
+
+function isRequiredNavigationLink(link: PillLink) {
+  return resolveHref(link) === REQUIRED_NAVIGATION_HREF
+}
+
+export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileMenuProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isDesktop = useIsDesktopMenu()
   const navigationLinks = header.navigationLinks ?? []
   const applicationText = siteSettings?.defaultApplicationCtaText || 'Оставить заявку'
+  const [isMounted, setIsMounted] = useState(open)
+  const [activeParentIndex, setActiveParentIndex] = useState<number | null>(null)
+
+  const activeParent = activeParentIndex !== null ? navigationLinks[activeParentIndex] : undefined
+  const activeSubLinks = activeParent?.subLinks ?? []
+  const isSubmenuOpen = activeParentIndex !== null
+  const menuMotionState = open ? ('visible' as const) : ('exit' as const)
+  const rootNavigationItems = navigationLinks.map((item, index) => ({ item, originalIndex: index }))
+  const requiredNavigationItems = rootNavigationItems.filter(({ item }) =>
+    isRequiredNavigationLink(item.link),
+  )
+  const regularNavigationItems = rootNavigationItems.filter(
+    ({ item }) => !isRequiredNavigationLink(item.link),
+  )
 
   const motionProps = shouldReduceMotion
-    ? { initial: false as const }
-    : { initial: 'hidden' as const, animate: 'visible' as const, exit: 'exit' as const }
+    ? { initial: false as const, animate: menuMotionState }
+    : { initial: 'hidden' as const, animate: menuMotionState }
+
+  // Reset back to the root list whenever the dialog closes, so it always reopens at the top level.
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (nextOpen) {
+      setIsMounted(true)
+      setActiveParentIndex(null)
+    }
+
+    onOpenChange(nextOpen)
+  }
+
+  useEffect(() => {
+    if (open) {
+      return
+    }
+
+    const closeTimer = window.setTimeout(() => {
+      setIsMounted(false)
+      setActiveParentIndex(null)
+    }, MENU_CLOSE_ANIMATION_MS)
+
+    return () => window.clearTimeout(closeTimer)
+  }, [open])
+
+  const handleBackdropClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement
+    if (!target.closest('a, button')) {
+      handleOpenChange(false)
+    }
+  }
+
+  const closeMenu = () => handleOpenChange(false)
+
+  const renderPill = (
+    key: string,
+    link: PillLink,
+    index: number,
+    total: number,
+    onExpand?: () => void,
+    isRequiredNavigation = false,
+  ) => {
+    const href = resolveHref(link)
+
+    if (!onExpand && !href) {
+      return null
+    }
+
+    const isExternal =
+      href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
+    const rotation = isDesktop && !isRequiredNavigation ? PILL_ROTATIONS[index % PILL_ROTATIONS.length] : 0
+    const hoverBg = itemBackgroundColors[index % itemBackgroundColors.length]
+
+    const sharedClassName = cn(
+      pillClassName,
+      isRequiredNavigation ? requiredNavigationPillSizeClassName : pillSizeClassName,
+    )
+    const sharedStyle = {
+      '--pill-hover-bg': hoverBg,
+      '--pill-hover-text': getItemTextColor(hoverBg),
+      fontSize: isRequiredNavigation
+        ? 'clamp(0.55rem, calc((100vw - 3rem) / 34), 3.4rem)'
+        : undefined,
+    } as CSSProperties
+
+    const linkBody = (
+      <motion.span
+        className={cn(
+          'inline-flex items-center gap-2 leading-[1.2]',
+          isRequiredNavigation && 'max-w-full whitespace-nowrap leading-none',
+        )}
+        variants={shouldReduceMotion ? undefined : labelVariants}
+      >
+        {link.label}
+      </motion.span>
+    )
+
+    return (
+      <motion.li
+        className={cn(
+          'flex flex-[0_0_100%] items-stretch justify-center box-border',
+          isRequiredNavigation
+            ? 'min-[900px]:flex-[0_0_100%] min-[900px]:px-2'
+            : 'min-[900px]:flex-[0_0_calc(100%/3)] min-[900px]:px-2',
+          !isRequiredNavigation && getSnakeOffsetClassName(index, total),
+        )}
+        custom={rotation}
+        key={key}
+        role="none"
+        variants={shouldReduceMotion ? undefined : bubbleVariants}
+        whileHover={shouldReduceMotion ? undefined : { scale: 1.06, transition: itemHoverTransition }}
+        whileTap={shouldReduceMotion ? undefined : { scale: 0.94, transition: itemTapTransition }}
+      >
+        {onExpand ? (
+          <button
+            className={cn(sharedClassName, 'cursor-pointer')}
+            onClick={onExpand}
+            style={sharedStyle}
+            type="button"
+          >
+            {linkBody}
+          </button>
+        ) : isExternal ? (
+          <a
+            className={sharedClassName}
+            href={href}
+            onClick={closeMenu}
+            rel={link.newTab ? 'noopener noreferrer' : undefined}
+            style={sharedStyle}
+            target={link.newTab ? '_blank' : undefined}
+          >
+            {linkBody}
+          </a>
+        ) : (
+          <Link
+            className={sharedClassName}
+            href={href}
+            onClick={closeMenu}
+            rel={link.newTab ? 'noopener noreferrer' : undefined}
+            style={sharedStyle}
+            target={link.newTab ? '_blank' : undefined}
+          >
+            {linkBody}
+          </Link>
+        )}
+      </motion.li>
+    )
+  }
 
   return (
-    <Dialog.Root onOpenChange={setOpen} open={open}>
+    <Dialog.Root onOpenChange={handleOpenChange} open={open}>
       <Dialog.Trigger asChild>
         <Button
           aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
-          className="relative lg:hidden"
+          className="relative size-13"
           size="icon"
           variant="neutral"
         >
-          <span className="relative flex size-5 items-center justify-center">
-            <AnimatePresence initial={false} mode="wait">
-              {open ? (
-                <motion.span
-                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                  exit={{ opacity: 0, rotate: -70, scale: 0.4 }}
-                  initial={{ opacity: 0, rotate: 70, scale: 0.4 }}
-                  key="close"
-                  transition={{ duration: 0.22, ease: EASE_OUT }}
-                >
-                  <X aria-hidden="true" className="size-5" />
-                </motion.span>
-              ) : (
-                <motion.span
-                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                  exit={{ opacity: 0, rotate: -70, scale: 0.4 }}
-                  initial={{ opacity: 0, rotate: 70, scale: 0.4 }}
-                  key="menu"
-                  transition={{ duration: 0.22, ease: EASE_OUT }}
-                >
-                  <Menu aria-hidden="true" className="size-5" />
-                </motion.span>
-              )}
-            </AnimatePresence>
-          </span>
+          <HamburgerIcon open={open} />
         </Button>
       </Dialog.Trigger>
 
-      <AnimatePresence>
-        {open ? (
-          <Dialog.Portal forceMount>
-            <Dialog.Overlay asChild forceMount>
-              <motion.div
-                {...motionProps}
-                className="fixed inset-0 z-60 bg-overlay"
-                variants={shouldReduceMotion ? undefined : overlayVariants}
-              />
-            </Dialog.Overlay>
+      {isMounted ? (
+        <Dialog.Portal forceMount>
+          <Dialog.Overlay asChild forceMount>
+            <motion.div
+              {...motionProps}
+              className="fixed inset-0 z-60 bg-white/80 backdrop-blur-md will-change-[opacity]"
+              variants={shouldReduceMotion ? undefined : overlayVariants}
+            />
+          </Dialog.Overlay>
 
-            <Dialog.Content asChild forceMount>
-              <div className="fixed inset-0 z-60 flex flex-col overflow-y-auto px-4 pt-24 pb-10 sm:px-6">
-                <Dialog.Title className="sr-only">Меню</Dialog.Title>
-                <Dialog.Close asChild>
-                  <Button
-                    aria-label="Закрыть меню"
-                    className="fixed top-4 right-4 sm:top-6 sm:right-6"
-                    size="icon"
-                    variant="neutral"
-                  >
-                    <X aria-hidden="true" className="size-5" />
-                  </Button>
-                </Dialog.Close>
+          <Dialog.Content asChild forceMount>
+            <div
+              className="fixed inset-0 z-60 flex cursor-pointer flex-col items-center justify-center overflow-y-auto px-4 pt-24 pb-10 sm:px-6"
+              onClick={handleBackdropClick}
+            >
+              <Dialog.Title className="sr-only">Меню</Dialog.Title>
 
-                <motion.ul
-                  {...motionProps}
-                  aria-label="Мобильное меню"
-                  className="m-0 flex w-full max-w-md flex-1 list-none flex-col justify-center gap-3 self-center py-16"
-                  role="menu"
-                  variants={shouldReduceMotion ? undefined : listVariants}
-                >
-                  {navigationLinks.map((item, index) => {
-                    const href = resolveHref(item.link)
-
-                    if (!href) {
-                      return null
-                    }
-
-                    const isExternal =
-                      href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
-
-                    const linkProps = {
-                      className: 'flex w-full items-center justify-between gap-3',
-                      href,
-                      onClick: () => setOpen(false),
-                      rel: item.link.newTab ? 'noopener noreferrer' : undefined,
-                      target: item.link.newTab ? '_blank' : undefined,
-                    }
-
-                    const accent = PILL_ACCENTS[index % PILL_ACCENTS.length]
-
-                    const linkBody = (
-                      <>
-                        <span className="text-lg font-semibold">{item.link.label}</span>
-                        <motion.span variants={arrowHoverVariants}>
-                          <ArrowRight aria-hidden="true" className="size-5" />
-                        </motion.span>
-                      </>
-                    )
-
-                    return (
-                      <motion.li key={item.id || item.link.label} role="none" variants={bubbleVariants}>
-                        <motion.div
-                          className="rounded-full border-2 border-border shadow-[0.25rem_0.25rem_0_0_#222] transition-shadow hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
-                          initial="rest"
-                          style={{ background: accent.bg, color: accent.fg }}
-                          whileHover="hover"
-                          whileTap={{ scale: 0.97 }}
+              <LayoutGroup id="mobile-menu-layout">
+                <div className="flex w-full max-w-[100rem] flex-col self-center">
+                  <AnimatePresence mode="popLayout">
+                    {isSubmenuOpen ? (
+                      <motion.div
+                        layout
+                        animate={shouldReduceMotion ? undefined : menuMotionState}
+                        className="mb-3 flex justify-center"
+                        exit={shouldReduceMotion ? undefined : 'exit'}
+                        initial={shouldReduceMotion ? false : 'hidden'}
+                        key="back-button"
+                        transition={{ layout: { duration: 0.28, ease: EASE_OUT } }}
+                        variants={shouldReduceMotion ? undefined : backButtonVariants}
+                      >
+                        <motion.button
+                          aria-label="Назад к меню"
+                          className="inline-flex select-none items-center gap-2 px-2 py-1 text-sm font-medium text-black cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/10"
+                          onClick={() => setActiveParentIndex(null)}
+                          type="button"
+                          whileHover={shouldReduceMotion ? undefined : { scale: 1.04 }}
+                          whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
                         >
-                          {isExternal ? (
-                            <a {...linkProps} className={`${linkProps.className} rounded-full px-6 py-4`}>
-                              {linkBody}
-                            </a>
-                          ) : (
-                            <Link {...linkProps} className={`${linkProps.className} rounded-full px-6 py-4`}>
-                              {linkBody}
-                            </Link>
-                          )}
-                        </motion.div>
-                      </motion.li>
-                    )
-                  })}
+                          <ArrowLeft aria-hidden="true" className="size-4" />
+                          Назад
+                        </motion.button>
+                      </motion.div>
+                    ) : null}
+                  </AnimatePresence>
 
-                  <motion.li className="mt-3" role="none" variants={bubbleVariants}>
-                    <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.96 }}>
-                      <Button asChild className="w-full shadow-none" onClick={() => setOpen(false)}>
-                        <Link href="/clubs">{applicationText}</Link>
-                      </Button>
-                    </motion.div>
-                  </motion.li>
-                </motion.ul>
-              </div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        ) : null}
-      </AnimatePresence>
+                  <AnimatePresence mode="wait">
+                    <motion.ul
+                      layout
+                      {...motionProps}
+                      aria-label={
+                        isSubmenuOpen
+                          ? `Подпункты: ${activeParent?.link.label ?? ''}`
+                          : 'Мобильное меню'
+                      }
+                      className="m-0 flex w-full list-none flex-wrap gap-y-3 py-8 min-[900px]:gap-y-2"
+                      key={isSubmenuOpen ? `submenu-${activeParentIndex}` : 'root'}
+                      role="menu"
+                      variants={shouldReduceMotion ? undefined : listVariants}
+                    >
+                      {isSubmenuOpen
+                        ? activeSubLinks.map((subItem, index) =>
+                            renderPill(
+                              subItem.id || subItem.link.label,
+                              subItem.link,
+                              index,
+                              activeSubLinks.length,
+                            ),
+                          )
+                        : [
+                            ...regularNavigationItems.map(({ item, originalIndex }, index) => {
+                              const hasSubLinks = (item.subLinks?.length ?? 0) > 0
+
+                              return renderPill(
+                                item.id || item.link.label,
+                                item.link,
+                                index,
+                                regularNavigationItems.length,
+                                hasSubLinks ? () => setActiveParentIndex(originalIndex) : undefined,
+                              )
+                            }),
+                            ...requiredNavigationItems.map(({ item, originalIndex }, index) => {
+                              const hasSubLinks = (item.subLinks?.length ?? 0) > 0
+
+                              return renderPill(
+                                item.id || item.link.label,
+                                item.link,
+                                regularNavigationItems.length + index,
+                                requiredNavigationItems.length,
+                                hasSubLinks ? () => setActiveParentIndex(originalIndex) : undefined,
+                                true,
+                              )
+                            }),
+                          ]}
+
+                      {!isSubmenuOpen ? (
+                        <motion.li
+                          className="flex-[0_0_100%] pt-2 min-[900px]:hidden"
+                          custom={0}
+                          role="none"
+                          variants={shouldReduceMotion ? undefined : bubbleVariants}
+                        >
+                          <Button
+                            asChild
+                            className="h-auto min-h-18 w-full rounded-full py-4 text-lg shadow-none min-[900px]:min-h-24 min-[900px]:text-2xl"
+                            onClick={closeMenu}
+                          >
+                            <Link className="flex select-none items-center justify-center gap-2" href="/contacts">
+                              {applicationText}
+                              <ArrowRight aria-hidden="true" className="size-5 min-[900px]:size-6" />
+                            </Link>
+                          </Button>
+                        </motion.li>
+                      ) : null}
+                    </motion.ul>
+                  </AnimatePresence>
+                </div>
+              </LayoutGroup>
+            </div>
+          </Dialog.Content>
+        </Dialog.Portal>
+      ) : null}
     </Dialog.Root>
   )
 }

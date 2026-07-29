@@ -6,7 +6,6 @@ import React from 'react'
 
 import { Footer } from '@/components/layout/Footer/Component'
 import { Header } from '@/components/layout/Header/Component'
-import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { Toaster } from '@/components/ui/sonner'
 import { InfiniteGridBackground } from '@/components/ui/backgrounds/infinite-grid-background'
 import { mergeOpenGraph } from '@/lib/mergeOpenGraph'
@@ -39,7 +38,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             style={{ paddingTop: 'var(--site-header-height)', marginTop: '-100vh' }}
           >
             {children}
-            <SiteContactsSection />
           </div>
         </main>
         <Footer />

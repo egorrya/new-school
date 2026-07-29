@@ -256,6 +256,8 @@
   --site-header-logo-height: 3rem;
   --site-header-logo-height-expanded: 7rem;
   --site-header-top-offset: 0.25rem;
+  --site-header-fixed-bottom: var(--site-header-height);
+  --site-tabs-nav-height: 0px;
 }
 
 @variant sm {
@@ -264,6 +266,8 @@
     --site-header-logo-height: 3.5rem;
     --site-header-logo-height-expanded: 8.25rem;
     --site-header-top-offset: 0.5rem;
+    --site-header-fixed-bottom: var(--site-header-height);
+    --site-tabs-nav-height: 0px;
   }
 }
 
@@ -323,10 +327,24 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    @apply overflow-x-hidden;
+  }
   body {
     @apply bg-background text-foreground min-h-[100vh] flex flex-col;
     font-family: var(--font-base);
     font-weight: 400;
+  }
+  /* Radix's dialog/popover scroll-lock sets body{overflow:hidden}, which makes
+     <body> a scroll container and hijacks position:sticky's containing block
+     away from the viewport — instantly breaking InfiniteGridBackground's
+     sticky trick (see its own comment) whenever any popup opens. The lock's
+     actual scroll-blocking is done via wheel/touch listeners (react-remove-scroll),
+     so overflow can be freed here without re-enabling background scroll.
+     Doubled attribute selector beats Radix's injected rule on specificity,
+     since its <style> tag can land after ours in source order. */
+  body[data-scroll-locked][data-scroll-locked] {
+    overflow: visible !important;
   }
   ::selection {
     background: var(--main);

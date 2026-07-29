@@ -148,7 +148,7 @@ export function CTAFormClient({ action, buttonLabel, clubId, formType, pageUrl, 
     <motion.div
       initial={shouldReduceMotion ? undefined : 'hidden'}
       variants={shouldReduceMotion ? undefined : cardReveal}
-      viewport={{ amount: 0.3, margin: '0px 0px -10% 0px', once: false }}
+      viewport={{ amount: 0.35, margin: '0px 0px -10% 0px', once: false }}
       whileInView={shouldReduceMotion ? undefined : 'visible'}
     >
       <Card className="bg-background">
