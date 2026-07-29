@@ -158,6 +158,42 @@
     will-change: transform;
   }
 
+  @media (width < 40rem) {
+    .mobile-standard-text-scale-75 {
+      --text-xs: 0.5625rem;
+      --text-sm: 0.65625rem;
+      --text-base: 0.75rem;
+      --text-lg: 0.84375rem;
+      --text-xl: 0.9375rem;
+      --text-2xl: 1.125rem;
+      --text-3xl: 1.40625rem;
+      --text-4xl: 1.6875rem;
+      --text-5xl: 2.25rem;
+      --text-6xl: 2.8125rem;
+      --text-7xl: 3.375rem;
+      --text-8xl: 4.5rem;
+      --text-9xl: 6rem;
+    }
+
+    .header-logo.has-compact-logo {
+      width: calc(var(--site-header-logo-height) * var(--logo-compact-ratio)) !important;
+      transition-duration: 0ms;
+    }
+
+    .header-logo.has-compact-logo .header-logo-primary {
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.97);
+      transition-duration: 0ms;
+    }
+
+    .header-logo.has-compact-logo .header-logo-compact {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      transition-duration: 0ms;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .animate-orb-top-right,
     .animate-orb-bottom-left,
@@ -252,9 +288,9 @@
   --accent-sky: oklch(92.5% 0.05 236deg);
   --accent-sun: oklch(90.5% 0.14 92deg);
   --school-grid-line: rgb(18 14 10 / 0.045);
-  --site-header-height: 8.75rem;
-  --site-header-logo-height: 3rem;
-  --site-header-logo-height-expanded: 7rem;
+  --site-header-height: 3.4rem;
+  --site-header-logo-height: 2.4rem;
+  --site-header-logo-height-expanded: 2.4rem;
   --site-header-top-offset: 0.25rem;
   --site-header-fixed-bottom: var(--site-header-height);
   --site-tabs-nav-height: 0px;

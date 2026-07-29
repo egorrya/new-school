@@ -14,8 +14,12 @@ export type TestimonialItem = {
 export function getTestimonialQuoteClass(quote: string) {
   const wordCount = quote.trim().split(/\s+/).filter(Boolean).length
 
+  if (wordCount > 80) {
+    return 'max-h-[calc(100dvh-var(--site-header-height,0px)-var(--site-secondary-header-height,0px)-12rem)] overflow-y-auto pr-1 text-justify text-[0.72rem] leading-[1.35] hyphens-auto [text-align-last:left] sm:max-h-none sm:overflow-visible sm:pr-0 sm:text-base sm:leading-relaxed'
+  }
+
   if (wordCount > 24) {
-    return 'text-base leading-relaxed sm:text-base lg:text-base'
+    return 'max-h-[calc(100dvh-var(--site-header-height,0px)-var(--site-secondary-header-height,0px)-12rem)] overflow-y-auto pr-1 text-justify text-[0.8125rem] leading-[1.45] hyphens-auto [text-align-last:left] sm:max-h-none sm:overflow-visible sm:pr-0 sm:text-base sm:leading-relaxed lg:text-base'
   }
 
   if (wordCount > 12) {
@@ -27,7 +31,7 @@ export function getTestimonialQuoteClass(quote: string) {
 
 export function getTestimonialQuoteWidth(quote: string) {
   const wordCount = quote.trim().split(/\s+/).filter(Boolean).length
-  return wordCount > 24 ? 'max-w-4xl' : 'max-w-3xl'
+  return wordCount > 24 ? 'w-full max-w-none sm:max-w-4xl' : 'max-w-3xl'
 }
 
 function isMediaDocument(resource: number | Media | null | undefined): resource is Media {

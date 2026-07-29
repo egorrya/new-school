@@ -58,8 +58,8 @@ export function AudienceBlock({
                           ? stackSingleColumn
                             ? 'flex w-full gap-4'
                             : isLastOfOddPair
-                              ? 'mx-auto flex w-full max-w-[calc(50%-0.75rem)] gap-4'
-                              : 'flex w-[calc(50%-0.75rem)] gap-4'
+                              ? 'mx-auto flex w-full gap-4 sm:max-w-[calc(50%-0.75rem)]'
+                              : 'flex w-full gap-4 sm:w-[calc(50%-0.75rem)]'
                           : 'flex w-full gap-4 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)]'
                       }
                       key={item.id || `${item.title}-${index}`}

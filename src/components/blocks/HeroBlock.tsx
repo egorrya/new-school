@@ -49,26 +49,26 @@ export function HeroBlock({
         <div className="relative w-full overflow-x-clip">
           <div
             className={cn(
-              'relative grid w-full gap-8 p-4 sm:p-6 lg:p-8 items-center',
+              'mobile-standard-text-scale-75 relative grid w-full items-center gap-5 p-4 sm:gap-8 sm:p-6 lg:p-8',
               fullScreen
                 ? 'lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)] lg:gap-10'
                 : 'lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]',
             )}
           >
-            <div className={cn('space-y-6', fullScreen && 'max-w-3xl')}>
-              <div className="space-y-6">
-                <MotionReveal amount={0.2} blur={2} duration={0.7} y={18}>
+            <div className={cn('space-y-4 sm:space-y-6', fullScreen && 'max-w-3xl')}>
+              <div className="space-y-4 sm:space-y-6">
+                <MotionReveal allowMobileMotion amount={0.2} blur={2} duration={0.7} y={18}>
                   <h2 className="font-heading text-3xl leading-[1.1] sm:text-4xl lg:text-5xl">
                     {title}
                   </h2>
                 </MotionReveal>
-                <MotionReveal amount={0.2} blur={2} delay={0.14} duration={0.6} y={18}>
+                <MotionReveal allowMobileMotion amount={0.2} blur={2} delay={0.14} duration={0.6} y={18}>
                   <p className="max-w-2xl text-base leading-relaxed text-[#222] sm:text-lg">
                     {description || 'Описание этого экрана пока не заполнено.'}
                   </p>
                 </MotionReveal>
               </div>
-              <MotionReveal amount={0.2} blur={2} delay={0.3} duration={0.55} y={18}>
+              <MotionReveal allowMobileMotion amount={0.2} blur={2} delay={0.3} duration={0.55} y={18}>
                 <div className="flex flex-wrap gap-3">
                   {hasPrimaryAction ? (
                     <Button asChild>

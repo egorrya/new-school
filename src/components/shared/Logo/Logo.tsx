@@ -61,8 +61,9 @@ export const Logo = (props: Props) => {
         className={clsx(
           'group relative inline-flex origin-center items-center text-foreground',
           isHeaderVariant
-            ? 'h-full overflow-hidden transition-[width,transform] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width,transform] w-[calc(var(--site-header-logo-height)*var(--logo-expanded-ratio))] data-[logo-state=expanded]:w-[calc(var(--site-header-logo-height-expanded)*var(--logo-expanded-ratio))] data-[logo-state=compact]:w-[calc(var(--site-header-logo-height)*var(--logo-compact-ratio))]'
+            ? 'header-logo h-full overflow-hidden transition-[width,transform] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[width,transform] w-[calc(var(--site-header-logo-height)*var(--logo-expanded-ratio))] data-[logo-state=expanded]:w-[calc(var(--site-header-logo-height-expanded)*var(--logo-expanded-ratio))] data-[logo-state=compact]:w-[calc(var(--site-header-logo-height)*var(--logo-compact-ratio))]'
             : 'transition-transform duration-300 ease-out',
+          isHeaderVariant && hasCompactLogo && 'has-compact-logo',
           className,
         )}
         data-logo-state={isHeaderVariant || hasCompactLogo ? state : undefined}
@@ -71,7 +72,8 @@ export const Logo = (props: Props) => {
         <span
           className={clsx(
             'inline-flex items-center transition-[opacity,transform] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
-            isHeaderVariant && 'absolute inset-0 h-full w-full justify-center will-change-[opacity,transform]',
+            isHeaderVariant &&
+              'header-logo-primary absolute inset-0 h-full w-full justify-center will-change-[opacity,transform]',
             hasCompactLogo &&
               'group-data-[logo-state=compact]:pointer-events-none group-data-[logo-state=compact]:scale-[0.97] group-data-[logo-state=compact]:opacity-0',
           )}
@@ -91,7 +93,7 @@ export const Logo = (props: Props) => {
             className={clsx(
               'pointer-events-none absolute inset-0 flex items-center justify-center opacity-0 transition-[opacity,transform] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[opacity,transform]',
               isHeaderVariant
-                ? 'h-full w-full scale-[1.03]'
+                ? 'header-logo-compact h-full w-full scale-[1.03]'
                 : 'translate-y-1 scale-95',
               'group-data-[logo-state=compact]:translate-y-0 group-data-[logo-state=compact]:scale-100 group-data-[logo-state=compact]:opacity-100',
             )}

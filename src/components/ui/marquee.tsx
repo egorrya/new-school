@@ -3,9 +3,11 @@
 import { useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 const minRepeatCount = 2
 const marqueeDuration = '24s'
+const mobileMarqueeDuration = '48s'
 export const itemBackgroundColors = [
   '#0878B8',
   '#FD5B19',
@@ -21,7 +23,7 @@ const marqueeTrackClassName =
   'flex w-max min-w-full animate-marquee items-center whitespace-nowrap motion-reduce:animate-none'
 const marqueeSegmentClassName = 'flex shrink-0 items-center gap-4 py-10 pr-4'
 const marqueeItemClassName =
-  'inline-flex items-center rounded-full border-2 border-border px-10 py-4 font-heading text-2xl leading-none shadow-shadow motion-reduce:scale-100 sm:text-3xl'
+  'inline-flex items-center rounded-full border-2 border-border px-10 py-4 text-xl font-medium leading-none shadow-shadow motion-reduce:scale-100 sm:text-3xl sm:font-extrabold'
 
 type MarqueeStyle = CSSProperties & {
   '--marquee-distance'?: string
@@ -53,6 +55,7 @@ type MarqueeBaseProps = {
 }
 
 export function MarqueeBase({ className, items, paused = false }: MarqueeBaseProps) {
+  const isMobile = useIsMobileViewport()
   const marqueeItems = useMemo(() => items.map((item) => item.trim()).filter(Boolean), [items])
   const marqueeKey = marqueeItems.join('\u0001')
   const containerRef = useRef<HTMLDivElement | null>(null)
@@ -62,6 +65,10 @@ export function MarqueeBase({ className, items, paused = false }: MarqueeBasePro
   const [segmentWidth, setSegmentWidth] = useState<number | null>(null)
 
   const setAnimationPlaybackRate = (playbackRate: number) => {
+    if (isMobile) {
+      return
+    }
+
     const track = trackRef.current
 
     if (!track) {
@@ -118,10 +125,10 @@ export function MarqueeBase({ className, items, paused = false }: MarqueeBasePro
   const marqueeStyle: MarqueeStyle | undefined = segmentWidth
     ? {
         '--marquee-distance': `${segmentWidth}px`,
-        '--marquee-duration': marqueeDuration,
+        '--marquee-duration': isMobile ? mobileMarqueeDuration : marqueeDuration,
       }
     : {
-        '--marquee-duration': marqueeDuration,
+        '--marquee-duration': isMobile ? mobileMarqueeDuration : marqueeDuration,
       }
 
   return (

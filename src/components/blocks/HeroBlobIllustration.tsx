@@ -11,6 +11,7 @@ import kidsFallback from '../../../public/hero/kids.webp'
 
 import { ImageMedia } from '@/components/shared/Media/ImageMedia'
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 type HeroBlobIllustrationProps = {
   blobImage?: HeroBlockType['image']
@@ -81,10 +82,13 @@ export function HeroBlobIllustration({
   customBlobPositioning = true,
 }: HeroBlobIllustrationProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
+  const shouldReduceContinuousMotion = shouldReduceMotion || isMobile
   const [showBookoraa, setShowBookoraa] = useState(false)
   const [showWiggleLine, setShowWiggleLine] = useState(false)
   const [showStars, setShowStars] = useState(false)
   const blobResource = toMediaResource(blobImage)
+  const hasCustomBlobImage = Boolean(blobResource?.url)
   const kidsResource = toMediaResource(kidsImage)
 
   useEffect(() => {
@@ -132,9 +136,9 @@ export function HeroBlobIllustration({
         >
           <motion.div
             className="relative h-full w-full"
-            initial={shouldReduceMotion ? false : { x: 0, rotate: 25 }}
+            initial={shouldReduceContinuousMotion ? false : { x: 0, rotate: 25 }}
             animate={
-              shouldReduceMotion
+              shouldReduceContinuousMotion
                 ? undefined
                 : {
                     x: [0, 9, 0, -9, 0],
@@ -143,7 +147,7 @@ export function HeroBlobIllustration({
                   }
             }
             transition={
-              shouldReduceMotion
+              shouldReduceContinuousMotion
                 ? undefined
                 : {
                     duration: 5.8,
@@ -201,7 +205,7 @@ export function HeroBlobIllustration({
           delay={1.2}
           shouldReduceMotion={shouldReduceMotion}
         >
-          {shouldReduceMotion ? (
+          {shouldReduceContinuousMotion ? (
             <div className="absolute inset-0">
               <ImageMedia
                 alt=""
@@ -209,8 +213,8 @@ export function HeroBlobIllustration({
                 imgClassName="object-contain opacity-100"
                 pictureClassName="absolute inset-0"
                 priority
-                resource={blobResource}
-                src={blobResource ? undefined : blobFallback}
+                resource={hasCustomBlobImage ? blobResource : undefined}
+                src={hasCustomBlobImage ? undefined : blobFallback}
               />
             </div>
           ) : (
@@ -232,8 +236,8 @@ export function HeroBlobIllustration({
                 imgClassName="object-contain opacity-100"
                 pictureClassName="absolute inset-0"
                 priority
-                resource={blobResource}
-                src={blobResource ? undefined : blobFallback}
+                resource={hasCustomBlobImage ? blobResource : undefined}
+                src={hasCustomBlobImage ? undefined : blobFallback}
               />
             </motion.div>
           )}

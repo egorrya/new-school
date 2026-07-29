@@ -308,7 +308,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
       <Dialog.Trigger asChild>
         <Button
           aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
-          className="relative size-13"
+          className="relative size-13 border-0 shadow-none hover:translate-x-0 hover:translate-y-0 sm:border-2 sm:border-border sm:shadow-[0.25rem_0.25rem_0_0_#222] sm:hover:translate-x-[0.25rem] sm:hover:translate-y-[0.25rem] sm:hover:shadow-none min-[900px]:size-[3.25rem]"
           size="icon"
           variant="neutral"
         >
@@ -321,7 +321,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
           <Dialog.Overlay asChild forceMount>
             <motion.div
               {...motionProps}
-              className="fixed inset-0 z-60 bg-white/80 backdrop-blur-md will-change-[opacity]"
+              className="fixed inset-0 z-60 bg-white/90 will-change-[opacity] sm:bg-white/80 sm:backdrop-blur-md"
               variants={shouldReduceMotion ? undefined : overlayVariants}
             />
           </Dialog.Overlay>
@@ -338,7 +338,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
                   <AnimatePresence mode="popLayout">
                     {isSubmenuOpen ? (
                       <motion.div
-                        layout
+                        layout={isDesktop}
                         animate={shouldReduceMotion ? undefined : menuMotionState}
                         className="mb-3 flex justify-center"
                         exit={shouldReduceMotion ? undefined : 'exit'}
@@ -364,7 +364,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
 
                   <AnimatePresence mode="wait">
                     <motion.ul
-                      layout
+                      layout={isDesktop}
                       {...motionProps}
                       aria-label={
                         isSubmenuOpen
@@ -446,7 +446,9 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
                 onClick={(event) => event.stopPropagation()}
               >
                 <SiteSocialLinks
+                  animatePlainMobile
                   className="pointer-events-auto justify-center gap-6 rounded-full border-2 border-border bg-white px-5 py-3 shadow-shadow"
+                  motionState={menuMotionState}
                   siteSettings={siteSettings}
                   variant="plain"
                 />

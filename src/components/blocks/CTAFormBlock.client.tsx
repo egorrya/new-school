@@ -13,6 +13,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 import { initialCTAFormState, type CTAFormAction } from './cta-form.types'
 
@@ -132,6 +133,8 @@ function CTAFormFields({
 export function CTAFormClient({ action, buttonLabel, clubId, formType, pageUrl, title }: Props) {
   const [state, formAction] = useActionState(action, initialCTAFormState)
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
+  const shouldSimplifyMotion = shouldReduceMotion || isMobile
 
   useEffect(() => {
     if (state.status === 'success') {
@@ -148,10 +151,10 @@ export function CTAFormClient({ action, buttonLabel, clubId, formType, pageUrl, 
 
   return (
     <motion.div
-      initial={shouldReduceMotion ? undefined : 'hidden'}
-      variants={shouldReduceMotion ? undefined : cardReveal}
+      initial={shouldSimplifyMotion ? undefined : 'hidden'}
+      variants={shouldSimplifyMotion ? undefined : cardReveal}
       viewport={cardRevealViewport}
-      whileInView={shouldReduceMotion ? undefined : 'visible'}
+      whileInView={shouldSimplifyMotion ? undefined : 'visible'}
     >
       <Card className="bg-background">
         <CardContent className="space-y-4 p-5 sm:p-6">

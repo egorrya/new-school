@@ -31,7 +31,8 @@ export const HeroBlock: Block = {
       relationTo: 'media',
       label: 'Фон blob',
       admin: {
-        description: 'Фоновое изображение первого экрана. По умолчанию используется /media/blob.webp.',
+        description:
+          'Фоновое изображение первого экрана. По умолчанию используется /hero/blob.webp из public.',
       },
     },
     {

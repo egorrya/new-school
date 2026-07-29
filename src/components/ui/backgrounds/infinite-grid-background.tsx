@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties, type RefObject 
 import { motion, useReducedMotion } from 'motion/react'
 
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 type InfiniteGridBackgroundProps = {
   className?: string
@@ -72,6 +73,7 @@ export function InfiniteGridBackground({
     'radial-gradient(calc(var(--spotlight-radius) * var(--spotlight-reveal, 0)) circle at var(--mouse-x) var(--mouse-y), black 0%, transparent 72%)'
   const [hasPointerPosition, setHasPointerPosition] = useState(false)
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
   const hasPointerPositionRef = useRef(false)
   const rootRef = useRef<HTMLDivElement | null>(null)
   const activePatternRef = useRef<SVGPatternElement | null>(null)
@@ -82,7 +84,7 @@ export function InfiniteGridBackground({
     const root = rootRef.current
     const activePattern = activePatternRef.current
 
-    if (!root || !activePattern) {
+    if (isMobile || !root || !activePattern) {
       return
     }
 
@@ -157,7 +159,7 @@ export function InfiniteGridBackground({
       spotlightRevealTweenRef.current?.stop()
       spotlightRevealTweenRef.current = null
     }
-  }, [cellSize, shouldReduceMotion, speed])
+  }, [cellSize, isMobile, shouldReduceMotion, speed])
 
   return (
     <div
@@ -171,6 +173,16 @@ export function InfiniteGridBackground({
         } as CSSProperties
       }
     >
+      {isMobile ? (
+        <div
+          className="absolute inset-0"
+          style={{
+            color: 'rgb(34 34 34 / 0.08)',
+          }}
+        >
+          <GridPattern id={`${patternId}-mobile`} patternRef={activePatternRef} />
+        </div>
+      ) : (
       <motion.div
         className="background-effects animate-background-drift absolute inset-0 scale-[1.02] motion-reduce:scale-100"
         initial={shouldReduceMotion ? false : { scale: 1.02 }}
@@ -187,7 +199,9 @@ export function InfiniteGridBackground({
       >
         <GridPattern id={`${patternId}-active`} patternRef={activePatternRef} />
       </motion.div>
+      )}
 
+      {!isMobile ? (
       <motion.div
         className="absolute right-[-20%] top-[-20%] h-[36%] w-[36%] rounded-full bg-[#FB5C18] opacity-100 blur-[110px]"
         initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.5 }}
@@ -201,6 +215,8 @@ export function InfiniteGridBackground({
               }
         }
       />
+      ) : null}
+      {!isMobile ? (
       <motion.div
         className="absolute bottom-[-20%] left-[-14%] h-[36%] w-[36%] rounded-full bg-[#0878BA] opacity-100 blur-[110px]"
         initial={shouldReduceMotion ? false : { opacity: 0, scale: 1.5 }}
@@ -214,6 +230,7 @@ export function InfiniteGridBackground({
               }
         }
       />
+      ) : null}
     </div>
   )
 }

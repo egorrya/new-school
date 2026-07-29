@@ -293,7 +293,7 @@ const Carousel006 = ({
       }}
       plugins={plugins}
     >
-      <CarouselContent className="ml-0 h-[clamp(420px,68svh,720px)] w-full gap-0 sm:h-[clamp(500px,70svh,780px)] lg:h-[clamp(560px,72svh,860px)]">
+      <CarouselContent className="ml-0 h-[clamp(280px,45svh,480px)] w-full gap-0 sm:h-[clamp(500px,70svh,780px)] lg:h-[clamp(560px,72svh,860px)]">
         {carouselSlides.map(({ slide, originalIndex, key }, index) => {
           const title = slide.title || slide.albumTitle || "Фотография галереи"
           const isActive = current === index

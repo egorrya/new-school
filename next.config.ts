@@ -11,6 +11,14 @@ const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
   : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
+const isLocalServerURL = (() => {
+  try {
+    return ['localhost', '127.0.0.1', '::1'].includes(new URL(NEXT_PUBLIC_SERVER_URL).hostname)
+  } catch {
+    return false
+  }
+})()
+
 const nextConfig: NextConfig = {
   // Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
   // See: https://github.com/vercel/next.js/issues/86431
@@ -18,6 +26,7 @@ const nextConfig: NextConfig = {
     loadPaths: ['./node_modules/@payloadcms/ui/dist/scss/'],
   },
   images: {
+    dangerouslyAllowLocalIP: isLocalServerURL,
     localPatterns: [
       {
         pathname: '/media/**',

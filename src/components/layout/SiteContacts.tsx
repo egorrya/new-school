@@ -1,13 +1,14 @@
 'use client'
 
 import { Clock, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion, type Variants } from 'motion/react'
 import React from 'react'
 
 import type { SiteSetting } from '@/payload-types'
 
 import { Button } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 type SiteContactProps = {
   siteSettings?: Pick<SiteSetting, 'phone' | 'email' | 'address' | 'workingHours'>
@@ -17,14 +18,16 @@ type SiteContactProps = {
 
 type SocialLinkProps = {
   siteSettings?: Pick<SiteSetting, 'vkUrl' | 'maxUrl' | 'telegramUrl' | 'whatsappUrl'>
+  animatePlainMobile?: boolean
   className?: string
+  motionState?: 'hidden' | 'visible' | 'exit'
   size?: React.ComponentProps<typeof Button>['size']
   variant?: 'button' | 'icon' | 'plain'
 }
 
 type IconComponent = LucideIcon | React.ComponentType<React.SVGProps<SVGSVGElement>>
 
-const staggerContainer = {
+const staggerContainer: Variants = {
   hidden: {},
   visible: {
     transition: {
@@ -34,7 +37,7 @@ const staggerContainer = {
   },
 }
 
-const staggerItem = {
+const staggerItem: Variants = {
   hidden: { opacity: 0, y: 14, filter: 'blur(1.5px)' },
   visible: {
     opacity: 1,
@@ -44,7 +47,63 @@ const staggerItem = {
   },
 }
 
+const contactRevealItemVariants: Variants = {
+  hidden: { opacity: 0, y: 18, filter: 'blur(2px)' },
+  visible: (index: number = 0) => ({
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      delay: index * 0.1 + 0.18,
+      duration: 0.47,
+      ease: 'easeOut',
+    },
+  }),
+}
+
 const contactsRevealViewport = { amount: 0.1, margin: '0px 0px 15% 0px', once: true } as const
+
+const plainSocialContainerVariants: Variants = {
+  hidden: { opacity: 0, y: 10, scale: 0.98 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: {
+      delayChildren: 0.12,
+      duration: 0.22,
+      ease: 'easeOut',
+      staggerChildren: 0.07,
+    },
+  },
+  exit: {
+    opacity: 0,
+    y: 8,
+    scale: 0.98,
+    transition: {
+      duration: 0.18,
+      ease: 'easeOut',
+      staggerChildren: 0.035,
+      staggerDirection: -1,
+    },
+  },
+}
+
+const plainSocialItemVariants: Variants = {
+  hidden: { opacity: 0, y: 8, scale: 0.92 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { duration: 0.24, ease: 'easeOut' },
+  },
+  exit: {
+    opacity: 0,
+    y: 6,
+    scale: 0.92,
+    transition: { duration: 0.16, ease: 'easeOut' },
+  },
+}
 
 function VkIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
@@ -64,19 +123,8 @@ function TelegramIcon(props: React.SVGProps<SVGSVGElement>) {
 
 function MaxIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 1000 1000" fill="currentColor" {...props}>
-      <defs>
-        <linearGradient id="maxGradB">
-          <stop offset="0" stopColor="currentColor" />
-          <stop offset="1" stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="maxGradA">
-          <stop offset="0" stopColor="currentColor" />
-          <stop offset=".662" stopColor="currentColor" />
-          <stop offset="1" stopColor="currentColor" />
-        </linearGradient>
-      </defs>
-      <rect width="1000" height="1000" fill="url(#maxGradA)" ry="249.681" />
+    <svg viewBox="0 0 1000 1000" {...props}>
+      <rect width="1000" height="1000" fill="#222" ry="249.681" />
       <path fill="white" fillRule="evenodd" d="M508.211 878.328c-75.007 0-109.864-10.95-170.453-54.75-38.325 49.275-159.686 87.783-164.979 21.9 0-49.456-10.95-91.248-23.36-136.873-14.782-56.21-31.572-118.807-31.572-209.508 0-216.626 177.754-379.597 388.357-379.597 210.785 0 375.947 171.001 375.947 381.604.707 207.346-166.595 376.118-373.94 377.224m3.103-571.585c-102.564-5.292-182.499 65.7-200.201 177.024-14.6 92.162 11.315 204.398 33.397 210.238 10.585 2.555 37.23-18.98 53.837-35.587a189.8 189.8 0 0 0 92.71 33.032c106.273 5.112 197.08-75.794 204.215-181.95 4.154-106.382-77.67-196.486-183.958-202.574Z" clipRule="evenodd" />
     </svg>
   )
@@ -118,11 +166,16 @@ function normalizeTelHref(phone: string) {
 
 export function SiteSocialLinks({
   siteSettings,
+  animatePlainMobile = false,
   className,
+  motionState = 'visible',
   size = 'sm',
   variant = 'button',
 }: SocialLinkProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
+  const shouldSimplifyMotion = shouldReduceMotion || isMobile
+  const shouldAnimatePlainMobile = animatePlainMobile && isMobile && !shouldReduceMotion
   const socialLinks: Array<(typeof socialItems)[number] & { href: string }> = []
 
   if (siteSettings?.vkUrl) {
@@ -147,24 +200,30 @@ export function SiteSocialLinks({
 
   if (variant === 'plain') {
     return (
-      <div className={cn('flex items-center gap-4', className)}>
+      <motion.div
+        animate={shouldAnimatePlainMobile ? motionState : undefined}
+        className={cn('flex items-center gap-4', className)}
+        initial={shouldAnimatePlainMobile ? 'hidden' : false}
+        variants={shouldAnimatePlainMobile ? plainSocialContainerVariants : undefined}
+      >
         {socialLinks.map((item) => {
           const Icon = item.icon
 
           return (
-            <a
+            <motion.a
               aria-label={item.label}
               className="inline-flex size-5 items-center justify-center text-foreground transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:text-main motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100"
               href={item.href}
               key={item.key}
               rel="noopener noreferrer"
               target="_blank"
+              variants={shouldAnimatePlainMobile ? plainSocialItemVariants : undefined}
             >
               <Icon aria-hidden="true" className="size-full" />
-            </a>
+            </motion.a>
           )
         })}
-      </div>
+      </motion.div>
     )
   }
 
@@ -172,10 +231,10 @@ export function SiteSocialLinks({
     return (
       <motion.div
         className={cn('flex flex-wrap gap-3', className)}
-        initial={shouldReduceMotion ? undefined : 'hidden'}
-        variants={shouldReduceMotion ? undefined : staggerContainer}
+        initial={shouldSimplifyMotion ? undefined : 'hidden'}
+        variants={shouldSimplifyMotion ? undefined : staggerContainer}
         viewport={contactsRevealViewport}
-        whileInView={shouldReduceMotion ? undefined : 'visible'}
+        whileInView={shouldSimplifyMotion ? undefined : 'visible'}
       >
         {socialLinks.map((item) => {
           const Icon = item.icon
@@ -188,7 +247,7 @@ export function SiteSocialLinks({
               key={item.key}
               rel="noopener noreferrer"
               target="_blank"
-              variants={shouldReduceMotion ? undefined : staggerItem}
+              variants={shouldSimplifyMotion ? undefined : staggerItem}
             >
               <Icon aria-hidden="true" className="size-6" />
             </motion.a>
@@ -213,6 +272,8 @@ export function SiteSocialLinks({
 
 export function SiteContacts({ siteSettings, className, variant = 'card' }: SiteContactProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
+  const shouldSimplifyMotion = shouldReduceMotion || isMobile
   const contactEntries: ContactEntry[] = []
 
   if (siteSettings?.phone) {
@@ -254,22 +315,24 @@ export function SiteContacts({ siteSettings, className, variant = 'card' }: Site
   }
 
   if (variant === 'plain') {
+    const shouldAnimateContactsReveal = !shouldReduceMotion && !isMobile
+
     return (
       <motion.div
         className={cn('flex flex-col gap-4', className)}
-        initial={shouldReduceMotion ? undefined : 'hidden'}
-        variants={shouldReduceMotion ? undefined : staggerContainer}
+        initial={shouldAnimateContactsReveal ? 'hidden' : false}
         viewport={contactsRevealViewport}
-        whileInView={shouldReduceMotion ? undefined : 'visible'}
+        whileInView={shouldAnimateContactsReveal ? 'visible' : undefined}
       >
-        {contactEntries.map((item) => {
+        {contactEntries.map((item, index) => {
           const Icon = item.icon
 
           return (
             <motion.div
               className="flex items-center gap-4"
+              custom={index}
               key={`${item.label}-${item.value}`}
-              variants={shouldReduceMotion ? undefined : staggerItem}
+              variants={shouldAnimateContactsReveal ? contactRevealItemVariants : undefined}
             >
               <Icon className="size-6 shrink-0 text-foreground" aria-hidden="true" />
               <div className="min-w-0">

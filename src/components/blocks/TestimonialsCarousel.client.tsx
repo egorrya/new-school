@@ -30,6 +30,7 @@ function getInitials(name: string) {
 export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps) {
   const leaveDurationMs = 240
   const enterDurationMs = 220
+  const quoteBottomReserve = testimonials[0]?.description ? 80 : 28
   const [activeIndex, setActiveIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [switchPhase, setSwitchPhase] = useState<'idle' | 'leave' | 'enter'>('idle')
@@ -40,6 +41,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
   )
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [contentHeight, setContentHeight] = useState<number | null>(null)
+  const [quoteReserve, setQuoteReserve] = useState(quoteBottomReserve)
   const [outgoingItem, setOutgoingItem] = useState<{
     quote: string
     role: string
@@ -60,12 +62,12 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
   useEffect(() => {
     const timer = setTimeout(() => {
       if (quoteRef.current) {
-        const height = quoteRef.current.offsetHeight + 80
+        const height = quoteRef.current.offsetHeight + quoteReserve
         setContentHeight(height)
       }
     }, 0)
     return () => clearTimeout(timer)
-  }, [activeIndex])
+  }, [activeIndex, quoteReserve])
 
   useEffect(() => {
     return () => {
@@ -98,6 +100,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
         setDisplayedQuote(testimonials[index].quote)
         setDisplayedRole(testimonials[index].role)
         setDisplayedDescription(testimonials[index].description || null)
+        setQuoteReserve(testimonials[index].description ? 80 : 28)
         setActiveIndex(index)
         setOutgoingItem(null)
         setSwitchPhase('enter')
@@ -128,9 +131,14 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
 
   return (
     <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
-      <div className="flex flex-col items-center gap-10 py-8 sm:py-12 mt-8">
+      <div
+        className={cn(
+          'flex flex-col items-center py-8 sm:py-12 mt-8',
+          displayedDescription ? 'gap-10' : 'gap-4 sm:gap-6',
+        )}
+      >
         <div
-          className="relative px-6 sm:px-8 transition-all duration-500"
+          className="relative w-full px-0 transition-all duration-500 sm:px-8"
           ref={containerRef}
           style={{ height: contentHeight ? `${contentHeight}px` : 'auto' }}
         >
@@ -143,7 +151,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
             "
           </span>
 
-          <div className="grid justify-items-center">
+          <div className="grid w-full justify-items-center">
             {outgoingItem ? (
               <p
                 aria-hidden="true"
@@ -183,7 +191,12 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
           </span>
         </div>
 
-        <div className="mt-2 flex flex-col items-center gap-6">
+        <div
+          className={cn(
+            'flex flex-col items-center',
+            displayedDescription ? 'mt-2 gap-6' : 'mt-0 gap-3 sm:gap-4',
+          )}
+        >
           {displayedRole ? (
             <div className="grid justify-items-center">
               {outgoingItem && outgoingItem.role ? (
@@ -234,11 +247,11 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                 <button
                   aria-pressed={isActive}
                   className={cn(
-                    'relative flex min-h-16 cursor-pointer items-center rounded-full border-2 border-border text-left shadow-shadow transition-all duration-500 ease-in-out',
+                    'relative flex min-h-12 cursor-pointer items-center rounded-full border-2 border-border text-left shadow-shadow transition-all duration-500 ease-in-out',
                     isActive
                       ? 'bg-main text-main-foreground'
                       : 'bg-card hover:bg-secondary-background',
-                    showName ? 'py-1.5 px-1.5' : 'p-1',
+                    showName ? 'px-1 py-1' : 'p-0.5',
                   )}
                   key={testimonial.id}
                   onClick={() => handleSelect(index)}
@@ -247,18 +260,18 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                   type="button"
                   data-collection-grid-reveal-item
                 >
-                  <span className="relative flex size-16 shrink-0 overflow-hidden rounded-full bg-secondary-background">
+                  <span className="relative flex size-12 shrink-0 overflow-hidden rounded-full bg-secondary-background">
                     {testimonial.avatarUrl ? (
                       <Image
                         alt={testimonial.author}
                         className="h-full w-full object-cover"
                         fill
                         priority={isActive}
-                        sizes="64px"
+                        sizes="48px"
                         src={testimonial.avatarUrl}
                       />
                     ) : (
-                      <span className="flex h-full w-full items-center justify-center text-sm font-bold text-foreground">
+                      <span className="flex h-full w-full items-center justify-center text-sm font-medium text-foreground">
                         {getInitials(testimonial.author)}
                       </span>
                     )}
@@ -273,7 +286,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                     )}
                   >
                     <span className="overflow-hidden">
-                      <span className="block max-w-56 whitespace-nowrap text-clip text-sm font-bold">
+                      <span className="block max-w-56 whitespace-nowrap text-clip text-sm font-medium">
                         {testimonial.author}
                       </span>
                     </span>

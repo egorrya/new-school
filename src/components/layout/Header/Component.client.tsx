@@ -19,11 +19,12 @@ interface HeaderClientProps {
 const HEADER_SCROLL_BORDER_DISTANCE = 140
 const HEADER_SCROLL_BACKGROUND_DISTANCE = 220
 const HEADER_SCROLL_LOGO_DISTANCE = 140
+const MOBILE_HEADER_MEDIA_QUERY = '(width < 40rem)'
 
 const headerShellClassName =
   'relative overflow-visible rounded-base border-2 border-transparent bg-transparent shadow-none'
 const headerRowClassName =
-  'flex items-center justify-between gap-4 px-4 py-3 sm:px-6 sm:py-4 lg:gap-6'
+  'flex items-center justify-between gap-3 px-3 py-1.5 sm:gap-4 sm:px-6 sm:py-4 lg:gap-6'
 const headerLogoClassName = 'inline-flex shrink-0 items-center'
 // Height is tied directly to scroll position (see applyScrollState) instead of a
 // threshold-triggered CSS transition, so it shrinks in lockstep with the scroll
@@ -64,6 +65,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
     }
 
     let scrollRaf = 0
+    const mobileHeaderQuery = window.matchMedia(MOBILE_HEADER_MEDIA_QUERY)
 
     const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1)
     const smoothStep = (value: number) => value * value * (3 - 2 * value)
@@ -74,11 +76,22 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
 
     const applyScrollState = () => {
       const scrollY = window.scrollY
-      const borderProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_BORDER_DISTANCE))
-      const backgroundProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_BACKGROUND_DISTANCE))
-      const logoProgress = smoothStep(clamp01(scrollY / HEADER_SCROLL_LOGO_DISTANCE))
+      const isMobileHeader = mobileHeaderQuery.matches
+      const borderProgress = isMobileHeader
+        ? 1
+        : smoothStep(clamp01(scrollY / HEADER_SCROLL_BORDER_DISTANCE))
+      const backgroundProgress = isMobileHeader
+        ? 1
+        : smoothStep(clamp01(scrollY / HEADER_SCROLL_BACKGROUND_DISTANCE))
+      const logoProgress = isMobileHeader
+        ? 1
+        : smoothStep(clamp01(scrollY / HEADER_SCROLL_LOGO_DISTANCE))
       const borderAlpha = 0.72 * borderProgress
-      const nextLogoState: 'expanded' | 'compact' = logoProgress >= 0.5 ? 'compact' : 'expanded'
+      const nextLogoState: 'expanded' | 'compact' = isMobileHeader
+        ? 'compact'
+        : logoProgress >= 0.5
+          ? 'compact'
+          : 'expanded'
 
       shell.style.borderColor = `rgba(34, 34, 34, ${borderAlpha.toFixed(3)})`
       shell.style.backgroundColor = `rgba(255, 255, 255, ${backgroundProgress.toFixed(3)})`
@@ -91,7 +104,9 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
         fixedHeader.style.top = `${nextTop}px`
         document.documentElement.style.setProperty(
           '--site-header-fixed-bottom',
-          `${fixedHeader.getBoundingClientRect().bottom}px`,
+          isMobileHeader
+            ? 'var(--site-header-height)'
+            : `${fixedHeader.getBoundingClientRect().bottom}px`,
         )
       }
     }
@@ -110,10 +125,12 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
 
     applyScrollState()
     window.addEventListener('scroll', scheduleScrollState, { passive: true })
+    mobileHeaderQuery.addEventListener('change', applyScrollState)
 
     return () => {
       applyScrollStateRef.current = null
       window.removeEventListener('scroll', scheduleScrollState)
+      mobileHeaderQuery.removeEventListener('change', applyScrollState)
       if (scrollRaf !== 0) {
         window.cancelAnimationFrame(scrollRaf)
       }
@@ -137,6 +154,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
 
     const updateHeight = () => {
       const height = secondaryHeader.offsetHeight
+      const isMobileHeader = window.matchMedia(MOBILE_HEADER_MEDIA_QUERY).matches
       secondaryHeaderHeightRef.current = height
       document.documentElement.style.setProperty('--site-secondary-header-height', `${height}px`)
       applyScrollStateRef.current?.()
@@ -144,7 +162,9 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
       if (fixedHeader) {
         document.documentElement.style.setProperty(
           '--site-header-fixed-bottom',
-          `${fixedHeader.getBoundingClientRect().bottom}px`,
+          isMobileHeader
+            ? 'var(--site-header-height)'
+            : `${fixedHeader.getBoundingClientRect().bottom}px`,
         )
       }
     }

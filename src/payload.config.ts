@@ -32,10 +32,6 @@ export default buildConfig({
   admin: {
     dateFormat: "d MMMM yyyy 'г.,' HH:mm",
     suppressHydrationWarning: true,
-    components: {
-      header: ['@/components/admin/ForceRussianLanguage'],
-      beforeLogin: ['@/components/admin/ForceRussianLanguage'],
-    },
     importMap: {
       baseDir: path.resolve(dirname),
     },
@@ -103,6 +99,7 @@ export default buildConfig({
   cors: [getServerSideURL()].filter(Boolean),
   globals: [SiteSettings, Header, Footer],
   plugins,
+  serverURL: getServerSideURL(),
   secret: process.env.PAYLOAD_SECRET,
   sharp,
   typescript: {

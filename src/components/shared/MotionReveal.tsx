@@ -4,6 +4,7 @@ import { motion, useReducedMotion } from 'motion/react'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 type MarginValue = `${number}${'px' | '%'}`
 type MarginType =
@@ -20,6 +21,7 @@ type MotionRevealProps = {
   amount?: number
   margin?: MarginType
   blur?: number
+  allowMobileMotion?: boolean
   once?: boolean
   y?: number
 }
@@ -32,12 +34,14 @@ export function MotionReveal({
   amount = 0.2,
   margin,
   blur = 0,
+  allowMobileMotion = false,
   once = false,
   y = 16,
 }: MotionRevealProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
 
-  if (shouldReduceMotion) {
+  if (shouldReduceMotion || (isMobile && !allowMobileMotion)) {
     return <div className={cn(className)}>{children}</div>
   }
 

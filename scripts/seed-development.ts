@@ -33,7 +33,7 @@ const seedMediaFiles: SeedMediaInput[] = [
     key: 'hero',
     filename: 'blob.webp',
     alt: 'Абстрактный blob для фона',
-    filePath: path.resolve(process.cwd(), 'public/seed-media/blob.webp'),
+    filePath: path.resolve(process.cwd(), 'public/hero/blob.webp'),
   },
   {
     key: 'banner1',
@@ -93,6 +93,70 @@ const programMediaFiles: SeedMediaInput[] = [
     'podgotovka-k-shkole.jpg',
     'Занятие по подготовке к школе в «Новой школе»',
   ),
+  programImageDoc(
+    'clubGruppaProdlennogoDnya',
+    'gruppa-prodlennogo-dnya.jpg',
+    'Дети в группе продлённого дня в «Новой школе»',
+  ),
+  programImageDoc(
+    'programSemejnyeKlassy',
+    'semeynye-klassy.jpg',
+    'Дети на уроке в семейных классах «Новой школы»',
+  ),
+]
+
+function teacherImageDoc(key: string, filename: string, alt: string): SeedMediaInput {
+  return {
+    key,
+    filename,
+    alt,
+    filePath: path.resolve(process.cwd(), 'public/seed-media/teachers', filename),
+  }
+}
+
+const teacherMediaFiles: SeedMediaInput[] = [
+  teacherImageDoc('teacherJulia', 'julia.jpg', 'Юлия'),
+  teacherImageDoc('teacherOlga', 'olga.jpg', 'Ольга'),
+  teacherImageDoc('teacherAndrey', 'andrey.jpg', 'Андрей'),
+  teacherImageDoc('teacherMaria', 'maria.jpg', 'Мария'),
+  teacherImageDoc('teacherEvgenia', 'evgenia.jpg', 'Евгения'),
+]
+
+function logoImageDoc(key: string, filename: string, alt: string): SeedMediaInput {
+  return {
+    key,
+    filename,
+    alt,
+    filePath: path.resolve(process.cwd(), 'public/seed-media/logos', filename),
+  }
+}
+
+const logoMediaFiles: SeedMediaInput[] = [
+  logoImageDoc('logoBig', 'logo-big.webp', 'Логотип «Новой школы»'),
+  logoImageDoc('logoCompact', 'logo.webp', 'Компактный логотип «Новой школы»'),
+]
+
+function galleryImageDoc(key: string, filename: string, alt: string): SeedMediaInput {
+  return {
+    key,
+    filename,
+    alt,
+    filePath: path.resolve(process.cwd(), 'public/seed-media/gallery', filename),
+  }
+}
+
+const galleryMediaFiles: SeedMediaInput[] = [
+  galleryImageDoc('gallery1', '1-2048x1366.webp', 'Фото из галереи «Новой школы» 1'),
+  galleryImageDoc('gallery2', '2-1-2048x1365.webp', 'Фото из галереи «Новой школы» 2'),
+  galleryImageDoc('gallery3', '3-1.webp', 'Фото из галереи «Новой школы» 3'),
+  galleryImageDoc('gallery4', '4-1.webp', 'Фото из галереи «Новой школы» 4'),
+  galleryImageDoc('gallery5', '5-1-2048x1536.webp', 'Фото из галереи «Новой школы» 5'),
+  galleryImageDoc('gallery6', '6-2048x1365.webp', 'Фото из галереи «Новой школы» 6'),
+  galleryImageDoc('gallery7', '7-2048x1365.webp', 'Фото из галереи «Новой школы» 7'),
+  galleryImageDoc('gallery8', '8-2048x1536.webp', 'Фото из галереи «Новой школы» 8'),
+  galleryImageDoc('gallery9', '9.webp', 'Фото из галереи «Новой школы» 9'),
+  galleryImageDoc('gallery10', '10-scaled.webp', 'Фото из галереи «Новой школы» 10'),
+  galleryImageDoc('gallery11', '11-2048x1365.webp', 'Фото из галереи «Новой школы» 11'),
 ]
 
 function orgInfoDoc(key: string, filename: string, alt: string): SeedMediaInput {
@@ -740,11 +804,23 @@ async function upsertUpload(
   payload: Awaited<ReturnType<typeof getPayload>>,
   { filename, alt, filePath }: SeedMediaInput,
 ) {
-  const existing =
-    (await findOneByField(payload, 'media', 'filename', filename)) ??
-    (await findOneByField(payload, 'media', 'alt', alt))
+  const existingByFilename = await findOneByField(payload, 'media', 'filename', filename)
 
-  if (existing) {
+  if (existingByFilename) {
+    return payload.update({
+      collection: 'media',
+      context: SEED_CONTEXT,
+      data: {
+        alt,
+      },
+      id: existingByFilename.id,
+      overrideAccess: true,
+    })
+  }
+
+  const existingByAlt = await findOneByField(payload, 'media', 'alt', alt)
+
+  if (existingByAlt) {
     return payload.update({
       collection: 'media',
       context: SEED_CONTEXT,
@@ -752,7 +828,7 @@ async function upsertUpload(
         alt,
       },
       filePath,
-      id: existing.id,
+      id: existingByAlt.id,
       overrideAccess: true,
       overwriteExistingFiles: true,
     })
@@ -771,7 +847,14 @@ async function upsertUpload(
 }
 
 async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
-  const allMediaFiles = [...seedMediaFiles, ...orgInfoMediaFiles, ...programMediaFiles]
+  const allMediaFiles = [
+    ...seedMediaFiles,
+    ...orgInfoMediaFiles,
+    ...programMediaFiles,
+    ...teacherMediaFiles,
+    ...logoMediaFiles,
+    ...galleryMediaFiles,
+  ]
   const seededMedia = await Promise.all(allMediaFiles.map((media) => upsertUpload(payload, media)))
 
   return seededMedia.reduce<Record<string, { id: number }>>((accumulator, media, index) => {
@@ -816,6 +899,22 @@ async function seedProgramCategories(
       description: 'Для дошкольников 5–7 лет: готовим руку к письму, учим читать и считать.',
       previewImage: media.clubPodgotovkaKShkole.id,
     },
+    {
+      slug: 'gruppa-prodlennogo-dnya',
+      generateSlug: false,
+      title: 'Группа продлённого дня',
+      description:
+        'Присмотр и занятия для детей после школы: прогулки, горячее питание, помощь с уроками — без гаджетов.',
+      previewImage: media.clubGruppaProdlennogoDnya.id,
+    },
+    {
+      slug: 'semeynye-klassy',
+      generateSlug: false,
+      title: 'Семейные классы',
+      description:
+        'Семейное обучение с 1 по 11 класс по ФГОС: подготовка к аттестациям, углублённый английский, классы до 15 человек.',
+      previewImage: media.programSemejnyeKlassy.id,
+    },
   ] as const
 
   const categoriesMap: Record<string, { id: number }> = {}
@@ -840,6 +939,202 @@ async function seedCollections(
   programCategories: Record<string, { id: number }>,
 ) {
   const collectionSeeds = [
+    {
+      slug: 'semeynye-klassy-s-anglijskim',
+      generateSlug: false,
+      title: 'Семейные классы с английским',
+      category: programCategories['semeynye-klassy'].id,
+      shortDescription:
+        'Семейные классы — альтернативная форма обучения с 1 по 11 класс: подготовка к аттестациям и экзаменам по ФГОС, углублённое изучение английского языка по британским программам и классы до 15 человек.',
+      previewImage: media.programSemejnyeKlassy.id,
+      coverImage: media.programSemejnyeKlassy.id,
+      coverImagePosition: 'top',
+      infoCards: [
+        { title: 'Классы', description: 'До 15 человек', icon: 'users' },
+        { title: 'Набор', description: '1–11 классы', icon: 'graduation-cap' },
+        { title: 'Английский', description: 'Углублённое изучение', icon: 'book-open' },
+        { title: 'День', description: '8:30–19:00, с питанием', icon: 'clock' },
+      ],
+      tabs: [
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходят семейные классы',
+              text: 'Формат подходит семьям, которые хотят альтернативу традиционной школе, но с сохранением государственной аттестации и структурированной программы.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Для детей с 1 по 11 класс',
+                  text: 'Дети находятся на заочной форме обучения в частной школе «Академическая гимназия», а в «Новой школе» занимаются по ФГОС с углублённым английским.',
+                },
+                {
+                  title: 'Для работающих родителей',
+                  text: 'Доступна опция «школа полного дня» с 8:30 до 19:00 — с питанием и прогулками.',
+                },
+                {
+                  title: 'Для тех, кому важен маленький коллектив',
+                  text: 'Классы до 15 человек и индивидуальный подход к каждому ребёнку.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Программа',
+          layout: [
+            {
+              blockType: 'program',
+              title: 'Что входит в программу',
+              description:
+                'Мы совмещаем государственные стандарты ФГОС с современными образовательными методиками и углублённым английским.',
+              items: [
+                {
+                  title: 'Все предметы по ФГОС',
+                  text: 'Полная общеобразовательная программа с профессиональными педагогами по каждому предмету.',
+                },
+                {
+                  title: 'Углублённый английский',
+                  text: 'Занятия по британским программам с преподавателями школы английского языка SkillSet.',
+                },
+                {
+                  title: 'Подготовка к экзаменам',
+                  text: 'Системная подготовка к государственной аттестации, ОГЭ и ЕГЭ по выбранным профилям.',
+                },
+                {
+                  title: 'Проектная деятельность',
+                  text: 'Ребята готовят проекты и участвуют во внеклассных мероприятиях — от литературных гостиных до театральных постановок.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Расписание и режим дня',
+              description: 'Основные занятия дополняет опция «школа полного дня» для работающих родителей.',
+              scheduleItems: [
+                { label: 'Набор', value: '1–11 классы (с 2026 года — с 0 класса)' },
+                { label: 'Размер класса', value: 'До 15 человек' },
+                { label: 'Школа полного дня', value: '8:30–19:00, с питанием и прогулками' },
+                { label: 'Экскурсии', value: 'Ежемесячно' },
+                { label: 'Аттестация', value: 'Ежегодно, по всем предметам' },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Условия приема',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Набор ведётся в 1–11 классы, а с 2026 года — с нулевого до одиннадцатого класса. Перед зачислением мы знакомимся с ребёнком и родителями, чтобы подобрать подходящий формат обучения.',
+            },
+            {
+              type: 'list',
+              items: [
+                'Классы до 15 человек',
+                'Заочная форма обучения в частной школе «Академическая гимназия» с аттестацией по ФГОС',
+                'Занятия в «Новой школе»: все предметы + углублённый английский, подготовка к экзаменам',
+                'Есть опция «школа полного дня» с 8:30 до 19:00, с питанием и прогулками',
+                'О наличии свободных мест уточняйте у администратора по телефону школы',
+              ],
+            },
+          ]),
+        },
+      ],
+      isActive: true,
+      sortOrder: 0,
+    },
+    {
+      slug: 'gruppa-prodlennogo-dnya',
+      generateSlug: false,
+      title: 'Группа продлённого дня',
+      category: programCategories['gruppa-prodlennogo-dnya'].id,
+      shortDescription:
+        'По будням с 13:00 до 19:00: прогулки на свежем воздухе, полдник и полноценный ужин, помощь с домашним заданием, чтение и игры — интересный день в дружественной среде с выполненными уроками и без гаджетов.',
+      previewImage: media.clubGruppaProdlennogoDnya.id,
+      coverImage: media.clubGruppaProdlennogoDnya.id,
+      coverImagePosition: 'top',
+      infoCards: [
+        { title: 'Возраст', description: 'Дети школьного возраста', icon: 'baby' },
+        { title: 'Время работы', description: 'Пн–Пт, 13:00–19:00', icon: 'clock' },
+        { title: 'Группа', description: 'Педагог-воспитатель на 8 детей', icon: 'users' },
+        { title: 'Питание', description: 'Полдник и полноценный ужин', icon: 'utensils' },
+      ],
+      tabs: [
+        {
+          title: 'Общее описание',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'По будням с 13:00 до 19:00 в группе продлённого дня мы гуляем на свежем воздухе с активными играми, полноценно кормим — полдник и ужин, помогаем сделать домашние задания, читаем и играем.',
+            },
+            { type: 'paragraph', text: 'Кроме того:' },
+            {
+              type: 'list',
+              items: [
+                'Педагог-воспитатель на каждые 8 детей.',
+                'Лагерь по льготной цене на всех промежуточных каникулах.',
+                'Английский язык по льготной цене от Школы английского языка SkillSet.',
+              ],
+            },
+            {
+              type: 'paragraph',
+              text: 'Интересный день в дружественной среде с выполненными уроками и без гаджетов!',
+            },
+          ]),
+        },
+        {
+          title: 'Для кого',
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит группа продлённого дня',
+              text: 'Программа подходит семьям, которым нужен присмотр за ребёнком после школы и помощь с уроками, пока родители заняты до вечера.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Дети школьного возраста',
+                  text: 'Забираем из школы с 12:00, а привести ребёнка родители могут самостоятельно с 13:00.',
+                },
+                {
+                  title: 'Родители, занятые до вечера',
+                  text: 'Ребёнок под присмотром педагога-воспитателя до 19:00, с сделанными уроками и горячим питанием.',
+                },
+                {
+                  title: 'Семьи, которым важен режим без гаджетов',
+                  text: 'Прогулки, чтение, творчество и живое общение вместо экрана телефона или планшета.',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Распорядок дня',
+              description: 'Пн–Пт, с 12:00 до 19:00.',
+              scheduleItems: [
+                { label: '12:00–13:00', value: 'Забираем детей из школы или ждём самостоятельного прихода с 13:00' },
+                { label: '13:00–15:30', value: 'Домашние задания, перекус и игры' },
+                { label: '15:30–16:30', value: 'Прогулка' },
+                { label: '16:30–17:00', value: 'Ужин' },
+                { label: '17:00–19:00', value: 'Чтение, творчество, фитнес и свободное время' },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 14,
+    },
     {
       slug: 'kulinariya',
       generateSlug: false,
@@ -1942,8 +2237,62 @@ async function seedCollections(
   const teacherSeeds: {
     name: string
     position: string
+    startYear: number
+    description: ReturnType<typeof makeRichText>
+    photo: number
     sortOrder: number
-  }[] = []
+  }[] = [
+    {
+      name: 'Юлия',
+      position: 'Преподаватель английского языка',
+      startYear: 2015,
+      description: makeRichText([
+        'Ведёт занятия по английскому языку для школьников и взрослых, а также Speaking Club для взрослых. Общий стаж преподавания — более 14 лет.',
+      ]),
+      photo: media.teacherJulia.id,
+      sortOrder: 0,
+    },
+    {
+      name: 'Ольга',
+      position: 'Подготовка к ЕГЭ по английскому языку',
+      startYear: 2016,
+      description: makeRichText([
+        'Готовит учеников к ЕГЭ по английскому языку. Общий стаж преподавания — более 22 лет. Ученики стабильно показывают высокие результаты: в 2017 году после года занятий сдали экзамен на 86–89 баллов.',
+      ]),
+      photo: media.teacherOlga.id,
+      sortOrder: 1,
+    },
+    {
+      name: 'Андрей',
+      position: 'Преподаватель английского языка',
+      startYear: 2015,
+      description: makeRichText([
+        'Ведёт занятия по английскому языку для школьников и взрослых, Speaking Club, а также готовит к собеседованиям и международным экзаменам. Общий стаж преподавания — более 14 лет.',
+      ]),
+      photo: media.teacherAndrey.id,
+      sortOrder: 2,
+    },
+    {
+      name: 'Мария',
+      position: 'Английский язык для дошкольников',
+      startYear: 2016,
+      description: makeRichText([
+        'Ведёт занятия по английскому языку для дошкольников. Общий стаж преподавания — более 19 лет.',
+      ]),
+      photo: media.teacherMaria.id,
+      sortOrder: 3,
+    },
+    {
+      name: 'Евгения',
+      position: 'Преподаватель английского языка',
+      startYear: 2015,
+      description: makeRichText([
+        'Ведёт занятия по английскому языку для школьников и взрослых, а также Speaking Club. Общий стаж преподавания — более 24 лет.',
+      ]),
+      photo: media.teacherEvgenia.id,
+      sortOrder: 4,
+    },
+  ]
 
   for (const teacher of teacherSeeds) {
     await upsertPublishedDoc(payload, 'teachers', 'name', teacher.name, teacher as Record<string, unknown>)
@@ -2051,13 +2400,33 @@ async function seedCollections(
 
   const gallerySeeds = [
     {
+      title: 'Галерея на главной',
+      description: '',
+      images: [
+        media.gallery1.id,
+        media.gallery2.id,
+        media.gallery3.id,
+        media.gallery4.id,
+        media.gallery5.id,
+        media.gallery6.id,
+        media.gallery7.id,
+        media.gallery8.id,
+        media.gallery9.id,
+        media.gallery10.id,
+        media.gallery11.id,
+      ],
+      sortOrder: 2,
+    },
+    {
       title: 'Альбом 1',
       description: PLACEHOLDER_TEXT,
+      images: [],
       sortOrder: 1,
     },
     {
       title: 'Альбом 2',
       description: PLACEHOLDER_TEXT,
+      images: [],
       sortOrder: 2,
     },
   ] as const
@@ -2514,6 +2883,7 @@ async function seedPages(
       meta: page.meta,
       slug: page.slug,
       generateSlug: false,
+      _status: 'published',
     }, {
       draft: false,
     })
@@ -2617,12 +2987,17 @@ async function seedFooter(payload: Awaited<ReturnType<typeof getPayload>>) {
   })
 }
 
-async function seedSiteSettings(payload: Awaited<ReturnType<typeof getPayload>>) {
+async function seedSiteSettings(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  media: Record<string, { id: number }>,
+) {
   await payload.updateGlobal({
     context: SEED_CONTEXT,
     data: {
       siteName: 'Новая школа',
-      logoType: 'text',
+      logoType: 'image',
+      logoImage: media.logoBig.id,
+      logoImageCompact: media.logoCompact.id,
       phone: '+7 (925) 292-40-96',
       address: 'г. Королёв, пр-кт Королёва, д. 5Д, пом. 501',
       workingHours: '8:00 — 20:00',
@@ -2647,7 +3022,7 @@ async function main() {
     const pages = await seedPages(payload, media)
     await seedHeader(payload, pages)
     await seedFooter(payload)
-    await seedSiteSettings(payload)
+    await seedSiteSettings(payload, media)
 
     console.log('Development seed completed successfully.')
   } finally {

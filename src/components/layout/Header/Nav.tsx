@@ -106,6 +106,7 @@ function NavigationLinks({
 
         return (
           <MotionReveal
+            allowMobileMotion
             blur={3}
             className="inline-flex"
             delay={revealDelay + index * navigationItemDelayStep}

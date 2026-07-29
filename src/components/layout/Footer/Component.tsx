@@ -39,17 +39,19 @@ export async function Footer() {
       }
       legal={
         <div className="space-y-4 font-base font-normal">
-          <nav className="grid gap-2">
-            {secondaryLinks.map(({ link }, i) => {
-              return (
-                <CMSLink
-                  className="text-sm font-normal text-foreground/80 transition-colors hover:text-foreground"
-                  key={i}
-                  {...link}
-                />
-              )
-            })}
-          </nav>
+          {secondaryLinks.length > 0 ? (
+            <nav className="grid gap-2">
+              {secondaryLinks.map(({ link }, i) => {
+                return (
+                  <CMSLink
+                    className="text-sm font-normal text-foreground/80 transition-colors hover:text-foreground"
+                    key={i}
+                    {...link}
+                  />
+                )
+              })}
+            </nav>
+          ) : null}
           {legalEntityText ? (
             <p className="whitespace-pre-line text-xs font-normal leading-relaxed text-foreground/60">
               {legalEntityText}

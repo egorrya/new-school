@@ -223,7 +223,7 @@ export interface HeroBlock {
    */
   description?: string | null;
   /**
-   * Фоновое изображение первого экрана. По умолчанию используется /media/blob.webp.
+   * Фоновое изображение первого экрана. По умолчанию используется /hero/blob.webp из public.
    */
   image?: (number | null) | Media;
   /**
