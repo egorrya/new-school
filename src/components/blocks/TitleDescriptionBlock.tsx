@@ -14,7 +14,7 @@ export function TitleDescriptionBlock({
 }: TitleDescriptionBlockType & { compactAfter?: boolean }) {
   return (
     <PageBlockSection
-      className={cn(compactAfter && 'pt-8 pb-3 sm:pt-12 sm:pb-3 lg:pt-16 lg:pb-3')}
+      className={cn(compactAfter && 'pt-8 pb-5 sm:pt-12 sm:pb-5 lg:pt-16 lg:pb-5')}
       spacing={compactAfter ? 'none' : 'default'}
     >
       <PageBlockContainer>
