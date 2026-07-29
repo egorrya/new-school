@@ -109,7 +109,9 @@ async function upsertUpload(
   payload: Awaited<ReturnType<typeof getPayload>>,
   { filename, alt, filePath }: { filename: string; alt: string; filePath: string },
 ) {
-  const existing = await findOneByField(payload, 'media', 'filename', filename)
+  const existing =
+    (await findOneByField(payload, 'media', 'filename', filename)) ??
+    (await findOneByField(payload, 'media', 'alt', alt))
 
   if (existing) {
     return payload.update({

@@ -740,7 +740,9 @@ async function upsertUpload(
   payload: Awaited<ReturnType<typeof getPayload>>,
   { filename, alt, filePath }: SeedMediaInput,
 ) {
-  const existing = await findOneByField(payload, 'media', 'filename', filename)
+  const existing =
+    (await findOneByField(payload, 'media', 'filename', filename)) ??
+    (await findOneByField(payload, 'media', 'alt', alt))
 
   if (existing) {
     return payload.update({
@@ -2619,6 +2621,8 @@ async function seedSiteSettings(payload: Awaited<ReturnType<typeof getPayload>>)
   await payload.updateGlobal({
     context: SEED_CONTEXT,
     data: {
+      siteName: 'Новая школа',
+      logoType: 'text',
       phone: '+7 (925) 292-40-96',
       address: 'г. Королёв, пр-кт Королёва, д. 5Д, пом. 501',
       workingHours: '8:00 — 20:00',

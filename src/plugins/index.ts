@@ -61,6 +61,7 @@ export const plugins: Plugin[] = [
     generateURL,
   }),
   vercelBlobStorage({
+    addRandomSuffix: true,
     collections: {
       media: true,
     },
