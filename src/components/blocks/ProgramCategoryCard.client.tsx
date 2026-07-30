@@ -60,7 +60,7 @@ export function ProgramCategoryCard({
 
         <div className="relative z-10 grid">
           <motion.span
-            className="col-start-1 row-start-1 flex items-end justify-between gap-4"
+            className="col-start-1 row-start-1 flex items-center justify-between gap-4"
             transition={{ duration: 0.3, ease: 'easeOut' }}
             variants={{
               hover: { opacity: 0, y: -8 },

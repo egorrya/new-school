@@ -23,7 +23,6 @@ interface HeaderClientProps {
 }
 
 const HEADER_MINI_SCROLL_THRESHOLD = 32
-const MOBILE_HEADER_MEDIA_QUERY = '(width < 40rem)'
 
 const headerShellClassName =
   'relative overflow-visible rounded-base border shadow-none transition-[border-color,background-color] duration-300 ease-out'
@@ -62,12 +61,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
 
   useLayoutEffect(() => {
     let scrollRaf = 0
-    const mobileHeaderQuery = window.matchMedia(MOBILE_HEADER_MEDIA_QUERY)
 
     const applyScrollState = () => {
       const scrollY = window.scrollY
-      const isMobileHeader = mobileHeaderQuery.matches
-      const nextIsMiniHeader = isMobileHeader || scrollY > HEADER_MINI_SCROLL_THRESHOLD
+      const nextIsMiniHeader = scrollY > HEADER_MINI_SCROLL_THRESHOLD
 
       setIsMiniHeader((current) => (current === nextIsMiniHeader ? current : nextIsMiniHeader))
     }
@@ -86,12 +83,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
 
     applyScrollState()
     window.addEventListener('scroll', scheduleScrollState, { passive: true })
-    mobileHeaderQuery.addEventListener('change', applyScrollState)
 
     return () => {
       applyScrollStateRef.current = null
       window.removeEventListener('scroll', scheduleScrollState)
-      mobileHeaderQuery.removeEventListener('change', applyScrollState)
       if (scrollRaf !== 0) {
         window.cancelAnimationFrame(scrollRaf)
       }

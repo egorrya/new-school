@@ -333,7 +333,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
         <Button
           aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
           className={cn(
-            'relative size-13 border-0 shadow-none hover:translate-x-0 hover:translate-y-0 sm:border sm:border-border sm:shadow-[0.125rem_0.125rem_0_0_var(--school-black)] sm:hover:translate-x-[0.125rem] sm:hover:translate-y-[0.125rem] sm:hover:shadow-none min-[900px]:size-[3.25rem]',
+            'relative size-13 border-0 bg-transparent shadow-none hover:translate-x-0 hover:translate-y-0 hover:bg-transparent active:bg-transparent sm:border sm:border-border sm:shadow-[0.125rem_0.125rem_0_0_var(--school-black)] sm:hover:translate-x-[0.125rem] sm:hover:translate-y-[0.125rem] sm:hover:shadow-none min-[900px]:size-[3.25rem]',
             open && 'z-90',
           )}
           size="icon"
