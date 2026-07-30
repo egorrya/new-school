@@ -91,9 +91,9 @@ export async function TestimonialsBlock({
   const testimonials = toTestimonialItems(reviews)
 
   return (
-    <PageBlockSection className="flex min-h-[calc(100dvh-var(--site-header-height,0px)-var(--site-secondary-header-height,0px))] items-center">
+    <PageBlockSection className="pb-14 sm:pb-20 lg:pb-24">
       <PageBlockContainer container={!insideTabs}>
-        <div className="space-y-12 py-8 sm:space-y-8 sm:py-12 lg:py-16">
+        <div className="space-y-8">
           {(insideTabs ? description : title || description) ? (
             <PageBlockHeader
               className={insideTabs ? undefined : 'mx-auto flex max-w-4xl flex-col items-center text-center'}

@@ -53,8 +53,8 @@ const morphTransition = { type: 'spring', stiffness: 260, damping: 28 } as const
 function cardRevealTransition(index: number) {
   return {
     layout: morphTransition,
-    opacity: { duration: 0.55, delay: index * 0.3, ease: EASE_OUT },
-    y: { duration: 0.55, delay: index * 0.3, ease: EASE_OUT },
+    opacity: { duration: 0.5, delay: index * 0.12, ease: EASE_OUT },
+    y: { duration: 0.5, delay: index * 0.12, ease: EASE_OUT },
   }
 }
 
@@ -135,7 +135,7 @@ type TeacherCardProps = {
   index: number
   isOpen: boolean
   onOpen: (originRect: TeacherTransitionRect) => void
-  shouldReduceMotion: boolean
+  useCardRevealMotion: boolean
   useSharedLayoutMotion: boolean
   teacher: Teacher
 }
@@ -145,8 +145,8 @@ function TeacherCard({
   index,
   isOpen,
   onOpen,
-  shouldReduceMotion,
   teacher,
+  useCardRevealMotion,
   useSharedLayoutMotion,
 }: TeacherCardProps) {
   return (
@@ -156,12 +156,13 @@ function TeacherCard({
         isOpen && 'pointer-events-none',
         isOpen && !useSharedLayoutMotion && 'opacity-0',
       )}
-      animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
-      initial={false}
+      initial={useCardRevealMotion ? { opacity: 0, y: 22 } : false}
       layout={useSharedLayoutMotion}
       layoutId={useSharedLayoutMotion ? cardLayoutId(groupId, teacher.id) : undefined}
       transition={cardRevealTransition(index)}
       type="button"
+      viewport={{ amount: 0.25, once: true }}
+      whileInView={useCardRevealMotion ? { opacity: 1, y: 0 } : undefined}
       onClick={(event) => onOpen(getTransitionRect(event.currentTarget.getBoundingClientRect()))}
     >
       <div className="overflow-hidden">
@@ -461,6 +462,7 @@ export function TeacherListGrid({ teachers }: TeacherListGridProps) {
   const [activeOriginRect, setActiveOriginRect] = useState<TeacherTransitionRect | null>(null)
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
+  const useCardRevealMotion = !shouldReduceMotion && !isMobile
   const useSharedLayoutMotion = !shouldReduceMotion && !isMobile
   const activeTeacher = teachers.find((teacher) => teacher.id === activeId) ?? null
 
@@ -477,8 +479,8 @@ export function TeacherListGrid({ teachers }: TeacherListGridProps) {
                 groupId={groupId}
                 index={index}
                 isOpen={teacher.id === activeId}
-                shouldReduceMotion={shouldReduceMotion}
                 teacher={teacher}
+                useCardRevealMotion={useCardRevealMotion}
                 useSharedLayoutMotion={useSharedLayoutMotion}
                 onOpen={(originRect) => {
                   setActiveOriginRect(originRect)

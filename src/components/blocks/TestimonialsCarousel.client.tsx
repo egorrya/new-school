@@ -134,7 +134,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
     <MotionReveal amount={0.35} duration={0.47} y={18}>
       <div
         className={cn(
-          'flex flex-col items-center py-8 sm:py-12 mt-8',
+          'flex flex-col items-center',
           displayedDescription ? 'gap-10' : 'gap-4 sm:gap-6',
         )}
       >
