@@ -281,7 +281,7 @@ export function TabsBlockClient({
             return (
               <motion.div
                 aria-hidden={!isActive}
-                className="mt-3 w-full will-change-[transform,opacity] sm:mt-4 first:mt-0"
+                className="mt-12 w-full will-change-[transform,opacity] sm:mt-16 first:mt-0"
                 style={{
                   opacity: motionValues.opacity,
                   y: motionValues.y,
