@@ -76,7 +76,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
     <PageBlockSection>
       <PageBlockContainer>
         <article className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <MotionReveal blur={2} duration={0.47} y={18}>
+          <MotionReveal duration={0.47} y={18}>
             <MediaFrame
               alt={news.title}
               aspectClassName="aspect-[4/3]"
@@ -88,19 +88,19 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
 
           <div className="space-y-6">
             <div className="space-y-3">
-              <MotionReveal blur={2} delay={0.08} duration={0.47} y={18}>
+              <MotionReveal delay={0.08} duration={0.47} y={18}>
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="neutral">{formatRussianDate(news.publishedAt)}</Badge>
                 </div>
               </MotionReveal>
-              <MotionReveal blur={2} delay={0.16} duration={0.47} y={18}>
+              <MotionReveal delay={0.16} duration={0.47} y={18}>
                 <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">
                   {news.title}
                 </h1>
               </MotionReveal>
             </div>
 
-            <MotionReveal blur={2} delay={0.24} duration={0.47} y={18}>
+            <MotionReveal delay={0.24} duration={0.47} y={18}>
               <div className="space-y-3">
                 {news.content ? (
                   <RichText data={news.content} enableGutter={false} enableProse={true} />
@@ -113,7 +113,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
               </div>
             </MotionReveal>
 
-            <MotionReveal blur={2} delay={0.32} duration={0.47} y={18}>
+            <MotionReveal delay={0.32} duration={0.47} y={18}>
               <div className="flex flex-wrap gap-3">
                 <Button asChild variant="neutral">
                   <Link href="/news">К новостям</Link>

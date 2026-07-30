@@ -128,7 +128,7 @@ export async function ProgramCategoriesBlock({
                 return (
                   <MotionReveal
                     amount={0.15}
-                    blur={2}
+
                     className={cn('lg:col-span-2', isCenteredLastPair && 'lg:col-start-2')}
                     delay={index * 0.08}
                     duration={0.47}

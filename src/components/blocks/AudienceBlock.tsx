@@ -32,7 +32,7 @@ export function AudienceBlock({
           )}
 
           {audienceItems.length === 1 ? (
-            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+            <MotionReveal amount={0.35} duration={0.47} y={18}>
               <div className="mx-auto max-w-3xl space-y-2">
                 <h3 className="font-heading text-xl leading-[1.1]">{audienceItems[0].title}</h3>
                 <p className="text-sm leading-relaxed text-foreground/80">
@@ -41,7 +41,7 @@ export function AudienceBlock({
               </div>
             </MotionReveal>
           ) : audienceItems.length > 0 ? (
-            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+            <MotionReveal amount={0.35} duration={0.47} y={18}>
               <div className="flex flex-wrap justify-center gap-6">
                 {audienceItems.map((item, index) => {
                   const stackSingleColumn = insideTabs && audienceItems.length === 3
@@ -64,7 +64,7 @@ export function AudienceBlock({
                       }
                       key={item.id || `${item.title}-${index}`}
                     >
-                      <div className="flex size-12 shrink-0 items-center justify-center rounded-base border-2 border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
+                      <div className="flex size-12 shrink-0 items-center justify-center rounded-base border border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
                         {String(index + 1).padStart(2, '0')}
                       </div>
                       <div className="space-y-2">

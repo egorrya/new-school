@@ -18,7 +18,7 @@ export function TextImageBlock({
   return (
     <PageBlockSection>
       <PageBlockContainer container={!insideTabs}>
-        <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+        <MotionReveal amount={0.35} duration={0.47} y={18}>
           <div className="grid grid-cols-1 gap-0 lg:grid-cols-2">
             <div
               className={cn(

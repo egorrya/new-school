@@ -137,7 +137,7 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
             <ClubInfoCards cards={club.infoCards} />
 
             {hasCoverImage ? (
-              <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+              <MotionReveal amount={0.35} duration={0.47} y={18}>
                 <ClubCoverImage
                   alt={club.title}
                   position={club.coverImagePosition}

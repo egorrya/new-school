@@ -64,11 +64,11 @@ export default async function JobDetailPage({ params: paramsPromise }: Args) {
     <PageBlockSection>
       <PageBlockContainer>
         <article className="mx-auto max-w-3xl space-y-8">
-          <MotionReveal blur={2} duration={0.47} y={18}>
+          <MotionReveal duration={0.47} y={18}>
             <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">{job.title}</h1>
           </MotionReveal>
 
-          <MotionReveal blur={2} delay={0.08} duration={0.47} y={18}>
+          <MotionReveal delay={0.08} duration={0.47} y={18}>
             <div className="space-y-3">
               {job.description ? (
                 <RichText data={job.description} enableGutter={false} enableProse={true} />
@@ -82,8 +82,8 @@ export default async function JobDetailPage({ params: paramsPromise }: Args) {
           </MotionReveal>
 
           {job.contactText ? (
-            <MotionReveal blur={2} delay={0.16} duration={0.47} y={18}>
-              <div className="rounded-base border-2 border-border bg-secondary-background/60 p-4 text-foreground shadow-shadow sm:p-6">
+            <MotionReveal delay={0.16} duration={0.47} y={18}>
+              <div className="rounded-base border border-border bg-secondary-background/60 p-4 text-foreground shadow-shadow sm:p-6">
                 <p className="font-heading text-lg leading-tight">Как откликнуться</p>
                 <p className="mt-2 max-w-2xl text-sm leading-relaxed text-foreground/80">
                   {job.contactText}
@@ -92,7 +92,7 @@ export default async function JobDetailPage({ params: paramsPromise }: Args) {
             </MotionReveal>
           ) : null}
 
-          <MotionReveal blur={2} delay={0.24} duration={0.47} y={18}>
+          <MotionReveal delay={0.24} duration={0.47} y={18}>
             <Button asChild variant="neutral">
               <Link href="/vacancies">Ко всем вакансиям</Link>
             </Button>

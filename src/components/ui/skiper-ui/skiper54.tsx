@@ -67,7 +67,7 @@ const Skiper54 = ({
     return (
       <div
         className={cn(
-          "flex min-h-[320px] w-full items-center justify-center rounded-base border-2 border-dashed border-border bg-secondary-background p-6 text-center",
+          "flex min-h-[320px] w-full items-center justify-center rounded-base border border-dashed border-border bg-secondary-background p-6 text-center",
           className,
         )}
       >
@@ -355,7 +355,7 @@ const Carousel006 = ({
           {showNavigation && (
             <Button
               aria-label="Предыдущий слайд"
-              className="h-9 w-9 shrink-0 cursor-pointer"
+              className="h-9 w-9 shrink-0 cursor-pointer bg-black text-white shadow-none hover:shadow-none"
               onClick={() => api?.scrollPrev()}
               size="icon"
               type="button"
@@ -373,7 +373,7 @@ const Carousel006 = ({
                   aria-label={`Перейти к слайду ${index + 1}`}
                   className={cn(
                     "h-2.5 w-2.5 shrink-0 cursor-pointer rounded-full border border-border transition-all",
-                    activeIndex === index ? "w-7 bg-main" : "bg-secondary-background",
+                    activeIndex === index ? "w-7 bg-black" : "bg-secondary-background",
                   )}
                   onClick={() => scrollToSlide(index)}
                   type="button"
@@ -385,7 +385,7 @@ const Carousel006 = ({
           {showNavigation && (
             <Button
               aria-label="Следующий слайд"
-              className="h-9 w-9 shrink-0 cursor-pointer"
+              className="h-9 w-9 shrink-0 cursor-pointer bg-black text-white shadow-none hover:shadow-none"
               onClick={() => api?.scrollNext()}
               size="icon"
               type="button"

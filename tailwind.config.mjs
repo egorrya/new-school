@@ -30,7 +30,7 @@ const config = {
               h1: {
                 fontFamily: 'var(--font-heading)',
                 fontSize: '2.5rem',
-                fontWeight: '800',
+                fontWeight: '500',
                 letterSpacing: '-0.05em',
                 lineHeight: '1.1',
                 marginBottom: '0.35em',
@@ -38,14 +38,14 @@ const config = {
               h2: {
                 fontFamily: 'var(--font-heading)',
                 fontSize: '1.5rem',
-                fontWeight: '800',
+                fontWeight: '500',
                 letterSpacing: '-0.04em',
                 lineHeight: '1.1',
               },
               h3: {
                 fontFamily: 'var(--font-heading)',
                 fontSize: '1.125rem',
-                fontWeight: '800',
+                fontWeight: '500',
                 letterSpacing: '-0.03em',
                 lineHeight: '1.1',
               },
@@ -60,7 +60,7 @@ const config = {
               },
               h2: {
                 fontSize: '1.5rem',
-                fontWeight: 800,
+                fontWeight: 500,
               },
             },
           ],
@@ -73,7 +73,7 @@ const config = {
               },
               h2: {
                 fontSize: '2rem',
-                fontWeight: 800,
+                fontWeight: 500,
               },
             },
           ],

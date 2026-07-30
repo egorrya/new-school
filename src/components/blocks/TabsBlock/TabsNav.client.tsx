@@ -108,8 +108,8 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
           'container sticky z-30 mx-auto flex justify-center',
           className,
         )}
-        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
-        initial={shouldReduceMotion ? false : { opacity: 0, y: -8, filter: 'blur(2px)' }}
+        animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+        initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
         transition={{ duration: 0.45, ease: 'easeOut' }}
         style={{
           top: 'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + var(--site-tabs-nav-top-gap, 0.25rem))',
@@ -117,7 +117,7 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
       >
         <div
           ref={scrollContainerRef}
-          className="flex max-w-full overflow-x-auto rounded-full border-2 border-foreground bg-background p-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          className="flex max-w-full overflow-x-auto rounded-full border border-foreground bg-background p-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           <nav
             aria-label="Вкладки"

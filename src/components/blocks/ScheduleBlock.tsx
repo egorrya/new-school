@@ -36,7 +36,7 @@ export function ScheduleBlock({
           )}
 
           {items.length > 0 ? (
-            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+            <MotionReveal amount={0.35} duration={0.47} y={18}>
               <Card className="overflow-hidden bg-background/70">
                 <CardContent className="p-0">
                   <dl>
@@ -44,7 +44,7 @@ export function ScheduleBlock({
                       <div
                         className={cn(
                           'grid gap-2 p-5 sm:p-6 md:grid-cols-[minmax(12rem,0.42fr)_1fr] md:gap-6',
-                          index !== items.length - 1 && 'border-b-2 border-border',
+                          index !== items.length - 1 && 'border-b border-border',
                           index % 2 === 1 && 'bg-secondary-background/25',
                         )}
                         key={item.id || `${item.label}-${index}`}

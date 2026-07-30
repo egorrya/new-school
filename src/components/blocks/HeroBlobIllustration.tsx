@@ -61,14 +61,14 @@ function HeroReveal({ children, className, delay, shouldReduceMotion }: HeroReve
   return (
     <motion.div
       className={className}
-      initial={{ opacity: 0, y: 12, scale: 0.985, filter: 'blur(2px)' }}
+      initial={{ opacity: 0, y: 12, scale: 0.985 }}
       transition={{
         delay,
         duration: 0.72,
         ease: 'easeOut',
       }}
       viewport={{ amount: 0.15, once: true }}
-      whileInView={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
     >
       {children}
     </motion.div>

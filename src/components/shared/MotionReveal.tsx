@@ -20,7 +20,6 @@ type MotionRevealProps = {
   duration?: number
   amount?: number
   margin?: MarginType
-  blur?: number
   allowMobileMotion?: boolean
   once?: boolean
   y?: number
@@ -33,7 +32,6 @@ export function MotionReveal({
   duration = 0.47,
   amount = 0.2,
   margin,
-  blur = 0,
   allowMobileMotion = false,
   once = false,
   y = 16,
@@ -47,13 +45,13 @@ export function MotionReveal({
 
   const initialState = isMobile
     ? { opacity: 0, y: Math.min(y, 8) }
-    : { opacity: 0, y, filter: blur > 0 ? `blur(${blur}px)` : undefined }
+    : { opacity: 0, y }
   const visibleState = isMobile
     ? { opacity: 1, y: 0 }
-    : { opacity: 1, y: 0, filter: 'blur(0px)' }
+    : { opacity: 1, y: 0 }
   const exitState = isMobile
     ? { opacity: 0, y: Math.min(y, 8) }
-    : { opacity: 0, y, filter: blur > 0 ? `blur(${blur}px)` : undefined }
+    : { opacity: 0, y }
   const revealTransition = isMobile
     ? {
         delay: allowMobileMotion ? Math.min(delay, 0.14) : Math.min(delay, 0.1),

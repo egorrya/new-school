@@ -7,7 +7,6 @@ import {
   PageBlockEmptyState,
   PageBlockHeader,
   PageBlockSection,
-  PageBlockSurface,
 } from '@/components/shared/PageBlock'
 import RichText from '@/components/shared/RichText'
 
@@ -35,10 +34,10 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
     const tabId = `tab-${index}`
 
     return (
-      <PageBlockSurface
+      <div
         key={tabId}
         id={tabId}
-        className="overflow-hidden bg-background px-5 py-7 sm:px-6 sm:py-8 lg:px-8 lg:py-10"
+        className="w-full"
         style={{
           scrollMarginTop:
             'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + var(--site-tabs-nav-height, 0px) + 2rem)',
@@ -65,7 +64,7 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
           </div>
 
           {nestedBlocks.length > 0 ? (
-            <div className="mx-auto -mb-7 max-w-3xl [&>section:first-child]:pt-0 sm:-mb-8 lg:-mb-10">
+            <div className="mx-auto max-w-3xl [&>section:first-child]:pt-0">
               <RenderBlocks
                 allowFullScreenHero={false}
                 blocks={nestedBlocks}
@@ -76,7 +75,7 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
             </div>
           ) : null}
         </div>
-      </PageBlockSurface>
+      </div>
     )
   })
 

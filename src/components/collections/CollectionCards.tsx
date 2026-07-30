@@ -73,7 +73,7 @@ function RevealLinkCard({
   index?: number
 }) {
   return (
-    <MotionReveal blur={2} delay={index * 0.06} duration={0.4} y={16}>
+    <MotionReveal delay={index * 0.06} duration={0.4} y={16}>
       <Link
         aria-label={ariaLabel}
         className="block h-full transition-transform duration-300 ease-out hover:-translate-y-2"
@@ -99,7 +99,7 @@ export function NewsCard({
   const href = getDocumentHref('news', news.slug)
 
   return (
-    <MotionReveal blur={2} delay={index * 0.08} duration={0.47} y={18}>
+    <MotionReveal delay={index * 0.08} duration={0.47} y={18}>
       <Link
         aria-label={news.title}
         className="group flex h-full flex-col space-y-3 transition-transform duration-300 ease-out hover:-translate-y-2"
@@ -136,7 +136,7 @@ export function ReviewCard({ review }: { review: Review }) {
       <blockquote className={cn('text-foreground', getTestimonialQuoteClass(review.text))}>
         {review.text}
       </blockquote>
-      <div className="mt-auto border-t-2 border-border pt-4">
+      <div className="mt-auto border-t border-border pt-4">
         <p className="max-w-full whitespace-nowrap overflow-hidden text-clip font-heading text-xl leading-[1.1]">
           {review.authorName}
         </p>

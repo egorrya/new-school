@@ -63,7 +63,9 @@ export const plugins: Plugin[] = [
   vercelBlobStorage({
     addRandomSuffix: true,
     collections: {
-      media: true,
+      media: {
+        disablePayloadAccessControl: true,
+      },
     },
     token: process.env.BLOB_READ_WRITE_TOKEN,
   }),

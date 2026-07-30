@@ -19,7 +19,7 @@ export function SiteMapEmbed({ src }: SiteMapEmbedProps) {
 
   return (
     <section className="relative">
-      <MotionReveal amount={0.1} blur={2} duration={0.275} margin="0px 0px 15% 0px" once y={24}>
+      <MotionReveal amount={0.1} duration={0.275} margin="0px 0px 15% 0px" once y={24}>
         <div className="relative left-1/2 h-95 w-screen -translate-x-1/2 overflow-hidden sm:h-110 lg:h-130">
           <iframe
             className={cn(

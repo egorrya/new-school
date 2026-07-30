@@ -8,7 +8,13 @@ import { motion, useReducedMotion } from 'motion/react'
 import type { Header, SiteSetting } from '@/payload-types'
 
 import { Logo } from '@/components/shared/Logo/Logo'
-import { HeaderNavActions, HeaderNavLinks, SecondaryHeaderLinks } from './Nav'
+import {
+  HeaderNavActions,
+  HeaderNavLinks,
+  SecondaryHeaderLinks,
+  headerNavigationItemDelayStep,
+  headerNavigationItemRevealDuration,
+} from './Nav'
 import { cn } from '@/utilities/ui'
 
 interface HeaderClientProps {
@@ -16,30 +22,24 @@ interface HeaderClientProps {
   siteSettings?: SiteSetting
 }
 
-const HEADER_SCROLL_BORDER_DISTANCE = 140
-const HEADER_SCROLL_BACKGROUND_DISTANCE = 220
-const HEADER_SCROLL_LOGO_DISTANCE = 140
+const HEADER_MINI_SCROLL_THRESHOLD = 32
 const MOBILE_HEADER_MEDIA_QUERY = '(width < 40rem)'
 
 const headerShellClassName =
-  'relative overflow-visible rounded-base border-2 border-transparent bg-transparent shadow-none'
+  'relative overflow-visible rounded-base border shadow-none transition-[border-color,background-color] duration-300 ease-out'
 const headerRowClassName =
-  'flex items-center justify-between gap-3 px-3 py-1.5 sm:gap-4 sm:px-6 sm:py-4 lg:gap-6'
-const headerLogoClassName = 'inline-flex shrink-0 items-center'
-// Height is tied directly to scroll position (see applyScrollState) instead of a
-// threshold-triggered CSS transition, so it shrinks in lockstep with the scroll
-// gesture at any speed instead of racing through a fixed-duration animation.
-const headerLogoHeightStyle = {
-  height:
-    'calc(var(--site-header-logo-height-expanded) - (var(--site-header-logo-height-expanded) - var(--site-header-logo-height)) * var(--site-header-logo-progress, 0))',
-} as const
-const headerNavClassName = 'hidden'
+  'relative flex items-center justify-between gap-3 px-3 transition-[padding] duration-300 ease-out sm:gap-4 sm:px-6 lg:gap-6'
+const headerLogoClassName =
+  'inline-flex shrink-0 items-center transition-[height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+const headerNavClassName =
+  'pointer-events-none absolute left-1/2 hidden -translate-x-1/2 min-[900px]:flex'
 const headerNavRevealDelay = 0.88
-const headerActionsRevealDelay = 0.7
+const headerActionsRevealGap = 0.14
+const headerPositionTransitionDuration = 700
 
 export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings }) => {
   const pathname = usePathname()
-  const [logoState, setLogoState] = useState<'expanded' | 'compact'>('expanded')
+  const [isMiniHeader, setIsMiniHeader] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const shouldReduceMotion = useReducedMotion() ?? false
   const shellRef = useRef<HTMLDivElement | null>(null)
@@ -49,66 +49,27 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
   const actionsRef = useRef<HTMLDivElement | null>(null)
   const fixedHeaderRef = useRef<HTMLElement | null>(null)
   const secondaryHeaderRef = useRef<HTMLDivElement | null>(null)
-  const secondaryHeaderHeightRef = useRef(0)
   const applyScrollStateRef = useRef<(() => void) | null>(null)
-  const hasSecondaryLinks = header.showSecondaryHeader && (header.secondaryHeaderLinks?.length ?? 0) > 0
+  const showSecondaryHeader = Boolean(header.showSecondaryHeader)
+  const navigationItemCount = header.navigationLinks?.length ?? 0
+  const headerActionsRevealDelay =
+    navigationItemCount > 0
+      ? headerNavRevealDelay +
+        (navigationItemCount - 1) * headerNavigationItemDelayStep +
+        headerNavigationItemRevealDuration +
+        headerActionsRevealGap
+      : 0.7
 
   useLayoutEffect(() => {
-    const shell = shellRef.current
-    const row = rowRef.current
-    const logo = logoRef.current
-    const nav = navRef.current
-    const actions = actionsRef.current
-
-    if (!shell || !row || !logo || !nav || !actions) {
-      return
-    }
-
     let scrollRaf = 0
     const mobileHeaderQuery = window.matchMedia(MOBILE_HEADER_MEDIA_QUERY)
-
-    const clamp01 = (value: number) => Math.min(Math.max(value, 0), 1)
-    const smoothStep = (value: number) => value * value * (3 - 2 * value)
-
-    shell.style.transitionProperty = 'border-color, background-color'
-    shell.style.transitionDuration = '180ms'
-    shell.style.transitionTimingFunction = 'linear'
 
     const applyScrollState = () => {
       const scrollY = window.scrollY
       const isMobileHeader = mobileHeaderQuery.matches
-      const borderProgress = isMobileHeader
-        ? 1
-        : smoothStep(clamp01(scrollY / HEADER_SCROLL_BORDER_DISTANCE))
-      const backgroundProgress = isMobileHeader
-        ? 1
-        : smoothStep(clamp01(scrollY / HEADER_SCROLL_BACKGROUND_DISTANCE))
-      const logoProgress = isMobileHeader
-        ? 1
-        : smoothStep(clamp01(scrollY / HEADER_SCROLL_LOGO_DISTANCE))
-      const borderAlpha = 0.72 * borderProgress
-      const nextLogoState: 'expanded' | 'compact' = isMobileHeader
-        ? 'compact'
-        : logoProgress >= 0.5
-          ? 'compact'
-          : 'expanded'
+      const nextIsMiniHeader = isMobileHeader || scrollY > HEADER_MINI_SCROLL_THRESHOLD
 
-      shell.style.borderColor = `rgba(34, 34, 34, ${borderAlpha.toFixed(3)})`
-      shell.style.backgroundColor = `rgba(255, 255, 255, ${backgroundProgress.toFixed(3)})`
-      logo.style.setProperty('--site-header-logo-progress', logoProgress.toFixed(3))
-      setLogoState((current) => (current === nextLogoState ? current : nextLogoState))
-
-      const fixedHeader = fixedHeaderRef.current
-      if (fixedHeader) {
-        const nextTop = Math.max(0, secondaryHeaderHeightRef.current - scrollY)
-        fixedHeader.style.top = `${nextTop}px`
-        document.documentElement.style.setProperty(
-          '--site-header-fixed-bottom',
-          isMobileHeader
-            ? 'var(--site-header-height)'
-            : `${fixedHeader.getBoundingClientRect().bottom}px`,
-        )
-      }
+      setIsMiniHeader((current) => (current === nextIsMiniHeader ? current : nextIsMiniHeader))
     }
     applyScrollStateRef.current = applyScrollState
 
@@ -139,34 +100,56 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
 
   useLayoutEffect(() => {
     applyScrollStateRef.current?.()
-  }, [pathname])
+  }, [isMiniHeader, pathname])
+
+  useLayoutEffect(() => {
+    const fixedHeader = fixedHeaderRef.current
+
+    if (!fixedHeader) {
+      return
+    }
+
+    let frame = 0
+    let transitionTimer = 0
+
+    const updateFixedHeaderBottom = () => {
+      document.documentElement.style.setProperty(
+        '--site-header-fixed-bottom',
+        `${fixedHeader.getBoundingClientRect().bottom}px`,
+      )
+    }
+
+    frame = window.requestAnimationFrame(updateFixedHeaderBottom)
+    transitionTimer = window.setTimeout(updateFixedHeaderBottom, headerPositionTransitionDuration + 80)
+    window.addEventListener('resize', updateFixedHeaderBottom)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(transitionTimer)
+      window.removeEventListener('resize', updateFixedHeaderBottom)
+    }
+  }, [isMiniHeader, showSecondaryHeader])
 
   useLayoutEffect(() => {
     const secondaryHeader = secondaryHeaderRef.current
 
     if (!secondaryHeader) {
-      secondaryHeaderHeightRef.current = 0
       document.documentElement.style.setProperty('--site-secondary-header-height', '0px')
-      document.documentElement.style.setProperty('--site-header-fixed-bottom', '0px')
+      document.documentElement.style.setProperty(
+        '--site-header-fixed-bottom',
+        'var(--site-header-height)',
+      )
       applyScrollStateRef.current?.()
       return
     }
 
     const updateHeight = () => {
       const height = secondaryHeader.offsetHeight
-      const isMobileHeader = window.matchMedia(MOBILE_HEADER_MEDIA_QUERY).matches
-      secondaryHeaderHeightRef.current = height
       document.documentElement.style.setProperty('--site-secondary-header-height', `${height}px`)
-      applyScrollStateRef.current?.()
-      const fixedHeader = fixedHeaderRef.current
-      if (fixedHeader) {
-        document.documentElement.style.setProperty(
-          '--site-header-fixed-bottom',
-          isMobileHeader
-            ? 'var(--site-header-height)'
-            : `${fixedHeader.getBoundingClientRect().bottom}px`,
-        )
-      }
+      document.documentElement.style.setProperty(
+        '--site-header-fixed-bottom',
+        `calc(var(--site-header-height) + ${height}px)`,
+      )
     }
 
     updateHeight()
@@ -177,55 +160,67 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
     return () => {
       resizeObserver.disconnect()
     }
-  }, [hasSecondaryLinks])
+  }, [showSecondaryHeader])
 
   return (
     <>
-      {hasSecondaryLinks ? (
-        <div ref={secondaryHeaderRef} className="relative z-40">
-          <SecondaryHeaderLinks header={header} />
+      {showSecondaryHeader ? (
+        <div
+          ref={secondaryHeaderRef}
+          className={cn(
+            'fixed inset-x-0 top-0 z-80 bg-black text-white transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
+            isMiniHeader ? 'pointer-events-none -translate-y-full' : 'translate-y-0',
+          )}
+        >
+          <SecondaryHeaderLinks header={header} siteSettings={siteSettings} />
         </div>
       ) : null}
       <header
         ref={fixedHeaderRef}
         className={cn(
-          'container fixed inset-x-0 pt-(--site-header-top-offset)',
-          menuOpen ? 'z-50' : 'z-70',
+          'container fixed inset-x-0 pt-(--site-header-top-offset) transition-[top] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          menuOpen ? 'z-90' : 'z-70',
         )}
-        style={{ top: 0 }}
+        style={{ top: isMiniHeader ? 0 : 'var(--site-secondary-header-height, 0px)' }}
         suppressHydrationWarning
       >
         <motion.div
           ref={shellRef}
-          className={cn(headerShellClassName)}
-          initial={shouldReduceMotion ? false : { opacity: 0, y: -10, filter: 'blur(2px)' }}
+          className={cn(
+            headerShellClassName,
+            isMiniHeader ? 'border-border bg-white' : 'border-transparent bg-transparent',
+          )}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
           transition={{ delay: 0.12, duration: 0.72, ease: 'easeOut' }}
           viewport={{ amount: 0.1, once: true }}
-          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
-          style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity, filter' }}
+          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity' }}
         >
           <motion.div
             ref={rowRef}
-            data-header-state={logoState}
-            className={cn(headerRowClassName)}
-            initial={shouldReduceMotion ? false : { opacity: 0, y: -10, filter: 'blur(2px)' }}
+            data-header-state={isMiniHeader ? 'compact' : 'expanded'}
+            className={cn(
+              headerRowClassName,
+              isMiniHeader ? 'py-1.5 sm:py-4' : 'py-0.5 sm:py-1 lg:py-1.5',
+            )}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
             transition={{ delay: 0.36, duration: 0.62, ease: 'easeOut' }}
             viewport={{ amount: 0.1, once: true }}
-            whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }}
-            style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity, filter' }}
+            whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+            style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity' }}
           >
             <motion.div
               ref={logoRef}
               className={cn(headerLogoClassName)}
-              initial={shouldReduceMotion ? false : { opacity: 0, y: -10, filter: 'blur(2px)' }}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
               transition={{ delay: 0.62, duration: 0.55, ease: 'easeOut' }}
               viewport={{ amount: 0.1, once: true }}
-              whileInView={
-                shouldReduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }
-              }
+              whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
               style={{
-                ...headerLogoHeightStyle,
-                ...(shouldReduceMotion ? undefined : { willChange: 'transform, opacity, filter' }),
+                height: isMiniHeader
+                  ? 'var(--site-header-logo-height)'
+                  : 'var(--site-header-logo-height-expanded)',
+                ...(shouldReduceMotion ? undefined : { willChange: 'transform, opacity' }),
               }}
             >
               <Link
@@ -240,7 +235,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
                   logoType={siteSettings?.logoType ?? null}
                   sizeVariant="header"
                   siteName={siteSettings?.siteName}
-                  state={logoState}
+                  state={isMiniHeader ? 'compact' : 'expanded'}
                 />
               </Link>
             </motion.div>
@@ -249,9 +244,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
               <HeaderNavLinks header={header} revealDelay={headerNavRevealDelay} />
             </div>
 
-            <div ref={actionsRef}>
+            <div ref={actionsRef} className="ml-auto">
               <HeaderNavActions
                 header={header}
+                hideSocialLinks={showSecondaryHeader}
                 menuOpen={menuOpen}
                 onMenuOpenChange={setMenuOpen}
                 revealDelay={headerActionsRevealDelay}

@@ -17,11 +17,10 @@ const rowVariants: Variants = {
 }
 
 const digitVariants: Variants = {
-  hidden: { opacity: 0, y: -60, filter: 'blur(6px)' },
+  hidden: { opacity: 0, y: -60 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: { duration: 0.8, ease: EASE_OUT },
   },
 }
@@ -62,7 +61,7 @@ export default function NotFound() {
       </div>
 
       <div className="container relative z-10 flex justify-center px-4">
-        <MotionReveal amount={0.3} blur={2} duration={0.6} y={18}>
+        <MotionReveal amount={0.3} duration={0.6} y={18}>
           <div className="flex flex-col items-center gap-6 text-center">
             <h1 className="text-3xl font-heading sm:text-4xl">Страница не найдена</h1>
             <Button asChild variant="default">

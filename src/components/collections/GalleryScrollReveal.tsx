@@ -14,8 +14,8 @@ export function GalleryScrollReveal({ children, className }: GalleryScrollReveal
   return (
     <MotionReveal
       amount={0.35}
-      blur={2}
-      className={cn('will-change-[transform,opacity,filter]', className)}
+
+      className={cn('will-change-[transform,opacity]', className)}
       duration={0.5}
       y={24}
     >

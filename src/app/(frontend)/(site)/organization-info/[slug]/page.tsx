@@ -85,11 +85,11 @@ export default async function OrgInfoSectionPage({ params: paramsPromise }: Args
     <PageBlockSection>
       <PageBlockContainer>
         <article className="mx-auto max-w-3xl space-y-8">
-          <MotionReveal blur={2} duration={0.47} y={18}>
+          <MotionReveal duration={0.47} y={18}>
             <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">{section.title}</h1>
           </MotionReveal>
 
-          <MotionReveal blur={2} delay={0.08} duration={0.47} y={18}>
+          <MotionReveal delay={0.08} duration={0.47} y={18}>
             <div className="space-y-3">
               {section.content ? (
                 <RichText data={section.content} enableGutter={false} enableProse={true} />
@@ -103,7 +103,7 @@ export default async function OrgInfoSectionPage({ params: paramsPromise }: Args
           </MotionReveal>
 
           {documents.length > 0 ? (
-            <MotionReveal blur={2} delay={0.16} duration={0.47} y={18}>
+            <MotionReveal delay={0.16} duration={0.47} y={18}>
               <div className="space-y-3">
                 <h2 className="font-heading text-xl leading-[1.1]">Документы</h2>
                 <ul className="space-y-2">
@@ -117,7 +117,7 @@ export default async function OrgInfoSectionPage({ params: paramsPromise }: Args
                     return (
                       <li key={doc.id || index}>
                         <a
-                          className="group flex items-center gap-3 rounded-base border-2 border-border bg-white px-4 py-3 text-sm font-medium text-foreground shadow-[0.25rem_0.25rem_0_0_#222] transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none"
+                          className="group flex items-center gap-3 rounded-base border border-border bg-white px-4 py-3 text-sm font-medium text-foreground shadow-[0.125rem_0.125rem_0_0_var(--school-black)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
                           href={file.url}
                           rel="noopener noreferrer"
                           target="_blank"
@@ -137,7 +137,7 @@ export default async function OrgInfoSectionPage({ params: paramsPromise }: Args
             </MotionReveal>
           ) : null}
 
-          <MotionReveal blur={2} delay={0.24} duration={0.47} y={18}>
+          <MotionReveal delay={0.24} duration={0.47} y={18}>
             <Button asChild variant="neutral">
               <Link href="/organization-info">Ко всем разделам</Link>
             </Button>

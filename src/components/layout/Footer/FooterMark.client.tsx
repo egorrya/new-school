@@ -11,11 +11,10 @@ const rowVariants: Variants = {
 }
 
 const letterVariants: Variants = {
-  hidden: { opacity: 0, y: 28, filter: 'blur(6px)' },
+  hidden: { opacity: 0, y: 28 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: { duration: 1.1, ease: EASE_OUT },
   },
 }
@@ -47,7 +46,7 @@ export function FooterMark({ inView }: FooterMarkProps) {
       aria-hidden="true"
     >
       <motion.div
-        className="font-heading pointer-events-none flex w-full translate-y-[30%] cursor-default select-none justify-center whitespace-nowrap leading-none text-foreground [-webkit-user-select:none] [user-select:none]"
+        className="font-heading font-[800] pointer-events-none flex w-full translate-y-[30%] cursor-default select-none justify-center whitespace-nowrap leading-none text-black [-webkit-user-select:none] [user-select:none]"
         style={{ fontSize: 'clamp(2.15rem, 11.9vw, 15.3rem)' }}
         initial={shouldReduceMotion ? undefined : 'hidden'}
         animate={shouldReduceMotion ? undefined : inView ? 'visible' : 'hidden'}

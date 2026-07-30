@@ -3,9 +3,10 @@
 import type { Teacher } from '@/payload-types'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
+import { animate } from 'motion'
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion, type Variants } from 'motion/react'
 import { Sparkle, UserRound, X } from 'lucide-react'
-import { useId, useState } from 'react'
+import { Fragment, useId, useLayoutEffect, useRef, useState } from 'react'
 
 import { Media } from '@/components/shared/Media'
 import RichText from '@/components/shared/RichText'
@@ -73,6 +74,22 @@ function cardLayoutId(groupId: string, teacherId: number) {
   return `${groupId}-card-${teacherId}`
 }
 
+type TeacherTransitionRect = {
+  height: number
+  left: number
+  top: number
+  width: number
+}
+
+function getTransitionRect(rect: DOMRect): TeacherTransitionRect {
+  return {
+    height: rect.height,
+    left: rect.left,
+    top: rect.top,
+    width: rect.width,
+  }
+}
+
 function getPhoto(teacher: Teacher) {
   return teacher.photo && typeof teacher.photo === 'object' ? teacher.photo : null
 }
@@ -89,7 +106,8 @@ function TeacherPhoto({ className, imgClassName, layoutId, teacher }: TeacherPho
 
   return (
     <motion.div
-      className={cn('relative overflow-hidden bg-secondary-background filter-none!', className)}
+      className={cn('relative bg-secondary-background filter-none!', className)}
+      layout={layoutId ? true : undefined}
       layoutId={layoutId}
       style={{ filter: 'none' }}
       transition={morphTransition}
@@ -116,7 +134,7 @@ type TeacherCardProps = {
   groupId: string
   index: number
   isOpen: boolean
-  onOpen: () => void
+  onOpen: (originRect: TeacherTransitionRect) => void
   shouldReduceMotion: boolean
   useSharedLayoutMotion: boolean
   teacher: Teacher
@@ -133,20 +151,27 @@ function TeacherCard({
 }: TeacherCardProps) {
   return (
     <motion.button
-      className={cn('teacher-card group relative flex flex-col cursor-pointer rounded-base overflow-hidden border-2 border-border bg-background text-left outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2', isOpen && 'pointer-events-none opacity-0')}
+      className={cn(
+        'teacher-card group relative flex flex-col cursor-pointer bg-transparent text-left outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2',
+        isOpen && 'pointer-events-none',
+        isOpen && !useSharedLayoutMotion && 'opacity-0',
+      )}
       animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
       initial={false}
+      layout={useSharedLayoutMotion}
       layoutId={useSharedLayoutMotion ? cardLayoutId(groupId, teacher.id) : undefined}
       transition={cardRevealTransition(index)}
       type="button"
-      onClick={onOpen}
+      onClick={(event) => onOpen(getTransitionRect(event.currentTarget.getBoundingClientRect()))}
     >
-      <TeacherPhoto
-        className="aspect-4/5 w-full"
-        imgClassName="teacher-photo transition-all duration-500 ease-out group-hover:scale-[1.05] filter-none!"
-        layoutId={useSharedLayoutMotion ? photoLayoutId(groupId, teacher.id) : undefined}
-        teacher={teacher}
-      />
+      <div className="overflow-hidden">
+        <TeacherPhoto
+          className="aspect-4/5 w-full"
+          imgClassName="teacher-photo transition-all duration-500 ease-out group-hover:scale-[1.05] filter-none!"
+          layoutId={useSharedLayoutMotion ? photoLayoutId(groupId, teacher.id) : undefined}
+          teacher={teacher}
+        />
+      </div>
 
       <div className="flex items-start gap-2 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6">
         <Sparkle
@@ -156,6 +181,7 @@ function TeacherCard({
         <span className="min-w-0">
           <motion.span
             className="block truncate font-heading text-sm leading-tight sm:text-lg"
+            layout={useSharedLayoutMotion}
             layoutId={useSharedLayoutMotion ? nameLayoutId(groupId, teacher.id) : undefined}
             transition={morphTransition}
           >
@@ -164,6 +190,7 @@ function TeacherCard({
           {teacher.position ? (
             <motion.span
               className="mt-0.5 block text-[0.625rem] leading-tight text-muted-foreground sm:text-sm sm:leading-snug"
+              layout={useSharedLayoutMotion}
               layoutId={useSharedLayoutMotion ? roleLayoutId(groupId, teacher.id) : undefined}
               transition={morphTransition}
             >
@@ -176,10 +203,40 @@ function TeacherCard({
   )
 }
 
+type TeacherCardPlaceholderProps = {
+  teacher: Teacher
+}
+
+function TeacherCardPlaceholder({ teacher }: TeacherCardPlaceholderProps) {
+  return (
+    <div
+      aria-hidden="true"
+      className="teacher-card invisible pointer-events-none flex flex-col bg-transparent"
+    >
+      <div className="aspect-4/5 w-full" />
+
+      <div className="flex items-start gap-2 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6">
+        <Sparkle aria-hidden="true" className="mt-0.5 size-3 shrink-0 sm:size-4" />
+        <span className="min-w-0">
+          <span className="block truncate font-heading text-sm leading-tight sm:text-lg">
+            {teacher.name}
+          </span>
+          {teacher.position ? (
+            <span className="mt-0.5 block text-[0.625rem] leading-tight sm:text-sm sm:leading-snug">
+              {teacher.position}
+            </span>
+          ) : null}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 type TeacherDetailModalProps = {
   groupId: string
   isMobile: boolean
   onOpenChange: (open: boolean) => void
+  originRect: TeacherTransitionRect | null
   shouldReduceMotion: boolean
   teacher: Teacher | null
   useSharedLayoutMotion: boolean
@@ -189,10 +246,13 @@ function TeacherDetailModal({
   groupId,
   isMobile,
   onOpenChange,
+  originRect,
   shouldReduceMotion,
   teacher,
   useSharedLayoutMotion,
 }: TeacherDetailModalProps) {
+  const shellRef = useRef<HTMLDivElement | null>(null)
+  const teacherId = teacher?.id ?? null
   const closeModal = () => onOpenChange(false)
   const presenceMotionProps = shouldReduceMotion
     ? { initial: false as const }
@@ -203,13 +263,77 @@ function TeacherDetailModal({
   const shellMotionProps =
     isMobile && !shouldReduceMotion
       ? { animate: 'visible' as const, exit: 'exit' as const, initial: 'hidden' as const }
+      : useSharedLayoutMotion
+        ? {}
       : { exit: shouldReduceMotion ? undefined : { opacity: 1 }, initial: false as const }
+
+  useLayoutEffect(() => {
+    if (!teacherId || !useSharedLayoutMotion || shouldReduceMotion || !originRect) {
+      return
+    }
+
+    const shell = shellRef.current
+
+    if (!shell) {
+      return
+    }
+
+    const targetRect = shell.getBoundingClientRect()
+
+    if (targetRect.width === 0 || targetRect.height === 0) {
+      return
+    }
+
+    const x = originRect.left - targetRect.left
+    const y = originRect.top - targetRect.top
+    const scaleX = originRect.width / targetRect.width
+    const scaleY = originRect.height / targetRect.height
+
+    const clearMotionStyles = () => {
+      if (shellRef.current === shell) {
+        shell.style.transform = ''
+        shell.style.transformOrigin = ''
+        shell.style.willChange = ''
+      }
+    }
+
+    shell.style.transformOrigin = 'top left'
+    shell.style.willChange = 'transform'
+
+    let isCancelled = false
+    let cleanupFrame = 0
+    const controls = animate(
+      shell,
+      {
+        transform: [
+          `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})`,
+          'translate(0px, 0px) scale(1, 1)',
+        ],
+      },
+      { duration: 0.42, ease: EASE_OUT },
+    )
+
+    void controls.finished
+      .then(() => {
+        if (!isCancelled) {
+          cleanupFrame = window.requestAnimationFrame(clearMotionStyles)
+        }
+      })
+      .catch(() => undefined)
+
+    return () => {
+      isCancelled = true
+      window.cancelAnimationFrame(cleanupFrame)
+      controls.stop()
+      clearMotionStyles()
+    }
+  }, [originRect, shouldReduceMotion, teacherId, useSharedLayoutMotion])
 
   return (
     <DialogPrimitive.Root open={teacher !== null} onOpenChange={onOpenChange}>
       <AnimatePresence>
         {teacher ? (
-          <DialogPrimitive.Portal forceMount>
+          <Fragment key={teacher.id}>
             <DialogPrimitive.Overlay asChild forceMount>
               <motion.div
                 {...presenceMotionProps}
@@ -219,7 +343,7 @@ function TeacherDetailModal({
             </DialogPrimitive.Overlay>
 
             <DialogPrimitive.Content asChild forceMount>
-              <div
+              <motion.div
                 className="fixed inset-x-0 bottom-0 top-[calc(var(--site-header-fixed-bottom,var(--site-header-height,0px))+0.75rem)] z-60 flex items-start justify-center overflow-y-auto p-4 sm:inset-0 sm:items-center sm:p-6"
                 onPointerDown={(event) => {
                   if (event.target === event.currentTarget) {
@@ -228,8 +352,10 @@ function TeacherDetailModal({
                 }}
               >
                 <motion.div
+                  ref={shellRef}
                   {...shellMotionProps}
-                  className="relative flex max-h-full w-full max-w-3xl flex-col overflow-y-auto rounded-base border-2 border-border bg-card shadow-shadow sm:max-h-[88vh] sm:flex-row sm:overflow-hidden"
+                  className="relative flex max-h-full w-full max-w-3xl flex-col overflow-y-auto rounded-base border border-border bg-card shadow-shadow sm:max-h-[88vh] sm:flex-row sm:overflow-hidden"
+                  layout={useSharedLayoutMotion}
                   layoutId={useSharedLayoutMotion ? cardLayoutId(groupId, teacher.id) : undefined}
                   transition={morphTransition}
                   variants={isMobile && !shouldReduceMotion ? mobileModalShellVariants : undefined}
@@ -238,7 +364,7 @@ function TeacherDetailModal({
                   <DialogPrimitive.Close asChild>
                     <motion.button
                       aria-label="Закрыть"
-                      className="absolute top-4 right-4 z-10 inline-flex size-10 cursor-pointer items-center justify-center rounded-full border-2 border-border bg-white text-foreground transition-transform hover:scale-105 active:scale-95 sm:top-5 sm:right-5"
+                      className="absolute top-4 right-4 z-10 inline-flex size-10 cursor-pointer items-center justify-center rounded-full border border-border bg-white text-foreground transition-transform hover:scale-105 active:scale-95 sm:top-5 sm:right-5"
                       exit={shouldReduceMotion ? undefined : { opacity: 0 }}
                       initial={false}
                       onClick={(event) => {
@@ -267,6 +393,7 @@ function TeacherDetailModal({
                     <DialogPrimitive.Title asChild>
                       <motion.h2
                         className="font-heading text-2xl leading-[1.1] sm:text-3xl"
+                        layout={useSharedLayoutMotion}
                         layoutId={useSharedLayoutMotion ? nameLayoutId(groupId, teacher.id) : undefined}
                         transition={morphTransition}
                       >
@@ -277,6 +404,7 @@ function TeacherDetailModal({
                     {teacher.position ? (
                       <motion.p
                         className="text-sm text-muted-foreground"
+                        layout={useSharedLayoutMotion}
                         layoutId={useSharedLayoutMotion ? roleLayoutId(groupId, teacher.id) : undefined}
                         transition={morphTransition}
                       >
@@ -313,9 +441,9 @@ function TeacherDetailModal({
                     </motion.div>
                   </motion.div>
                 </motion.div>
-              </div>
+              </motion.div>
             </DialogPrimitive.Content>
-          </DialogPrimitive.Portal>
+          </Fragment>
         ) : null}
       </AnimatePresence>
     </DialogPrimitive.Root>
@@ -327,40 +455,51 @@ type TeacherListGridProps = {
 }
 
 export function TeacherListGrid({ teachers }: TeacherListGridProps) {
-  const groupId = useId()
+  const reactId = useId()
+  const groupId = `teacher-list-${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`
   const [activeId, setActiveId] = useState<number | null>(null)
+  const [activeOriginRect, setActiveOriginRect] = useState<TeacherTransitionRect | null>(null)
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
   const useSharedLayoutMotion = !shouldReduceMotion && !isMobile
   const activeTeacher = teachers.find((teacher) => teacher.id === activeId) ?? null
 
   return (
-    <LayoutGroup>
+    <LayoutGroup id={groupId}>
       <div className="teacher-grid">
         <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-          {teachers.map((teacher, index) => (
-            <TeacherCard
-              key={teacher.id}
-              groupId={groupId}
-              index={index}
-              isOpen={teacher.id === activeId}
-              shouldReduceMotion={shouldReduceMotion}
-              teacher={teacher}
-              useSharedLayoutMotion={useSharedLayoutMotion}
-              onOpen={() => setActiveId(teacher.id)}
-            />
-          ))}
+          {teachers.map((teacher, index) =>
+            teacher.id === activeId && useSharedLayoutMotion ? (
+              <TeacherCardPlaceholder key={`placeholder-${teacher.id}`} teacher={teacher} />
+            ) : (
+              <TeacherCard
+                key={teacher.id}
+                groupId={groupId}
+                index={index}
+                isOpen={teacher.id === activeId}
+                shouldReduceMotion={shouldReduceMotion}
+                teacher={teacher}
+                useSharedLayoutMotion={useSharedLayoutMotion}
+                onOpen={(originRect) => {
+                  setActiveOriginRect(originRect)
+                  setActiveId(teacher.id)
+                }}
+              />
+            ),
+          )}
         </div>
       </div>
 
       <TeacherDetailModal
         groupId={groupId}
         isMobile={isMobile}
+        originRect={activeOriginRect}
         shouldReduceMotion={shouldReduceMotion}
         teacher={activeTeacher}
         useSharedLayoutMotion={useSharedLayoutMotion}
         onOpenChange={(open) => {
           if (!open) {
+            setActiveOriginRect(null)
             setActiveId(null)
           }
         }}

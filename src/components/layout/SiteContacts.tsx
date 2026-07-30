@@ -20,6 +20,7 @@ type SocialLinkProps = {
   siteSettings?: Pick<SiteSetting, 'vkUrl' | 'maxUrl' | 'telegramUrl' | 'whatsappUrl'>
   animatePlainMobile?: boolean
   className?: string
+  linkClassName?: string
   motionState?: 'hidden' | 'visible' | 'exit'
   size?: React.ComponentProps<typeof Button>['size']
   variant?: 'button' | 'icon' | 'plain'
@@ -38,21 +39,19 @@ const staggerContainer: Variants = {
 }
 
 const staggerItem: Variants = {
-  hidden: { opacity: 0, y: 14, filter: 'blur(1.5px)' },
+  hidden: { opacity: 0, y: 14 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: { duration: 0.25, ease: 'easeOut' as const },
   },
 }
 
 const contactRevealItemVariants: Variants = {
-  hidden: { opacity: 0, y: 18, filter: 'blur(2px)' },
+  hidden: { opacity: 0, y: 18 },
   visible: (index: number = 0) => ({
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: {
       delay: index * 0.1 + 0.18,
       duration: 0.47,
@@ -122,10 +121,25 @@ function TelegramIcon(props: React.SVGProps<SVGSVGElement>) {
 }
 
 function MaxIcon(props: React.SVGProps<SVGSVGElement>) {
+  const maskId = React.useId()
+  const logoPath =
+    'M508.211 878.328c-75.007 0-109.864-10.95-170.453-54.75-38.325 49.275-159.686 87.783-164.979 21.9 0-49.456-10.95-91.248-23.36-136.873-14.782-56.21-31.572-118.807-31.572-209.508 0-216.626 177.754-379.597 388.357-379.597 210.785 0 375.947 171.001 375.947 381.604.707 207.346-166.595 376.118-373.94 377.224m3.103-571.585c-102.564-5.292-182.499 65.7-200.201 177.024-14.6 92.162 11.315 204.398 33.397 210.238 10.585 2.555 37.23-18.98 53.837-35.587a189.8 189.8 0 0 0 92.71 33.032c106.273 5.112 197.08-75.794 204.215-181.95 4.154-106.382-77.67-196.486-183.958-202.574Z'
+
   return (
     <svg viewBox="0 0 1000 1000" {...props}>
-      <rect width="1000" height="1000" fill="#222" ry="249.681" />
-      <path fill="white" fillRule="evenodd" d="M508.211 878.328c-75.007 0-109.864-10.95-170.453-54.75-38.325 49.275-159.686 87.783-164.979 21.9 0-49.456-10.95-91.248-23.36-136.873-14.782-56.21-31.572-118.807-31.572-209.508 0-216.626 177.754-379.597 388.357-379.597 210.785 0 375.947 171.001 375.947 381.604.707 207.346-166.595 376.118-373.94 377.224m3.103-571.585c-102.564-5.292-182.499 65.7-200.201 177.024-14.6 92.162 11.315 204.398 33.397 210.238 10.585 2.555 37.23-18.98 53.837-35.587a189.8 189.8 0 0 0 92.71 33.032c106.273 5.112 197.08-75.794 204.215-181.95 4.154-106.382-77.67-196.486-183.958-202.574Z" clipRule="evenodd" />
+      <defs>
+        <mask id={maskId} maskUnits="userSpaceOnUse">
+          <rect width="1000" height="1000" fill="white" />
+          <path d={logoPath} fill="black" fillRule="evenodd" clipRule="evenodd" />
+        </mask>
+      </defs>
+      <rect
+        width="1000"
+        height="1000"
+        fill="var(--max-icon-background, #000)"
+        mask={`url(#${maskId})`}
+        ry="249.681"
+      />
     </svg>
   )
 }
@@ -168,6 +182,7 @@ export function SiteSocialLinks({
   siteSettings,
   animatePlainMobile = false,
   className,
+  linkClassName,
   motionState = 'visible',
   size = 'sm',
   variant = 'button',
@@ -212,7 +227,10 @@ export function SiteSocialLinks({
           return (
             <motion.a
               aria-label={item.label}
-              className="inline-flex size-5 items-center justify-center text-foreground transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:text-main motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100"
+              className={cn(
+                'inline-flex size-5 items-center justify-center text-foreground transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 hover:text-main motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100',
+                linkClassName,
+              )}
               href={item.href}
               key={item.key}
               rel="noopener noreferrer"
@@ -230,7 +248,7 @@ export function SiteSocialLinks({
   if (variant === 'icon') {
     return (
       <motion.div
-        className={cn('flex flex-wrap gap-3', className)}
+        className={cn('flex flex-wrap items-center gap-4', className)}
         initial={shouldSimplifyMotion ? undefined : 'hidden'}
         variants={shouldSimplifyMotion ? undefined : staggerContainer}
         viewport={contactsRevealViewport}
@@ -242,14 +260,14 @@ export function SiteSocialLinks({
           return (
             <motion.a
               aria-label={item.label}
-              className="inline-flex size-12 items-center justify-center rounded-base border-2 border-border bg-main text-main-foreground shadow-[0.25rem_0.25rem_0_0_#222] transition-all hover:translate-x-[0.25rem] hover:translate-y-[0.25rem] hover:shadow-none"
+              className="inline-flex size-8 items-center justify-center text-black transition-all duration-200 ease-out hover:-translate-y-0.5 hover:scale-110 motion-reduce:transition-none motion-reduce:hover:translate-y-0 motion-reduce:hover:scale-100 [--max-icon-background:#000] [--max-icon-foreground:white] sm:size-9"
               href={item.href}
               key={item.key}
               rel="noopener noreferrer"
               target="_blank"
               variants={shouldSimplifyMotion ? undefined : staggerItem}
             >
-              <Icon aria-hidden="true" className="size-6" />
+              <Icon aria-hidden="true" className="size-full" />
             </motion.a>
           )
         })}
@@ -273,7 +291,6 @@ export function SiteSocialLinks({
 export function SiteContacts({ siteSettings, className, variant = 'card' }: SiteContactProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
-  const shouldSimplifyMotion = shouldReduceMotion || isMobile
   const contactEntries: ContactEntry[] = []
 
   if (siteSettings?.phone) {
@@ -334,7 +351,7 @@ export function SiteContacts({ siteSettings, className, variant = 'card' }: Site
               key={`${item.label}-${item.value}`}
               variants={shouldAnimateContactsReveal ? contactRevealItemVariants : undefined}
             >
-              <Icon className="size-6 shrink-0 text-foreground" aria-hidden="true" />
+              <Icon className="size-6 shrink-0 text-black" aria-hidden="true" />
               <div className="min-w-0">
                 <p className="text-xs text-foreground/60">{item.label}</p>
                 {'href' in item ? (
@@ -362,11 +379,11 @@ export function SiteContacts({ siteSettings, className, variant = 'card' }: Site
 
         return (
           <div
-            className="rounded-base border-2 border-border bg-background px-4 py-3 shadow-shadow"
+            className="rounded-base border border-border bg-background px-4 py-3 shadow-shadow"
             key={`${item.label}-${item.value}`}
           >
             <div className="flex items-start gap-3">
-              <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-base border-2 border-border bg-main text-main-foreground">
+              <span className="inline-flex size-9 shrink-0 items-center justify-center rounded-base border border-border bg-main text-main-foreground">
                 <Icon className="size-4" aria-hidden="true" />
               </span>
               <div className="min-w-0">

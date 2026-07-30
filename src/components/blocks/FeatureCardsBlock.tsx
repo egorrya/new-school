@@ -21,6 +21,7 @@ import {
   PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
+import { FeatureGridLines } from '@/components/blocks/FeatureGridLines.client'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 
 const featureIconMap: Record<string, LucideIcon> = {
@@ -47,13 +48,29 @@ function normalizeIconName(iconName: string) {
     .replace(/^-+|-+$/g, '')
 }
 
-function FeatureIcon({ iconName, color }: { iconName?: string | null; color: string }) {
+function FeatureIcon({
+  iconName,
+  color,
+  plain,
+}: {
+  iconName?: string | null
+  color: string
+  plain?: boolean
+}) {
   const normalizedName = iconName ? normalizeIconName(iconName) : ''
   const Icon = (normalizedName ? featureIconMap[normalizedName] : undefined) ?? Sparkles
 
+  if (plain) {
+    return (
+      <div className="flex size-18 shrink-0 items-center justify-center text-black sm:size-20">
+        <Icon className="size-12 sm:size-14" strokeWidth={1.8} />
+      </div>
+    )
+  }
+
   return (
     <Card
-      className="flex size-14 shrink-0 items-center justify-center rounded-[0.8rem] border-2 border-border text-white shadow-shadow sm:size-16"
+      className="flex size-14 shrink-0 items-center justify-center rounded-[0.8rem] border border-border text-white shadow-shadow sm:size-16"
       style={{ backgroundColor: color }}
     >
       <CardContent className="flex h-full w-full items-center justify-center p-0">
@@ -66,24 +83,31 @@ function FeatureIcon({ iconName, color }: { iconName?: string | null; color: str
 function FeatureCard({
   card,
   index,
+  joinedLayout,
 }: {
   card: { id?: string | null; text: string; iconName?: string | null }
   index: number
+  joinedLayout?: boolean
 }) {
   const color = featureIconColors[index % featureIconColors.length]
 
   return (
     <MotionReveal
       amount={0.35}
-      blur={2}
       delay={index * 0.15}
       duration={0.235}
       margin="0px 0px -25% 0px"
       y={18}
     >
-      <article className="flex h-full items-center gap-5 rounded-base border-2 border-border bg-card p-5 sm:gap-6 sm:p-6">
+      <article
+        className={
+          joinedLayout
+            ? 'flex h-full items-center gap-3 bg-transparent p-6 sm:gap-5 sm:p-8'
+            : 'flex h-full items-center gap-5 rounded-base border border-border bg-card p-5 sm:gap-6 sm:p-6'
+        }
+      >
         <div className="shrink-0">
-          <FeatureIcon iconName={card.iconName} color={color} />
+          <FeatureIcon iconName={card.iconName} color={color} plain={joinedLayout} />
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-base font-medium leading-snug text-foreground sm:text-lg">
@@ -103,6 +127,7 @@ export function FeatureCardsBlock({
   insideTabs,
 }: FeatureCardsBlockType & { insideTabs?: boolean }) {
   const featureCards = cards ?? []
+  const joinedLayout = title?.trim().toLowerCase().replace(/[?!]+$/g, '') === 'почему мы'
 
   return (
     <PageBlockSection>
@@ -119,9 +144,21 @@ export function FeatureCardsBlock({
           )}
 
           {featureCards.length > 0 ? (
-            <div className="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
+            <div
+              className={
+                joinedLayout
+                  ? 'relative grid auto-rows-fr grid-cols-1 gap-0 sm:grid-cols-2 lg:grid-cols-3'
+                  : 'grid auto-rows-fr grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3'
+              }
+            >
+              {joinedLayout ? <FeatureGridLines count={featureCards.length} /> : null}
               {featureCards.map((card, index) => (
-                <FeatureCard key={card.id || `${card.text}-${index}`} card={card} index={index} />
+                <FeatureCard
+                  key={card.id || `${card.text}-${index}`}
+                  card={card}
+                  index={index}
+                  joinedLayout={joinedLayout}
+                />
               ))}
             </div>
           ) : (

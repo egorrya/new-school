@@ -53,7 +53,7 @@ export const Header: GlobalConfig = {
       name: 'showSecondaryHeader',
       type: 'checkbox',
       label: 'Показать верхнюю строку (второй хедер)',
-      defaultValue: false,
+      defaultValue: true,
       admin: {
         description: 'Включить или отключить отображение дополнительной строки ссылок над основной шапкой.',
       },

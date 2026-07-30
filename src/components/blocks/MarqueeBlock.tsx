@@ -15,7 +15,7 @@ export function MarqueeBlock({ items }: MarqueeBlockType) {
   return (
     <PageBlockSection className="py-0">
       <MarqueeStage
-        className="border-y-2 border-border bg-secondary-background text-foreground font-base"
+        className="bg-secondary-background text-foreground font-base"
         items={marqueeItems}
       />
     </PageBlockSection>

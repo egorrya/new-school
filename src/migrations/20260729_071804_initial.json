@@ -13220,7 +13220,7 @@
           "type": "boolean",
           "primaryKey": false,
           "notNull": false,
-          "default": false
+          "default": true
         },
         "updated_at": {
           "name": "updated_at",

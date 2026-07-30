@@ -60,17 +60,6 @@ const labelVariants: Variants = {
   exit: { y: 12, opacity: 0, transition: { duration: 0.2, ease: EASE_OUT } },
 }
 
-const backButtonVariants: Variants = {
-  hidden: { opacity: 0, y: -10, scale: 0.96 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { delay: 0.08, duration: 0.28, ease: EASE_OUT },
-  },
-  exit: { opacity: 0, y: -8, transition: { duration: 0.18, ease: EASE_OUT } },
-}
-
 const itemHoverTransition = { duration: 0.2, ease: EASE_OUT } as const
 const itemTapTransition = { duration: 0.12, ease: EASE_OUT } as const
 
@@ -78,15 +67,15 @@ const PILL_ROTATIONS = [-2.5, 2.5, -2, 2, -2.5, 2.5, -2, 2]
 const REQUIRED_NAVIGATION_HREF = '/organization-info'
 
 const pillClassName =
-  'flex w-full select-none items-center justify-center rounded-full border-2 border-border bg-white text-center text-foreground transition-colors duration-300 hover:bg-(--pill-hover-bg) hover:text-(--pill-hover-text)'
+  'flex w-full select-none items-center justify-center border-b border-border text-center text-foreground transition-colors duration-300 hover:text-main min-[900px]:rounded-full min-[900px]:border min-[900px]:bg-white min-[900px]:hover:bg-(--pill-hover-bg) min-[900px]:hover:text-(--pill-hover-text)'
 
 const pillSizeClassName = cn(
-  'min-h-[80px] px-6 py-[clamp(1rem,2vw,2rem)] text-[clamp(1.2rem,3vw,4rem)] font-medium',
+  'min-h-16 px-4 py-4 text-xl font-medium',
   'min-[900px]:min-h-[160px] min-[900px]:px-4 min-[900px]:py-[clamp(1.5rem,3vw,8rem)] min-[900px]:text-[clamp(1.5rem,4vw,4rem)] min-[900px]:font-normal',
 )
 
 const requiredNavigationPillSizeClassName = cn(
-  'min-h-[80px] px-6 py-[clamp(1rem,2vw,2rem)] font-medium whitespace-nowrap',
+  'min-h-16 px-4 py-4 text-base font-medium whitespace-nowrap',
   'min-[900px]:min-h-[130px] min-[900px]:max-w-[calc(100%-4rem)] min-[900px]:px-8 min-[900px]:py-[clamp(1rem,2vw,3rem)] min-[900px]:font-normal',
 )
 
@@ -205,6 +194,35 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
 
   const closeMenu = () => handleOpenChange(false)
 
+  const renderBackPill = () => (
+    <motion.li
+      className="flex flex-[0_0_100%] items-stretch justify-center box-border"
+      custom={0}
+      key="back"
+      role="none"
+      variants={shouldReduceMotion ? undefined : bubbleVariants}
+    >
+      <button
+        aria-label="Назад к меню"
+        className={cn(
+          pillClassName,
+          'min-h-16 px-4 py-4 text-sm font-medium',
+          'cursor-pointer gap-2',
+        )}
+        onClick={() => setActiveParentIndex(null)}
+        type="button"
+      >
+        <motion.span
+          className="inline-flex items-center gap-2 leading-[1.2]"
+          variants={shouldReduceMotion ? undefined : labelVariants}
+        >
+          <ArrowLeft aria-hidden="true" className="size-5" />
+          Назад
+        </motion.span>
+      </button>
+    </motion.li>
+  )
+
   const renderPill = (
     key: string,
     link: PillLink,
@@ -263,9 +281,15 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
         role="none"
         variants={shouldReduceMotion ? undefined : bubbleVariants}
         whileHover={
-          shouldReduceMotion ? undefined : { scale: 1.06, transition: itemHoverTransition }
+          shouldReduceMotion || !isDesktop
+            ? undefined
+            : { scale: 1.06, transition: itemHoverTransition }
         }
-        whileTap={shouldReduceMotion ? undefined : { scale: 0.94, transition: itemTapTransition }}
+        whileTap={
+          shouldReduceMotion || !isDesktop
+            ? undefined
+            : { scale: 0.94, transition: itemTapTransition }
+        }
       >
         {onExpand ? (
           <button
@@ -308,7 +332,10 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
       <Dialog.Trigger asChild>
         <Button
           aria-label={open ? 'Закрыть меню' : 'Открыть меню'}
-          className="relative size-13 border-0 shadow-none hover:translate-x-0 hover:translate-y-0 sm:border-2 sm:border-border sm:shadow-[0.25rem_0.25rem_0_0_#222] sm:hover:translate-x-[0.25rem] sm:hover:translate-y-[0.25rem] sm:hover:shadow-none min-[900px]:size-[3.25rem]"
+          className={cn(
+            'relative size-13 border-0 shadow-none hover:translate-x-0 hover:translate-y-0 sm:border sm:border-border sm:shadow-[0.125rem_0.125rem_0_0_var(--school-black)] sm:hover:translate-x-[0.125rem] sm:hover:translate-y-[0.125rem] sm:hover:shadow-none min-[900px]:size-[3.25rem]',
+            open && 'z-90',
+          )}
           size="icon"
           variant="neutral"
         >
@@ -321,47 +348,20 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
           <Dialog.Overlay asChild forceMount>
             <motion.div
               {...motionProps}
-              className="fixed inset-0 z-60 bg-white/90 will-change-[opacity] sm:bg-white/80 sm:backdrop-blur-md"
+              className="fixed inset-0 z-60 bg-white/96 will-change-[opacity] sm:bg-white/92"
               variants={shouldReduceMotion ? undefined : overlayVariants}
             />
           </Dialog.Overlay>
 
           <Dialog.Content asChild forceMount>
             <div
-              className="fixed inset-0 z-60 flex cursor-pointer flex-col items-center justify-center overflow-y-auto px-4 pt-24 pb-28 sm:px-6 min-[900px]:pb-10"
+              className="fixed inset-0 z-60 flex cursor-pointer flex-col items-center justify-center overflow-y-auto px-0 pt-24 pb-28 min-[900px]:px-6 min-[900px]:pb-10"
               onClick={handleBackdropClick}
             >
               <Dialog.Title className="sr-only">Меню</Dialog.Title>
 
               <LayoutGroup id="mobile-menu-layout">
                 <div className="flex w-full max-w-[100rem] flex-col self-center">
-                  <AnimatePresence mode="popLayout">
-                    {isSubmenuOpen ? (
-                      <motion.div
-                        layout={isDesktop}
-                        animate={shouldReduceMotion ? undefined : menuMotionState}
-                        className="mb-3 flex justify-center"
-                        exit={shouldReduceMotion ? undefined : 'exit'}
-                        initial={shouldReduceMotion ? false : 'hidden'}
-                        key="back-button"
-                        transition={{ layout: { duration: 0.28, ease: EASE_OUT } }}
-                        variants={shouldReduceMotion ? undefined : backButtonVariants}
-                      >
-                        <motion.button
-                          aria-label="Назад к меню"
-                          className="inline-flex select-none items-center gap-2 px-2 py-1 text-sm font-medium text-black cursor-pointer focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-black/10"
-                          onClick={() => setActiveParentIndex(null)}
-                          type="button"
-                          whileHover={shouldReduceMotion ? undefined : { scale: 1.04 }}
-                          whileTap={shouldReduceMotion ? undefined : { scale: 0.98 }}
-                        >
-                          <ArrowLeft aria-hidden="true" className="size-4" />
-                          Назад
-                        </motion.button>
-                      </motion.div>
-                    ) : null}
-                  </AnimatePresence>
-
                   <AnimatePresence mode="wait">
                     <motion.ul
                       layout={isDesktop}
@@ -371,20 +371,23 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
                           ? `Подпункты: ${activeParent?.link.label ?? ''}`
                           : 'Мобильное меню'
                       }
-                      className="m-0 flex w-full list-none flex-wrap gap-y-3 py-8 min-[900px]:gap-y-2"
+                      className="m-0 flex w-full list-none flex-wrap py-8 min-[900px]:gap-y-2"
                       key={isSubmenuOpen ? `submenu-${activeParentIndex}` : 'root'}
                       role="menu"
                       variants={shouldReduceMotion ? undefined : listVariants}
                     >
                       {isSubmenuOpen
-                        ? activeSubLinks.map((subItem, index) =>
-                            renderPill(
-                              subItem.id || subItem.link.label,
-                              subItem.link,
-                              index,
-                              activeSubLinks.length,
+                        ? [
+                            renderBackPill(),
+                            ...activeSubLinks.map((subItem, index) =>
+                              renderPill(
+                                subItem.id || subItem.link.label,
+                                subItem.link,
+                                index,
+                                activeSubLinks.length,
+                              ),
                             ),
-                          )
+                          ]
                         : [
                             ...regularNavigationItems.map(({ item, originalIndex }, index) => {
                               const hasSubLinks = (item.subLinks?.length ?? 0) > 0
@@ -413,27 +416,24 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
 
                       {!isSubmenuOpen ? (
                         <motion.li
-                          className="flex-[0_0_100%] pt-2 min-[900px]:hidden"
+                          className="flex flex-[0_0_100%] items-stretch justify-center box-border min-[900px]:hidden"
                           custom={0}
                           role="none"
                           variants={shouldReduceMotion ? undefined : bubbleVariants}
                         >
-                          <Button
-                            asChild
-                            className="h-auto min-h-18 w-full rounded-full py-4 text-lg shadow-none min-[900px]:min-h-24 min-[900px]:text-2xl"
+                          <Link
+                            className={cn(pillClassName, pillSizeClassName, 'gap-2')}
+                            href="/contacts"
                             onClick={closeMenu}
                           >
-                            <Link
-                              className="flex select-none items-center justify-center gap-2"
-                              href="/contacts"
+                            <motion.span
+                              className="inline-flex items-center gap-2 leading-[1.2]"
+                              variants={shouldReduceMotion ? undefined : labelVariants}
                             >
                               {applicationText}
-                              <ArrowRight
-                                aria-hidden="true"
-                                className="size-5 min-[900px]:size-6"
-                              />
-                            </Link>
-                          </Button>
+                              <ArrowRight aria-hidden="true" className="size-5" />
+                            </motion.span>
+                          </Link>
                         </motion.li>
                       ) : null}
                     </motion.ul>
@@ -447,7 +447,7 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
               >
                 <SiteSocialLinks
                   animatePlainMobile
-                  className="pointer-events-auto justify-center gap-6 rounded-full border-2 border-border bg-white px-5 py-3 shadow-shadow"
+                  className="pointer-events-auto justify-center gap-6 px-5 py-3"
                   motionState={menuMotionState}
                   siteSettings={siteSettings}
                   variant="plain"

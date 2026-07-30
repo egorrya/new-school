@@ -34,13 +34,13 @@ export function ProgramBlock({
           )}
 
           {programItems.length > 0 ? (
-            <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+            <MotionReveal amount={0.35} duration={0.47} y={18}>
               <ol className="grid gap-4">
                 {programItems.map((item, index) => (
                   <li key={item.id || `${item.title}-${index}`}>
                     <Card className="bg-card">
                       <CardContent className="grid gap-4 p-5 sm:p-6 lg:grid-cols-[auto_1fr] lg:items-start">
-                        <div className="flex size-12 items-center justify-center rounded-base border-2 border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
+                        <div className="flex size-12 items-center justify-center rounded-base border border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
                           {String(index + 1).padStart(2, '0')}
                         </div>
                         <div className="space-y-2">

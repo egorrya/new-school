@@ -20,10 +20,10 @@ export const itemBackgroundColors = [
 
 const marqueeContainerClassName = 'cursor-default overflow-hidden'
 const marqueeTrackClassName =
-  'flex w-max min-w-full animate-marquee items-center whitespace-nowrap motion-reduce:animate-none'
-const marqueeSegmentClassName = 'flex shrink-0 items-center gap-4 py-10 pr-4'
+  'flex w-max min-w-full animate-marquee items-stretch whitespace-nowrap motion-reduce:animate-none'
+const marqueeSegmentClassName = 'flex shrink-0 items-stretch'
 const marqueeItemClassName =
-  'inline-flex items-center rounded-full border-2 border-border px-10 py-4 text-xl font-medium leading-none shadow-shadow motion-reduce:scale-100 sm:text-3xl sm:font-extrabold'
+  'inline-flex items-center border-y border-l border-border px-12 py-5 text-lg font-medium leading-none motion-reduce:scale-100 sm:px-14 sm:py-6 sm:text-2xl'
 
 type MarqueeStyle = CSSProperties & {
   '--marquee-distance'?: string
@@ -41,7 +41,7 @@ export const getItemTextColor = (backgroundColor: string) => {
   const blue = Number.parseInt(hex.slice(4, 6), 16)
   const luminance = (0.299 * red + 0.587 * green + 0.114 * blue) / 255
 
-  return luminance > 0.55 ? '#222222' : '#ffffff'
+  return luminance > 0.55 ? 'var(--school-black)' : '#ffffff'
 }
 
 export default function Marquee({ className, items }: { className?: string; items: string[] }) {

@@ -66,14 +66,14 @@ export function ClubInfoCards({ cards }: { cards?: Club['infoCards'] }) {
         return (
           <MotionReveal
             amount={0.35}
-            blur={2}
+
             className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]"
             delay={index * 0.08}
             duration={0.42}
             key={card.id || `${card.title}-${index}`}
             y={14}
           >
-            <article className="flex h-full items-center gap-4 rounded-base border-2 border-border bg-card p-4">
+            <article className="flex h-full items-center gap-4 rounded-base border border-border bg-card p-4">
               <div
                 className="flex size-11 shrink-0 items-center justify-center rounded-full"
                 style={{ backgroundColor: color.background, color: color.foreground }}

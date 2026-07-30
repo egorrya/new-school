@@ -23,10 +23,10 @@ export function getTestimonialQuoteClass(quote: string) {
   }
 
   if (wordCount > 12) {
-    return 'font-heading font-medium text-xl leading-[1.25] sm:text-2xl lg:text-3xl'
+    return 'font-heading font-normal text-xl leading-[1.25] sm:text-2xl lg:text-3xl'
   }
 
-  return 'font-heading font-medium text-2xl leading-[1.18] sm:text-3xl lg:text-4xl'
+  return 'font-heading font-normal text-2xl leading-[1.18] sm:text-3xl lg:text-4xl'
 }
 
 export function getTestimonialQuoteWidth(quote: string) {

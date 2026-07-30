@@ -30,7 +30,8 @@ function getInitials(name: string) {
 export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps) {
   const leaveDurationMs = 240
   const enterDurationMs = 220
-  const quoteBottomReserve = testimonials[0]?.description ? 80 : 28
+  const getQuoteReserve = (description?: string | null) => (description ? 128 : 112)
+  const quoteVerticalReserve = getQuoteReserve(testimonials[0]?.description)
   const [activeIndex, setActiveIndex] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
   const [switchPhase, setSwitchPhase] = useState<'idle' | 'leave' | 'enter'>('idle')
@@ -41,7 +42,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
   )
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
   const [contentHeight, setContentHeight] = useState<number | null>(null)
-  const [quoteReserve, setQuoteReserve] = useState(quoteBottomReserve)
+  const [quoteReserve, setQuoteReserve] = useState(quoteVerticalReserve)
   const [outgoingItem, setOutgoingItem] = useState<{
     quote: string
     role: string
@@ -100,7 +101,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
         setDisplayedQuote(testimonials[index].quote)
         setDisplayedRole(testimonials[index].role)
         setDisplayedDescription(testimonials[index].description || null)
-        setQuoteReserve(testimonials[index].description ? 80 : 28)
+        setQuoteReserve(getQuoteReserve(testimonials[index].description))
         setActiveIndex(index)
         setOutgoingItem(null)
         setSwitchPhase('enter')
@@ -116,21 +117,21 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
   }
 
   const switchContentClass = cn(
-    'will-change-[transform,filter,opacity] transition-all duration-500 ease-out',
+    'will-change-[transform,opacity] transition-all duration-500 ease-out',
     switchPhase === 'idle'
-      ? 'translate-y-0 scale-100 opacity-100 blur-0'
+      ? 'translate-y-0 scale-100 opacity-100'
       : switchPhase === 'leave'
-        ? 'translate-y-3 scale-[0.96] opacity-0 blur-sm'
-        : 'translate-y-1 scale-[0.98] opacity-0 blur-[2px]',
+        ? 'translate-y-3 scale-[0.96] opacity-0'
+        : 'translate-y-1 scale-[0.98] opacity-0',
   )
 
   const leaveContentClass = cn(
-    'will-change-[transform,filter,opacity] transition-all duration-500 ease-out translate-y-0 scale-100 opacity-100 blur-0',
-    'translate-y-3 scale-[0.96] opacity-0 blur-[2px]',
+    'will-change-[transform,opacity] transition-all duration-500 ease-out translate-y-0 scale-100 opacity-100',
+    'translate-y-3 scale-[0.96] opacity-0',
   )
 
   return (
-    <MotionReveal amount={0.35} blur={2} duration={0.47} y={18}>
+    <MotionReveal amount={0.35} duration={0.47} y={18}>
       <div
         className={cn(
           'flex flex-col items-center py-8 sm:py-12 mt-8',
@@ -138,17 +139,17 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
         )}
       >
         <div
-          className="relative w-full px-0 transition-all duration-500 sm:px-8"
+          className="relative w-full px-0 pt-14 pb-12 transition-all duration-500 sm:px-8"
           ref={containerRef}
           style={{ height: contentHeight ? `${contentHeight}px` : 'auto' }}
         >
           <span
             className={cn(
-              'pointer-events-none absolute -left-1 -top-12 select-none font-heading text-7xl leading-none text-main/15 sm:-left-4 sm:text-8xl',
+              'pointer-events-none absolute -left-1 top-0 select-none font-heading text-7xl leading-none text-main/15 sm:-left-4 sm:text-8xl',
               switchContentClass,
             )}
           >
-            "
+            &quot;
           </span>
 
           <div className="grid w-full justify-items-center">
@@ -183,11 +184,11 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
 
           <span
             className={cn(
-              'pointer-events-none absolute -bottom-2 -right-1 select-none font-heading text-7xl leading-none text-main/15 sm:-right-4 sm:text-8xl',
+              'pointer-events-none absolute -right-1 bottom-0 select-none font-heading text-7xl leading-none text-main/15 sm:-right-4 sm:text-8xl',
               switchContentClass,
             )}
           >
-            "
+            &quot;
           </span>
         </div>
 
@@ -204,7 +205,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                   aria-hidden="true"
                   variant="neutral"
                   className={cn(
-                    'col-start-1 row-start-1 max-w-xl whitespace-nowrap rounded-full border-2 border-border bg-background px-3 py-1.5 text-center text-sm text-foreground shadow-shadow',
+                    'col-start-1 row-start-1 max-w-xl whitespace-nowrap rounded-full border border-border bg-background px-3 py-1.5 text-center text-sm text-foreground shadow-shadow',
                     leaveContentClass,
                   )}
                 >
@@ -215,7 +216,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
               <Badge
                 variant="neutral"
                 className={cn(
-                  'col-start-1 row-start-1 max-w-xl whitespace-nowrap rounded-full border-2 border-border bg-background px-3 py-1.5 text-center text-sm text-foreground shadow-shadow',
+                  'col-start-1 row-start-1 max-w-xl whitespace-nowrap rounded-full border border-border bg-background px-3 py-1.5 text-center text-sm text-foreground shadow-shadow',
                   switchContentClass,
                 )}
                 key={`role-${activeIndex}`}
@@ -247,9 +248,9 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                 <button
                   aria-pressed={isActive}
                   className={cn(
-                    'relative flex min-h-12 cursor-pointer items-center rounded-full border-2 border-border text-left shadow-shadow transition-all duration-500 ease-in-out',
+                    'relative flex min-h-12 cursor-pointer items-center rounded-full border border-border text-left shadow-shadow transition-all duration-500 ease-in-out',
                     isActive
-                      ? 'bg-main text-main-foreground'
+                      ? 'bg-black text-white'
                       : 'bg-card hover:bg-secondary-background',
                     showName ? 'px-1 py-1' : 'p-0.5',
                   )}
@@ -271,7 +272,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                         src={testimonial.avatarUrl}
                       />
                     ) : (
-                      <span className="flex h-full w-full items-center justify-center text-sm font-medium text-foreground">
+                      <span className="flex h-full w-full items-center justify-center text-sm font-normal text-foreground">
                         {getInitials(testimonial.author)}
                       </span>
                     )}
@@ -286,7 +287,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                     )}
                   >
                     <span className="overflow-hidden">
-                      <span className="block max-w-56 whitespace-nowrap text-clip text-sm font-medium">
+                      <span className="block max-w-56 whitespace-nowrap text-clip text-sm font-normal">
                         {testimonial.author}
                       </span>
                     </span>

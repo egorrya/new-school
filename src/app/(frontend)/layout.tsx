@@ -29,13 +29,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="relative isolate bg-background" suppressHydrationWarning>
         <Header />
         <main
-          className="relative z-10 flex-1 border-b-2 border-border bg-background"
+          className="relative z-10 flex-1 border-b border-border bg-background"
           style={{ minHeight: '100dvh' }}
         >
           <InfiniteGridBackground />
           <div
             className="relative"
-            style={{ paddingTop: 'var(--site-header-height)', marginTop: '-100vh' }}
+            style={{
+              paddingTop:
+                'calc(var(--site-header-height) + var(--site-secondary-header-height, 0px))',
+              marginTop: '-100vh',
+            }}
           >
             {children}
           </div>

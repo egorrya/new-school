@@ -203,7 +203,7 @@ export function InfiniteGridBackground({
 
       {!isMobile ? (
       <motion.div
-        className="absolute right-[-20%] top-[-20%] h-[36%] w-[36%] rounded-full bg-[#FB5C18] opacity-100 blur-[110px]"
+        className="absolute right-[-20%] top-[-20%] h-[36%] w-[36%] rounded-full bg-[#FD5B19] opacity-100 blur-[110px]"
         initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.5 }}
         animate={shouldReduceMotion ? undefined : { opacity: 1, scale: [0.5, 1.5, 0.5] }}
         transition={
@@ -218,7 +218,7 @@ export function InfiniteGridBackground({
       ) : null}
       {!isMobile ? (
       <motion.div
-        className="absolute bottom-[-20%] left-[-14%] h-[36%] w-[36%] rounded-full bg-[#0878BA] opacity-100 blur-[110px]"
+        className="absolute bottom-[-20%] left-[-14%] h-[36%] w-[36%] rounded-full bg-[#1B3F7B] opacity-100 blur-[110px]"
         initial={shouldReduceMotion ? false : { opacity: 0, scale: 1.5 }}
         animate={shouldReduceMotion ? undefined : { opacity: 1, scale: [1.5, 0.5, 1.5] }}
         transition={

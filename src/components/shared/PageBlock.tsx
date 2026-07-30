@@ -31,7 +31,7 @@ type PageBlockSurfaceProps = React.ComponentProps<'div'>
 export function PageBlockSurface({ className, ...props }: PageBlockSurfaceProps) {
   return (
     <div
-      className={cn('rounded-base border-2 border-border bg-card shadow-shadow', className)}
+      className={cn('rounded-base border border-border bg-card shadow-shadow', className)}
       {...props}
     />
   )
@@ -125,7 +125,7 @@ export function PageBlockEmptyState({
   return (
     <div
       className={cn(
-        'rounded-base border-2 border-border bg-secondary-background/60 p-4 text-foreground shadow-shadow sm:p-6',
+        'rounded-base border border-border bg-secondary-background/60 p-4 text-foreground shadow-shadow sm:p-6',
         className,
       )}
     >

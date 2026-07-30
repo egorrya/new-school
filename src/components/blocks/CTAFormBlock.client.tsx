@@ -27,11 +27,10 @@ type Props = {
 }
 
 const cardReveal = {
-  hidden: { opacity: 0, y: 14, filter: 'blur(1.5px)' },
+  hidden: { opacity: 0, y: 14 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: 'blur(0px)',
     transition: { delay: 0.9, duration: 0.25, ease: 'easeOut' as const },
   },
 }

@@ -1,12 +1,14 @@
 import 'dotenv/config'
 
+import { readFile } from 'fs/promises'
 import path from 'path'
 
+import { head, put } from '@vercel/blob'
 import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
 import { defaultLegalEntityText } from '@/globals/Footer/defaults'
-import type { Header } from '@/payload-types'
+import type { Header, Media } from '@/payload-types'
 
 type SeedMediaInput = {
   key: string
@@ -24,6 +26,8 @@ type SeededPage = {
 }
 
 const PLACEHOLDER_TEXT = 'Добавьте описание в панели управления.'
+const defaultSitePhone = '+7 (925) 292-40-96'
+const defaultSitePhoneHref = 'tel:+79252924096'
 const SEED_CONTEXT: SeedContext = {
   disableRevalidate: true,
 }
@@ -807,21 +811,27 @@ async function upsertUpload(
   const existingByFilename = await findOneByField(payload, 'media', 'filename', filename)
 
   if (existingByFilename) {
-    return payload.update({
+    const updated = await payload.update({
       collection: 'media',
       context: SEED_CONTEXT,
       data: {
         alt,
       },
+      filePath,
       id: existingByFilename.id,
       overrideAccess: true,
+      overwriteExistingFiles: true,
     })
+
+    await ensureBlobObjectForSeedMedia(updated as Media, filePath)
+
+    return updated
   }
 
   const existingByAlt = await findOneByField(payload, 'media', 'alt', alt)
 
   if (existingByAlt) {
-    return payload.update({
+    const updated = await payload.update({
       collection: 'media',
       context: SEED_CONTEXT,
       data: {
@@ -832,9 +842,13 @@ async function upsertUpload(
       overrideAccess: true,
       overwriteExistingFiles: true,
     })
+
+    await ensureBlobObjectForSeedMedia(updated as Media, filePath)
+
+    return updated
   }
 
-  return payload.create({
+  const created = await payload.create({
     collection: 'media',
     context: SEED_CONTEXT,
     data: {
@@ -844,6 +858,63 @@ async function upsertUpload(
     overrideAccess: true,
     overwriteExistingFiles: true,
   })
+
+  await ensureBlobObjectForSeedMedia(created as Media, filePath)
+
+  return created
+}
+
+async function ensureBlobObjectForSeedMedia(media: Media, filePath: string) {
+  if (!media.url || !media.filename || !process.env.BLOB_READ_WRITE_TOKEN) {
+    return
+  }
+
+  const pathnames = [
+    media.url,
+    media.thumbnailURL,
+    ...Object.values(media.sizes || {}).map((size) => size?.url),
+  ]
+    .filter((url): url is string => Boolean(url))
+    .reduce<string[]>((accumulator, url) => {
+      try {
+        const parsedUrl = new URL(url)
+        if (!parsedUrl.hostname.endsWith('.blob.vercel-storage.com')) {
+          return accumulator
+        }
+
+        const pathname = decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, ''))
+        if (!accumulator.includes(pathname)) {
+          accumulator.push(pathname)
+        }
+      } catch {
+        return accumulator
+      }
+
+      return accumulator
+    }, [])
+
+  if (pathnames.length === 0) {
+    return
+  }
+
+  let file: Buffer | null = null
+
+  for (const pathname of pathnames) {
+    try {
+      await head(pathname, {
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      })
+    } catch {
+      file = file || (await readFile(filePath))
+
+      await put(pathname, file, {
+        access: 'public',
+        addRandomSuffix: false,
+        contentType: media.mimeType || undefined,
+        token: process.env.BLOB_READ_WRITE_TOKEN,
+      })
+    }
+  }
 }
 
 async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
@@ -2964,14 +3035,16 @@ async function seedHeader(
     pages.programs ? makePageNavigationLink('Программы', pages.programs.id) : makeUrlNavigationLink('Программы', '/programs'),
   ]
 
-  const secondaryHeaderLinks: NavigationLink[] = []
+  const secondaryHeaderLinks: NavigationLink[] = [
+    makeUrlNavigationLink(defaultSitePhone, defaultSitePhoneHref),
+  ]
 
   await payload.updateGlobal({
     context: SEED_CONTEXT,
     data: {
       navigationLinks,
       secondaryHeaderLinks,
-      showSecondaryHeader: false,
+      showSecondaryHeader: true,
     },
     slug: 'header',
   })
@@ -2998,7 +3071,7 @@ async function seedSiteSettings(
       logoType: 'image',
       logoImage: media.logoBig.id,
       logoImageCompact: media.logoCompact.id,
-      phone: '+7 (925) 292-40-96',
+      phone: defaultSitePhone,
       address: 'г. Королёв, пр-кт Королёва, д. 5Д, пом. 501',
       workingHours: '8:00 — 20:00',
       vkUrl: 'https://vk.com/newschool_korolev',

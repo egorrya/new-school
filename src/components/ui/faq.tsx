@@ -30,7 +30,7 @@ export function Faq({ items, className }: FaqProps) {
       {items.map((item, index) => (
         <MotionReveal
           amount={0.35}
-          blur={2}
+
           delay={index * 0.08}
           duration={0.47}
           key={item.id || `${item.question}-${index}`}

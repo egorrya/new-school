@@ -17,7 +17,7 @@ export function ClubCard({ club, priority, index = 0, className }: ClubCardProps
   const href = getDocumentHref('clubs', club.slug)
 
   return (
-    <MotionReveal blur={2} className={className} delay={index * 0.08} duration={0.47} y={18}>
+    <MotionReveal className={className} delay={index * 0.08} duration={0.47} y={18}>
       <Link
         aria-label={club.title}
         className="group flex h-full flex-col space-y-3 pb-4 transition-transform duration-300 ease-out hover:-translate-y-2"

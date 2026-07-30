@@ -1150,7 +1150,7 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   
   CREATE TABLE "header" (
   	"id" serial PRIMARY KEY NOT NULL,
-  	"show_secondary_header" boolean DEFAULT false,
+    "show_secondary_header" boolean DEFAULT true,
   	"updated_at" timestamp(3) with time zone,
   	"created_at" timestamp(3) with time zone
   );

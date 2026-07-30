@@ -24,7 +24,6 @@ type TabsBlockClientProps = {
 type PanelMotionValues = {
   opacity: MotionValue<number>
   y: MotionValue<number>
-  blur: MotionValue<string>
 }
 
 const SCROLL_ACTIVATION_OFFSET_PX = 25
@@ -83,7 +82,6 @@ export function TabsBlockClient({
       valuesById.set(tab.id, {
         opacity: motionValue(0),
         y: motionValue(10),
-        blur: motionValue('blur(2px)'),
       })
     })
 
@@ -95,7 +93,6 @@ export function TabsBlockClient({
       panelMotionById.get(id) ?? {
         opacity: motionValue(0),
         y: motionValue(10),
-        blur: motionValue('blur(2px)'),
       },
     [panelMotionById],
   )
@@ -132,7 +129,6 @@ export function TabsBlockClient({
           const progress = tab.id === activeIdRef.current ? 1 : 0
           motionValues.opacity.set(progress)
           motionValues.y.set(0)
-          motionValues.blur.set('blur(0px)')
           return
         }
 
@@ -148,7 +144,6 @@ export function TabsBlockClient({
 
         motionValues.opacity.set(progress)
         motionValues.y.set((1 - progress) * 10)
-        motionValues.blur.set(`blur(${((1 - progress) * 2).toFixed(2)}px)`)
       })
     }
 
@@ -286,11 +281,10 @@ export function TabsBlockClient({
             return (
               <motion.div
                 aria-hidden={!isActive}
-                className="mt-3 w-full will-change-[transform,opacity,filter] sm:mt-4 first:mt-0"
+                className="mt-3 w-full will-change-[transform,opacity] sm:mt-4 first:mt-0"
                 style={{
                   opacity: motionValues.opacity,
                   y: motionValues.y,
-                  filter: motionValues.blur,
                   pointerEvents: isActive ? 'auto' : 'none',
                 }}
                 key={tab.id}
