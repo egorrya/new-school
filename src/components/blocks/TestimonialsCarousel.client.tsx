@@ -33,6 +33,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
   const getQuoteReserve = (description?: string | null) => (description ? 128 : 112)
   const quoteVerticalReserve = getQuoteReserve(testimonials[0]?.description)
   const [activeIndex, setActiveIndex] = useState(0)
+  const [loadedAvatars, setLoadedAvatars] = useState<Record<string, boolean>>({})
   const [isAnimating, setIsAnimating] = useState(false)
   const [switchPhase, setSwitchPhase] = useState<'idle' | 'leave' | 'enter'>('idle')
   const [displayedQuote, setDisplayedQuote] = useState(testimonials[0]?.quote || '')
@@ -244,6 +245,8 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
               const isHovered = hoveredIndex === index && !isActive
               const showName = isActive || isHovered
 
+              const isAvatarLoaded = loadedAvatars[testimonial.id]
+
               return (
                 <button
                   aria-pressed={isActive}
@@ -265,11 +268,25 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
                     {testimonial.avatarUrl ? (
                       <Image
                         alt={testimonial.author}
-                        className="h-full w-full object-cover"
+                        className={cn(
+                          'h-full w-full object-cover motion-safe:transition-opacity motion-safe:duration-500 motion-safe:ease-out',
+                          isAvatarLoaded ? 'opacity-100' : 'opacity-0',
+                        )}
                         fill
                         priority={isActive}
                         sizes="48px"
                         src={testimonial.avatarUrl}
+                        onLoad={(event) => {
+                          const markLoaded = () =>
+                            setLoadedAvatars((prev) => ({ ...prev, [testimonial.id]: true }))
+
+                          const img = event.currentTarget
+                          if (img.decode) {
+                            img.decode().then(markLoaded).catch(markLoaded)
+                          } else {
+                            markLoaded()
+                          }
+                        }}
                       />
                     ) : (
                       <span className="flex h-full w-full items-center justify-center text-sm font-normal text-foreground">

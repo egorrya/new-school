@@ -1,8 +1,10 @@
+'use client'
+
 import type { StaticImageData } from 'next/image'
 
 import { cn } from '@/utilities/ui'
 import NextImage from 'next/image'
-import React from 'react'
+import React, { useState } from 'react'
 
 import type { Props as MediaProps } from '../types'
 
@@ -58,6 +60,8 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     onLoad,
   } = props
 
+  const [isLoaded, setIsLoaded] = useState(false)
+
   let width: number | undefined
   let height: number | undefined
   let alt = altFromProps
@@ -85,7 +89,13 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         .join(', ')
 
   return (
-    <picture className={cn(pictureClassName)}>
+    <picture
+      className={cn(
+        pictureClassName,
+        'motion-safe:transition-opacity motion-safe:duration-700 motion-safe:ease-out',
+        isLoaded ? 'opacity-100' : 'opacity-0',
+      )}
+    >
       <NextImage
         alt={alt || ''}
         className={cn(imgClassName)}
@@ -97,7 +107,21 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         priority={priority}
         quality={100}
         loading={loading}
-        onLoad={onLoad}
+        onLoad={(event) => {
+          const markLoaded = () => {
+            setIsLoaded(true)
+            onLoad?.()
+          }
+
+          // Decode off the main thread first so the reveal animation doesn't
+          // stutter on the same frame as a synchronous decode of a large image.
+          const img = event.currentTarget
+          if (img.decode) {
+            img.decode().then(markLoaded).catch(markLoaded)
+          } else {
+            markLoaded()
+          }
+        }}
         sizes={sizes}
         src={src}
         width={!fill ? width : undefined}

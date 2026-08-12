@@ -44,6 +44,11 @@ type PageBlockHeaderProps = {
   titleClassName?: string
   descriptionClassName?: string
   headingLevel?: 1 | 2 | 3 | 4 | 5 | 6
+  titleDuration?: number
+  titleY?: number
+  titleDelay?: number
+  descriptionDelay?: number
+  leading?: React.ReactNode
 }
 
 function renderHeading(
@@ -74,25 +79,50 @@ export function PageBlockHeader({
   titleClassName,
   descriptionClassName,
   headingLevel = 2,
+  titleDuration = 0.47,
+  titleY = 14,
+  titleDelay = 0,
+  descriptionDelay = 0.08,
+  leading,
 }: PageBlockHeaderProps) {
   return (
     <div className={cn('space-y-3', className)}>
       {title ? (
-        <MotionReveal amount={0.35} duration={0.47} margin="0px 0px -25% 0px" y={14}>
-          {renderHeading(
-            headingLevel,
-            cn(
-              'max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl',
-              titleClassName,
-            ),
-            title,
+        <div
+          className={cn(
+            leading &&
+              'flex flex-col items-center gap-3 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:items-center lg:gap-x-3 lg:gap-y-0',
           )}
-        </MotionReveal>
+        >
+          {leading ? (
+            <div className="lg:col-start-1 lg:row-start-1 lg:min-w-0 lg:-translate-x-4 lg:justify-self-end">
+              {leading}
+            </div>
+          ) : null}
+          <MotionReveal
+            amount={0.35}
+            className={leading ? 'lg:col-start-2 lg:row-start-1' : undefined}
+            delay={titleDelay}
+            duration={titleDuration}
+            margin="0px 0px -25% 0px"
+            y={titleY}
+          >
+            {renderHeading(
+              headingLevel,
+              cn(
+                'max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl',
+                titleClassName,
+              ),
+              title,
+            )}
+          </MotionReveal>
+          {leading ? <div aria-hidden="true" className="hidden lg:col-start-3 lg:row-start-1 lg:block" /> : null}
+        </div>
       ) : null}
       {description ? (
         <MotionReveal
           amount={0.35}
-          delay={0.08}
+          delay={descriptionDelay}
           duration={0.47}
           margin="0px 0px -25% 0px"
           y={12}

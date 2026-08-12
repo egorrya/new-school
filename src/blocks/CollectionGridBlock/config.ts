@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { weekdayOptions } from '@/collections/Clubs/scheduleDays'
+
 import { collectionListingPaths } from './collectionListingPaths'
 
 export const CollectionGridBlock: Block = {
@@ -66,8 +68,56 @@ export const CollectionGridBlock: Block = {
       min: 1,
       admin: {
         condition: (_data, siblingData) =>
-          siblingData?.collectionType !== 'galleryAlbums' && siblingData?.collectionType !== 'teachers',
+          siblingData?.collectionType !== 'galleryAlbums' &&
+          siblingData?.collectionType !== 'teachers' &&
+          !siblingData?.manualSelection,
         description: 'Максимум карточек в выдаче.',
+      },
+    },
+    {
+      name: 'manualSelection',
+      type: 'checkbox',
+      label: 'Выбрать программы вручную',
+      defaultValue: false,
+      admin: {
+        condition: (_data, siblingData) => siblingData?.collectionType === 'clubs',
+        description:
+          'Вместо автоматического списка активных программ показать только выбранные ниже — например, кружки по конкретному дню недели.',
+      },
+    },
+    {
+      name: 'items',
+      type: 'relationship',
+      relationTo: 'clubs',
+      hasMany: true,
+      label: 'Программы',
+      admin: {
+        condition: (_data, siblingData) =>
+          siblingData?.collectionType === 'clubs' && Boolean(siblingData?.manualSelection),
+        description: 'Выберите программы, которые нужно показать в этом списке.',
+      },
+    },
+    {
+      name: 'categoryFilter',
+      type: 'relationship',
+      relationTo: 'programCategories',
+      label: 'Категория (фильтр)',
+      admin: {
+        condition: (_data, siblingData) =>
+          siblingData?.collectionType === 'clubs' && !siblingData?.manualSelection,
+        description: 'Показать только программы этой категории. Если не выбрано — все активные программы.',
+      },
+    },
+    {
+      name: 'weekday',
+      type: 'select',
+      label: 'День недели (фильтр)',
+      options: weekdayOptions,
+      admin: {
+        condition: (_data, siblingData) =>
+          siblingData?.collectionType === 'clubs' && !siblingData?.manualSelection,
+        description:
+          'Показать только программы, у которых в поле «Дни занятий» отмечен этот день. Используется, например, для вкладок «Расписание» по дням недели.',
       },
     },
     {

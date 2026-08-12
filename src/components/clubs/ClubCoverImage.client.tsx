@@ -37,7 +37,7 @@ export function ClubCoverImage({ alt, resource, className, position }: ClubCover
 
   return (
     <div
-      className={cn('relative h-48 w-full overflow-hidden rounded-base sm:h-64 lg:h-80', className)}
+      className={cn('relative h-64 w-full overflow-hidden rounded-base sm:h-80 lg:h-112', className)}
       ref={containerRef}
     >
       <motion.div

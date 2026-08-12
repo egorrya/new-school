@@ -50,6 +50,15 @@ export const TabsBlock: Block = {
       },
     },
     {
+      name: 'hideNavigation',
+      type: 'checkbox',
+      label: 'Скрыть навигацию по вкладкам',
+      defaultValue: false,
+      admin: {
+        description: 'Вкладки будут отображаться друг за другом, без переключателя сверху.',
+      },
+    },
+    {
       name: 'tabs',
       type: 'array',
       label: 'Вкладки',

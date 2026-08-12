@@ -8,6 +8,7 @@ import { nestedTabBlocks } from '@/blocks/TabsBlock/config'
 import { defaultLexical } from '@/fields/defaultLexical'
 
 import { clubInfoCardIconOptions } from './clubInfoCardIcons'
+import { weekdayOptions } from './scheduleDays'
 
 export const Clubs: CollectionConfig<'clubs'> = {
   slug: 'clubs',
@@ -33,6 +34,7 @@ export const Clubs: CollectionConfig<'clubs'> = {
     shortDescription: true,
     previewImage: true,
     coverImage: true,
+    linkToCategory: true,
   },
   fields: [
     {
@@ -70,41 +72,6 @@ export const Clubs: CollectionConfig<'clubs'> = {
       },
     },
     {
-      name: 'infoCards',
-      type: 'array',
-      label: 'Мини-карточки',
-      labels: {
-        singular: 'Мини-карточка',
-        plural: 'Мини-карточки',
-      },
-      admin: {
-        description:
-          'Короткие карточки под описанием программы: например возраст, формат занятий, расписание.',
-        initCollapsed: true,
-      },
-      fields: [
-        {
-          name: 'title',
-          type: 'text',
-          label: 'Заголовок',
-          required: true,
-        },
-        {
-          name: 'description',
-          type: 'text',
-          label: 'Описание',
-          required: true,
-        },
-        {
-          name: 'icon',
-          type: 'select',
-          label: 'Иконка',
-          required: true,
-          options: clubInfoCardIconOptions,
-        },
-      ],
-    },
-    {
       name: 'coverImage',
       type: 'upload',
       label: 'Обложка',
@@ -130,6 +97,16 @@ export const Clubs: CollectionConfig<'clubs'> = {
       },
     },
     {
+      name: 'useTabsNavigation',
+      type: 'checkbox',
+      label: 'Показывать переключатель вкладок вместо мини-карточек',
+      defaultValue: false,
+      admin: {
+        description:
+          'Вместо сетки мини-карточек под описанием — закреплённый переключатель вкладок сверху. Подходит, например, для страницы-расписания с вкладками по дням недели.',
+      },
+    },
+    {
       name: 'tabs',
       type: 'array',
       label: 'Вкладки',
@@ -150,6 +127,15 @@ export const Clubs: CollectionConfig<'clubs'> = {
           required: true,
         },
         {
+          name: 'icon',
+          type: 'select',
+          label: 'Иконка',
+          options: clubInfoCardIconOptions,
+          admin: {
+            description: 'Иконка для мини-карточки перехода к этому разделу под описанием программы.',
+          },
+        },
+        {
           name: 'content',
           type: 'richText',
           label: 'Текст',
@@ -168,6 +154,18 @@ export const Clubs: CollectionConfig<'clubs'> = {
       ],
     },
     {
+      name: 'scheduleDays',
+      type: 'select',
+      hasMany: true,
+      label: 'Дни занятий',
+      options: weekdayOptions,
+      admin: {
+        position: 'sidebar',
+        description:
+          'Дни недели, в которые проходят занятия. Кружок автоматически появится в соответствующий день на странице «Расписание».',
+      },
+    },
+    {
       name: 'isActive',
       type: 'checkbox',
       label: 'Показывать на сайте',
@@ -180,6 +178,17 @@ export const Clubs: CollectionConfig<'clubs'> = {
       defaultValue: 0,
       admin: {
         position: 'sidebar',
+      },
+    },
+    {
+      name: 'linkToCategory',
+      type: 'relationship',
+      relationTo: 'programCategories',
+      label: 'Карточка-ссылка на категорию',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Если выбрано, карточка программы и переход по прямой ссылке будут вести на страницу этой категории, а не на страницу программы. Собственное содержание программы (вкладки) при этом не нужно — карточка работает как ссылка.',
       },
     },
   ],

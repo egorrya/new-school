@@ -561,37 +561,96 @@ export interface ScheduleBlock {
    */
   scheduleItems?:
     | {
-        label: string;
         /**
-         * Например: Пн-Пт, 09:00-18:00.
+         * Если выбрано — картинка, название и ссылка подставятся из карточки кружка.
+         */
+        club?: (number | null) | Club;
+        /**
+         * Показывается, если кружок не выбран.
+         */
+        label?: string | null;
+        /**
+         * Например: Пн-Пт, 09:00-18:00 — или время занятия, если выбран кружок.
          */
         value: string;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Например, /programs/raspisanie-kruzhkov — под таблицей появится ссылка на страницу.
+   */
+  viewAllLink?: string | null;
+  viewAllLabel?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'schedule';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "TabsBlock".
+ * via the `definition` "clubs".
  */
-export interface TabsBlock {
+export interface Club {
+  id: number;
+  title: string;
   /**
-   * Опциональный заголовок над вкладками.
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
-  title?: string | null;
+  generateSlug?: boolean | null;
+  slug: string;
   /**
-   * Опциональный текст над вкладками.
+   * Категория программы.
    */
-  description?: string | null;
+  category?: (number | null) | ProgramCategory;
   /**
-   * В каждой вкладке можно добавить текст и вложенные screens, кроме самих вкладок.
+   * Короткий анонс для карточек и списков.
+   */
+  shortDescription?: string | null;
+  /**
+   * Используется в карточках на странице списка программ. Если не указано, используется обложка.
+   */
+  previewImage?: (number | null) | Media;
+  /**
+   * Крупное изображение на странице программы, под мини-карточками.
+   */
+  coverImage?: (number | null) | Media;
+  /**
+   * Широкая обложка обрезается по высоте — выберите, какую часть изображения показывать.
+   */
+  coverImagePosition?: ('top' | 'center' | 'bottom') | null;
+  /**
+   * Вместо сетки мини-карточек под описанием — закреплённый переключатель вкладок сверху. Подходит, например, для страницы-расписания с вкладками по дням недели.
+   */
+  useTabsNavigation?: boolean | null;
+  /**
+   * Содержимое страницы программы: заголовок выводится по центру, а вкладки — под ним. В каждой вкладке можно добавить текст и вложенные screens (расписание, программа занятий, FAQ и т.д.).
    */
   tabs?:
     | {
         title: string;
+        /**
+         * Иконка для мини-карточки перехода к этому разделу под описанием программы.
+         */
+        icon?:
+          | (
+              | 'baby'
+              | 'users'
+              | 'star'
+              | 'calendar-days'
+              | 'clock'
+              | 'graduation-cap'
+              | 'book-open'
+              | 'heart-handshake'
+              | 'sparkles'
+              | 'palette'
+              | 'music'
+              | 'mic'
+              | 'utensils'
+              | 'pen-tool'
+              | 'trophy'
+              | 'award'
+              | 'wallet'
+            )
+          | null;
         content?: {
           root: {
             type: string;
@@ -608,7 +667,7 @@ export interface TabsBlock {
           [k: string]: unknown;
         } | null;
         /**
-         * Можно добавлять любые screens страницы, кроме блока вкладок.
+         * Можно добавлять любые screens, кроме блока вкладок.
          */
         layout?:
           | (
@@ -627,9 +686,47 @@ export interface TabsBlock {
         id?: string | null;
       }[]
     | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'tabs';
+  /**
+   * Дни недели, в которые проходят занятия. Кружок автоматически появится в соответствующий день на странице «Расписание».
+   */
+  scheduleDays?: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday')[] | null;
+  isActive?: boolean | null;
+  sortOrder?: number | null;
+  /**
+   * Если выбрано, карточка программы и переход по прямой ссылке будут вести на страницу этой категории, а не на страницу программы. Собственное содержание программы (вкладки) при этом не нужно — карточка работает как ссылка.
+   */
+  linkToCategory?: (number | null) | ProgramCategory;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programCategories".
+ */
+export interface ProgramCategory {
+  id: number;
+  /**
+   * Используется в карточках и списках категорий. Не влияет на заголовок страницы категории — для него есть отдельное поле ниже.
+   */
+  title: string;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  /**
+   * Выводится как H1 на странице категории (/programs/category/...). Если не заполнено, используется поле «Название».
+   */
+  pageTitle?: string | null;
+  description?: string | null;
+  /**
+   * Используется как фон карточки категории на странице списка программ.
+   */
+  previewImage?: (number | null) | Media;
+  isActive?: boolean | null;
+  sortOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -766,6 +863,22 @@ export interface CollectionGridBlock {
    */
   itemLimit?: number | null;
   /**
+   * Вместо автоматического списка активных программ показать только выбранные ниже — например, кружки по конкретному дню недели.
+   */
+  manualSelection?: boolean | null;
+  /**
+   * Выберите программы, которые нужно показать в этом списке.
+   */
+  items?: (number | Club)[] | null;
+  /**
+   * Показать только программы этой категории. Если не выбрано — все активные программы.
+   */
+  categoryFilter?: (number | null) | ProgramCategory;
+  /**
+   * Показать только программы, у которых в поле «Дни занятий» отмечен этот день. Используется, например, для вкладок «Расписание» по дням недели.
+   */
+  weekday?: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday') | null;
+  /**
    * Выберите конкретный альбом или оставьте пустым, чтобы показать фото из всех альбомов.
    */
   galleryAlbum?: (number | null) | GalleryAlbum;
@@ -843,79 +956,23 @@ export interface CTAFormBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "ContactsBlock".
+ * via the `definition` "TabsBlock".
  */
-export interface ContactsBlock {
+export interface TabsBlock {
+  /**
+   * Опциональный заголовок над вкладками.
+   */
   title?: string | null;
   /**
-   * Короткое пояснение над контактами.
+   * Опциональный текст над вкладками.
    */
   description?: string | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'contacts';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "clubs".
- */
-export interface Club {
-  id: number;
-  title: string;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Вкладки будут отображаться друг за другом, без переключателя сверху.
    */
-  generateSlug?: boolean | null;
-  slug: string;
+  hideNavigation?: boolean | null;
   /**
-   * Категория программы.
-   */
-  category?: (number | null) | ProgramCategory;
-  /**
-   * Короткий анонс для карточек и списков.
-   */
-  shortDescription?: string | null;
-  /**
-   * Используется в карточках на странице списка программ. Если не указано, используется обложка.
-   */
-  previewImage?: (number | null) | Media;
-  /**
-   * Короткие карточки под описанием программы: например возраст, формат занятий, расписание.
-   */
-  infoCards?:
-    | {
-        title: string;
-        description: string;
-        icon:
-          | 'baby'
-          | 'users'
-          | 'star'
-          | 'calendar-days'
-          | 'clock'
-          | 'graduation-cap'
-          | 'book-open'
-          | 'heart-handshake'
-          | 'sparkles'
-          | 'palette'
-          | 'music'
-          | 'mic'
-          | 'utensils'
-          | 'pen-tool'
-          | 'trophy'
-          | 'award';
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Крупное изображение на странице программы, под мини-карточками.
-   */
-  coverImage?: (number | null) | Media;
-  /**
-   * Широкая обложка обрезается по высоте — выберите, какую часть изображения показывать.
-   */
-  coverImagePosition?: ('top' | 'center' | 'bottom') | null;
-  /**
-   * Содержимое страницы программы: заголовок выводится по центру, а вкладки — под ним. В каждой вкладке можно добавить текст и вложенные screens (расписание, программа занятий, FAQ и т.д.).
+   * В каждой вкладке можно добавить текст и вложенные screens, кроме самих вкладок.
    */
   tabs?:
     | {
@@ -936,7 +993,7 @@ export interface Club {
           [k: string]: unknown;
         } | null;
         /**
-         * Можно добавлять любые screens, кроме блока вкладок.
+         * Можно добавлять любые screens страницы, кроме блока вкладок.
          */
         layout?:
           | (
@@ -955,30 +1012,23 @@ export interface Club {
         id?: string | null;
       }[]
     | null;
-  isActive?: boolean | null;
-  sortOrder?: number | null;
-  updatedAt: string;
-  createdAt: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'tabs';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "programCategories".
+ * via the `definition` "ContactsBlock".
  */
-export interface ProgramCategory {
-  id: number;
-  title: string;
+export interface ContactsBlock {
+  title?: string | null;
   /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   * Короткое пояснение над контактами.
    */
-  generateSlug?: boolean | null;
-  slug: string;
   description?: string | null;
-  /**
-   * Используется как фон карточки категории на странице списка программ.
-   */
-  previewImage?: (number | null) | Media;
-  updatedAt: string;
-  createdAt: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'contacts';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1565,10 +1615,13 @@ export interface ScheduleBlockSelect<T extends boolean = true> {
   scheduleItems?:
     | T
     | {
+        club?: T;
         label?: T;
         value?: T;
         id?: T;
       };
+  viewAllLink?: T;
+  viewAllLabel?: T;
   id?: T;
   blockName?: T;
 }
@@ -1579,6 +1632,7 @@ export interface ScheduleBlockSelect<T extends boolean = true> {
 export interface TabsBlockSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  hideNavigation?: T;
   tabs?:
     | T
     | {
@@ -1637,6 +1691,10 @@ export interface CollectionGridBlockSelect<T extends boolean = true> {
   description?: T;
   collectionType?: T;
   itemLimit?: T;
+  manualSelection?: T;
+  items?: T;
+  categoryFilter?: T;
+  weekday?: T;
   galleryAlbum?: T;
   showViewAllButton?: T;
   viewAllButtonLabel?: T;
@@ -1694,20 +1752,14 @@ export interface ClubsSelect<T extends boolean = true> {
   category?: T;
   shortDescription?: T;
   previewImage?: T;
-  infoCards?:
-    | T
-    | {
-        title?: T;
-        description?: T;
-        icon?: T;
-        id?: T;
-      };
   coverImage?: T;
   coverImagePosition?: T;
+  useTabsNavigation?: T;
   tabs?:
     | T
     | {
         title?: T;
+        icon?: T;
         content?: T;
         layout?:
           | T
@@ -1725,8 +1777,10 @@ export interface ClubsSelect<T extends boolean = true> {
             };
         id?: T;
       };
+  scheduleDays?: T;
   isActive?: T;
   sortOrder?: T;
+  linkToCategory?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1738,8 +1792,11 @@ export interface ProgramCategoriesSelect<T extends boolean = true> {
   title?: T;
   generateSlug?: T;
   slug?: T;
+  pageTitle?: T;
   description?: T;
   previewImage?: T;
+  isActive?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

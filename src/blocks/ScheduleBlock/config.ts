@@ -46,21 +46,57 @@ export const ScheduleBlock: Block = {
       },
       fields: [
         {
+          name: 'club',
+          type: 'relationship',
+          relationTo: 'clubs',
+          label: 'Кружок (необязательно)',
+          admin: {
+            description: 'Если выбрано — картинка, название и ссылка подставятся из карточки кружка.',
+          },
+        },
+        {
           name: 'label',
           type: 'text',
           label: 'Подпись',
-          required: true,
+          admin: {
+            condition: (_data, siblingData) => !siblingData?.club,
+            description: 'Показывается, если кружок не выбран.',
+          },
+          validate: (value: string | null | undefined, { siblingData }: { siblingData?: { club?: unknown } }) => {
+            if (!siblingData?.club && !value) {
+              return 'Укажите подпись или выберите кружок.'
+            }
+
+            return true
+          },
         },
         {
           name: 'value',
           type: 'text',
-          label: 'Значение',
+          label: 'Значение / время',
           required: true,
           admin: {
-            description: 'Например: Пн-Пт, 09:00-18:00.',
+            description: 'Например: Пн-Пт, 09:00-18:00 — или время занятия, если выбран кружок.',
           },
         },
       ],
+    },
+    {
+      name: 'viewAllLink',
+      type: 'text',
+      label: 'Ссылка на общее расписание (необязательно)',
+      admin: {
+        description: 'Например, /programs/raspisanie-kruzhkov — под таблицей появится ссылка на страницу.',
+      },
+    },
+    {
+      name: 'viewAllLabel',
+      type: 'text',
+      label: 'Текст ссылки',
+      defaultValue: 'Посмотреть расписание всех кружков',
+      admin: {
+        condition: (_data, siblingData) => Boolean(siblingData?.viewAllLink),
+      },
     },
   ],
 }

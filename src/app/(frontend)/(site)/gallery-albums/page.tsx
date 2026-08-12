@@ -31,7 +31,7 @@ const queryGalleryAlbums = cache(async () => {
     limit: 100,
     pagination: false,
     overrideAccess: false,
-    sort: 'sortOrder,title',
+    sort: ['sortOrder', 'title'],
   })
 
   return result.docs as GalleryAlbum[]

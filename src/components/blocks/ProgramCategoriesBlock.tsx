@@ -32,7 +32,12 @@ async function getProgramCategories(): Promise<ProgramCategory[]> {
     limit: 100,
     overrideAccess: false,
     pagination: false,
-    sort: 'title',
+    sort: ['sortOrder', 'title'],
+    where: {
+      isActive: {
+        equals: true,
+      },
+    },
   })
 
   return result.docs
@@ -107,10 +112,10 @@ export async function ProgramCategoriesBlock({
       spacing="none"
     >
       <PageBlockContainer>
-        <div className={cn(showHeader ? 'space-y-3' : 'space-y-8')}>
+        <div className="space-y-12">
           {showHeader ? (
             <PageBlockHeader
-              className="mx-auto max-w-4xl text-center"
+              className="mx-auto max-w-4xl space-y-5 text-center"
               description={description}
               descriptionClassName="mx-auto max-w-2xl text-center"
               title={title}
@@ -119,7 +124,7 @@ export async function ProgramCategoriesBlock({
           ) : null}
 
           {categories.length > 0 ? (
-            <div className="grid auto-rows-fr grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-6">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
               {categories.map((category, index) => {
                 const color = categoryColors[index % categoryColors.length]
                 const isCenteredLastPair =
@@ -130,12 +135,12 @@ export async function ProgramCategoriesBlock({
                     amount={0.15}
 
                     className={cn('lg:col-span-2', isCenteredLastPair && 'lg:col-start-2')}
-                    delay={index * 0.08}
-                    duration={0.47}
+                    delay={0.25 + index * 0.14}
+                    duration={0.65}
                     key={category.id}
                     margin="0px 0px -10% 0px"
                     once
-                    y={18}
+                    y={22}
                   >
                     <ProgramCategoryCard
                       color={color}

@@ -55,7 +55,7 @@ const getPagesSitemap = unstable_cache(
         limit: 1000,
         pagination: false,
         overrideAccess: false,
-        sort: 'sortOrder,title',
+        sort: ['sortOrder', 'title'],
         where: {
           isActive: {
             equals: true,
@@ -72,7 +72,7 @@ const getPagesSitemap = unstable_cache(
         depth: 0,
         limit: 1000,
         pagination: false,
-        sort: 'sortOrder,title',
+        sort: ['sortOrder', 'title'],
         select: {
           id: true,
           updatedAt: true,

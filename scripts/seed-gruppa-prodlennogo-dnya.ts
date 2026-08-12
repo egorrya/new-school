@@ -152,6 +152,8 @@ async function main() {
       description:
         'Присмотр и занятия для детей школьного возраста в будни после уроков: прогулки, горячее питание, помощь с домашним заданием, чтение и творчество — до самого вечера, без гаджетов.',
       previewImage: media.id,
+      isActive: true,
+      sortOrder: 1,
     } as Record<string, unknown>)
 
     await upsertPublishedDoc(payload, 'clubs', 'slug', 'gruppa-prodlennogo-dnya', {
@@ -164,15 +166,10 @@ async function main() {
       previewImage: media.id,
       coverImage: media.id,
       coverImagePosition: 'top',
-      infoCards: [
-        { title: 'Возраст', description: 'Дети школьного возраста', icon: 'baby' },
-        { title: 'Время работы', description: 'Пн–Пт, 13:00–19:00', icon: 'clock' },
-        { title: 'Группа', description: 'Педагог-воспитатель на 8 детей', icon: 'users' },
-        { title: 'Питание', description: 'Полдник и полноценный ужин', icon: 'utensils' },
-      ],
       tabs: [
         {
-          title: 'Общее описание',
+          title: 'Описание',
+          icon: 'book-open',
           content: makeRichTextMixed([
             {
               type: 'paragraph',
@@ -192,9 +189,6 @@ async function main() {
               text: 'Интересный день в дружественной среде с выполненными уроками и без гаджетов!',
             },
           ]),
-        },
-        {
-          title: 'Для кого',
           layout: [
             {
               blockType: 'audience',
@@ -216,11 +210,6 @@ async function main() {
                 },
               ],
             },
-          ],
-        },
-        {
-          title: 'Программа',
-          layout: [
             {
               blockType: 'program',
               title: 'Чем занимаемся каждый день',
@@ -256,6 +245,7 @@ async function main() {
         },
         {
           title: 'Расписание',
+          icon: 'calendar-days',
           layout: [
             {
               blockType: 'schedule',
@@ -277,6 +267,7 @@ async function main() {
         },
         {
           title: 'Стоимость',
+          icon: 'wallet',
           content: makeRichTextMixed([
             {
               type: 'paragraph',

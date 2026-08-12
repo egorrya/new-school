@@ -14,7 +14,7 @@ export function TitleDescriptionBlock({
 }: TitleDescriptionBlockType & { compactAfter?: boolean }) {
   return (
     <PageBlockSection
-      className={cn(compactAfter && 'pt-8 pb-5 sm:pt-12 sm:pb-5 lg:pt-16 lg:pb-5')}
+      className={cn(compactAfter && 'pt-8 pb-10 sm:pt-12 sm:pb-10 lg:pt-16 lg:pb-12')}
       spacing={compactAfter ? 'none' : 'default'}
     >
       <PageBlockContainer>
@@ -25,6 +25,8 @@ export function TitleDescriptionBlock({
           headingLevel={1}
           title={title}
           titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
+          titleDuration={compactAfter ? 0.9 : undefined}
+          titleY={compactAfter ? 26 : undefined}
         />
       </PageBlockContainer>
     </PageBlockSection>

@@ -12,6 +12,7 @@ type SiteMapEmbedProps = {
 
 export function SiteMapEmbed({ src }: SiteMapEmbedProps) {
   const [isActive, setIsActive] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
 
   if (!src) {
     return null
@@ -19,14 +20,22 @@ export function SiteMapEmbed({ src }: SiteMapEmbedProps) {
 
   return (
     <section className="relative">
-      <MotionReveal amount={0.1} duration={0.275} margin="0px 0px 15% 0px" once y={24}>
+      <MotionReveal amount={0.1} duration={0.275} margin="0px 0px 15% 0px" y={24}>
         <div className="relative left-1/2 h-95 w-screen -translate-x-1/2 overflow-hidden sm:h-110 lg:h-130">
+          {!isLoaded ? (
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 animate-pulse bg-secondary-background"
+            />
+          ) : null}
           <iframe
             className={cn(
-              'absolute inset-0 h-full w-full',
+              'absolute inset-0 h-full w-full motion-safe:transition-opacity motion-safe:duration-700 motion-safe:ease-out',
+              isLoaded ? 'opacity-100' : 'opacity-0',
               isActive ? 'pointer-events-auto' : 'pointer-events-none',
             )}
             loading="lazy"
+            onLoad={() => setIsLoaded(true)}
             referrerPolicy="no-referrer-when-downgrade"
             src={src}
             title="Карта проезда"

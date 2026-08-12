@@ -15,4 +15,5 @@ export const clubInfoCardIconOptions = [
   { label: 'Перо', value: 'pen-tool' },
   { label: 'Кубок', value: 'trophy' },
   { label: 'Медаль', value: 'award' },
+  { label: 'Кошелёк', value: 'wallet' },
 ]

@@ -36,11 +36,11 @@ export const Logo = (props: Props) => {
   const isHeaderVariant = sizeVariant === 'header'
   const baseImageClassName = isHeaderVariant
     ? 'h-full max-h-full w-auto object-contain'
-    : 'h-16 w-auto object-contain sm:h-20 lg:h-24'
+    : 'h-20 w-auto object-contain sm:h-24 lg:h-28'
   const compactImageClassName = isHeaderVariant
     ? 'h-full max-h-full w-auto object-contain'
-    : 'h-12 w-auto object-contain sm:h-14'
-  const expandedTextClassName = isHeaderVariant ? 'text-lg sm:text-xl' : 'text-2xl sm:text-3xl lg:text-4xl'
+    : 'h-14 w-auto object-contain sm:h-16'
+  const expandedTextClassName = isHeaderVariant ? 'text-lg sm:text-xl' : 'text-3xl sm:text-4xl lg:text-5xl'
 
   if (useImageLogo && primaryLogoImage?.url) {
     const hasCompactLogo = Boolean(logoImage?.url && compactLogoImage?.url && compactLogoImage.id !== logoImage.id)

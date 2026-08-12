@@ -5,6 +5,7 @@ import type React from 'react'
 import { LayoutGroup, motion, motionValue, useReducedMotion, type MotionValue } from 'motion/react'
 import { Children, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { getTabsScrollOffset, scrollToTabSection } from '@/utilities/scrollToTabSection'
 import { cn } from '@/utilities/ui'
 
 import { TabsNav } from './TabsNav.client'
@@ -17,6 +18,7 @@ type TabsBlockTab = {
 type TabsBlockClientProps = {
   children: React.ReactNode
   className?: string
+  hideNavigation?: boolean
   panelContainerClassName?: string
   tabs: TabsBlockTab[]
 }
@@ -27,45 +29,22 @@ type PanelMotionValues = {
 }
 
 const SCROLL_ACTIVATION_OFFSET_PX = 25
-const SCROLL_TARGET_GAP_PX = 32
-const PANEL_FADE_ZONE_PX = 480
-// Extra scroll distance the next panel must cover before it starts fading the current one out,
-// so the current tab stays fully visible longer after it has appeared.
-const PANEL_EXIT_HOLD_PX = 400
+// A panel's opacity depends only on how far its own top has scrolled into the viewport
+// (not on its neighbors), so short panels always reach full opacity once comfortably in view.
+// Panels stay fully invisible while still near the bottom edge of the viewport — fade only
+// starts once a panel's top has already scrolled this far up (as a fraction of viewport height).
+const PANEL_REVEAL_START_VIEWPORT_RATIO = 0.85
+// ...and finishes quickly after that, once its top reaches this fraction of the viewport height.
+const PANEL_REVEAL_END_VIEWPORT_RATIO = 0.62
 
 function clamp01(value: number) {
   return Math.min(1, Math.max(0, value))
 }
 
-function getFixedHeaderBottom(rootStyles: CSSStyleDeclaration, rootFontSize: number) {
-  const fixedBottomRaw = rootStyles.getPropertyValue('--site-header-fixed-bottom').trim()
-  const fixedBottom = Number.parseFloat(fixedBottomRaw)
-
-  if (Number.isFinite(fixedBottom) && fixedBottom > 0) {
-    return fixedBottom
-  }
-
-  return (Number.parseFloat(rootStyles.getPropertyValue('--site-header-height')) || 0) * rootFontSize
-}
-
-function getTabsNavHeight(rootStyles: CSSStyleDeclaration) {
-  const tabsNavHeight = Number.parseFloat(
-    rootStyles.getPropertyValue('--site-tabs-nav-height').trim(),
-  )
-
-  return Number.isFinite(tabsNavHeight) ? tabsNavHeight : 0
-}
-
-function getTabsScrollOffset(extraGap = 0) {
-  const rootStyles = window.getComputedStyle(document.documentElement)
-  const rootFontSize = Number.parseFloat(rootStyles.fontSize) || 16
-
-  return getFixedHeaderBottom(rootStyles, rootFontSize) + getTabsNavHeight(rootStyles) + extraGap
-}
-
 export function TabsBlockClient({
   children,
   className,
+  hideNavigation = false,
   panelContainerClassName,
   tabs,
 }: TabsBlockClientProps) {
@@ -116,7 +95,14 @@ export function TabsBlockClient({
       return getTabsScrollOffset(16 + SCROLL_ACTIVATION_OFFSET_PX)
     }
 
-    const updatePanelProgress = (activationLine: number, tops: Array<number | null>) => {
+    const updatePanelProgress = (tops: Array<number | null>) => {
+      const viewportHeight = window.innerHeight
+      const revealStart = viewportHeight * PANEL_REVEAL_START_VIEWPORT_RATIO
+      const revealRange = Math.max(
+        1,
+        revealStart - viewportHeight * PANEL_REVEAL_END_VIEWPORT_RATIO,
+      )
+
       tabs.forEach((tab, index) => {
         const top = tops[index]
         const motionValues = getPanelMotion(tab.id)
@@ -132,15 +118,7 @@ export function TabsBlockClient({
           return
         }
 
-        let progress = clamp01((activationLine + PANEL_FADE_ZONE_PX - top) / PANEL_FADE_ZONE_PX)
-        const nextTop = tops[index + 1]
-
-        if (typeof nextTop === 'number') {
-          const nextProgress = clamp01(
-            (activationLine + PANEL_FADE_ZONE_PX - (nextTop + PANEL_EXIT_HOLD_PX)) / PANEL_FADE_ZONE_PX,
-          )
-          progress = clamp01(progress - nextProgress)
-        }
+        const progress = clamp01((revealStart - top) / revealRange)
 
         motionValues.opacity.set(progress)
         motionValues.y.set((1 - progress) * 10)
@@ -162,7 +140,7 @@ export function TabsBlockClient({
         }
       })
 
-      updatePanelProgress(activationLine, tops)
+      updatePanelProgress(tops)
 
       if (isProgrammaticScrollRef.current) {
         return
@@ -233,19 +211,7 @@ export function TabsBlockClient({
       window.clearTimeout(unlockScrollSyncTimeoutRef.current)
     }
 
-    const section = document.getElementById(nextId)
-
-    if (section) {
-      window.scrollTo({
-        behavior: shouldReduceMotion ? 'auto' : 'smooth',
-        top: Math.max(
-          0,
-          section.getBoundingClientRect().top +
-            window.scrollY -
-            getTabsScrollOffset(SCROLL_TARGET_GAP_PX),
-        ),
-      })
-    }
+    scrollToTabSection(nextId, shouldReduceMotion)
 
     unlockScrollSyncTimeoutRef.current = window.setTimeout(() => {
       isProgrammaticScrollRef.current = false
@@ -254,6 +220,14 @@ export function TabsBlockClient({
     }, shouldReduceMotion ? 0 : 650)
   }
 
+  useEffect(() => {
+    if (!hideNavigation) {
+      return
+    }
+
+    document.documentElement.style.setProperty('--site-tabs-nav-height', '0px')
+  }, [hideNavigation])
+
   if (tabs.length === 0 || panels.length === 0) {
     return null
   }
@@ -261,11 +235,13 @@ export function TabsBlockClient({
   return (
     <LayoutGroup id="tabs-block">
       <div className={cn('space-y-8', className)}>
-        <TabsNav
-          activeId={activeTab?.id ?? tabs[0].id}
-          onTabChange={handleTabChange}
-          tabs={tabs}
-        />
+        {hideNavigation ? null : (
+          <TabsNav
+            activeId={activeTab?.id ?? tabs[0].id}
+            onTabChange={handleTabChange}
+            tabs={tabs}
+          />
+        )}
 
         <div className={cn('space-y-8 sm:pt-4 lg:pt-8', panelContainerClassName)}>
           {panels.map((panel, index) => {
@@ -275,17 +251,14 @@ export function TabsBlockClient({
               return null
             }
 
-            const isActive = tab.id === activeId
             const motionValues = getPanelMotion(tab.id)
 
             return (
               <motion.div
-                aria-hidden={!isActive}
                 className="mt-12 w-full will-change-[transform,opacity] sm:mt-16 first:mt-0"
                 style={{
                   opacity: motionValues.opacity,
                   y: motionValues.y,
-                  pointerEvents: isActive ? 'auto' : 'none',
                 }}
                 key={tab.id}
               >

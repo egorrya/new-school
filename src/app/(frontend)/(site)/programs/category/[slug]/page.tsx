@@ -9,6 +9,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 import { ClubCard } from '@/components/clubs/ClubCard'
+import { BackLink } from '@/components/shared/BackLink'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
@@ -57,7 +58,7 @@ const queryClubsByCategory = cache(async (categoryId: number, draft: boolean) =>
     limit: 100,
     overrideAccess: draft,
     pagination: false,
-    sort: 'sortOrder,title',
+    sort: ['sortOrder', 'title'],
     where: {
       and: [
         {
@@ -103,11 +104,12 @@ export default async function ProgramCategoryPage({ params: paramsPromise }: Arg
       <PageBlockContainer>
         <div className="space-y-8">
           <PageBlockHeader
-            className="mx-auto max-w-4xl text-center"
+            className="mx-auto max-w-4xl space-y-8 text-center"
             description={category.description}
             descriptionClassName="mx-auto max-w-2xl text-center"
             headingLevel={1}
-            title={category.title}
+            leading={<BackLink href="/programs" label="Дополнительные программы" />}
+            title={category.pageTitle || category.title}
             titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
           />
 

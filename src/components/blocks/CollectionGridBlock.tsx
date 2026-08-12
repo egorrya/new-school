@@ -49,13 +49,13 @@ type CollectionDocuments = {
   galleryAlbums: GalleryAlbum
 }
 
-const collectionSorts: Record<CollectionType, string> = {
-  clubs: 'sortOrder,title',
-  news: '-publishedAt',
-  teachers: 'sortOrder',
-  reviews: 'sortOrder',
-  jobs: '-createdAt',
-  galleryAlbums: 'sortOrder',
+const collectionSorts: Record<CollectionType, string[]> = {
+  clubs: ['sortOrder', 'title'],
+  news: ['-publishedAt'],
+  teachers: ['sortOrder'],
+  reviews: ['sortOrder'],
+  jobs: ['-createdAt'],
+  galleryAlbums: ['sortOrder'],
 }
 
 async function getCollectionDocuments<T extends CollectionType>(
@@ -63,6 +63,10 @@ async function getCollectionDocuments<T extends CollectionType>(
   itemLimit: number | null | undefined,
   draft: boolean,
   galleryAlbum?: CollectionGridBlockType['galleryAlbum'],
+  manualSelection?: boolean | null,
+  items?: CollectionGridBlockType['items'],
+  categoryFilter?: CollectionGridBlockType['categoryFilter'],
+  weekday?: CollectionGridBlockType['weekday'],
 ): Promise<CollectionDocuments[T][]> {
   const payload = await getPayload({ config: configPromise })
   const now = new Date().toISOString()
@@ -70,6 +74,36 @@ async function getCollectionDocuments<T extends CollectionType>(
 
   switch (collectionType) {
     case 'clubs': {
+      if (manualSelection) {
+        const itemIds = (items ?? []).map((item) => (typeof item === 'object' ? item.id : item))
+
+        if (itemIds.length === 0) {
+          return []
+        }
+
+        const result = await payload.find({
+          collection: 'clubs',
+          depth: 1,
+          draft,
+          overrideAccess: draft,
+          pagination: false,
+          where: {
+            id: {
+              in: itemIds,
+            },
+          },
+        })
+
+        const docsById = new Map(result.docs.map((doc) => [doc.id, doc]))
+
+        return itemIds
+          .map((id) => docsById.get(id))
+          .filter((doc): doc is NonNullable<typeof doc> => Boolean(doc)) as CollectionDocuments[T][]
+      }
+
+      const categoryFilterId =
+        typeof categoryFilter === 'object' && categoryFilter !== null ? categoryFilter.id : categoryFilter
+
       const result = await payload.find({
         collection: 'clubs',
         depth: 1,
@@ -79,9 +113,15 @@ async function getCollectionDocuments<T extends CollectionType>(
         sort: collectionSorts.clubs,
         pagination: false,
         where: {
-          isActive: {
-            equals: true,
-          },
+          and: [
+            {
+              isActive: {
+                equals: true,
+              },
+            },
+            ...(categoryFilterId ? [{ category: { equals: categoryFilterId } }] : []),
+            ...(weekday ? [{ scheduleDays: { contains: weekday } }] : []),
+          ],
         },
       })
       return result.docs as CollectionDocuments[T][]
@@ -180,13 +220,26 @@ export async function CollectionGridBlock({
   galleryAlbum,
   hideTitle,
   itemLimit,
+  manualSelection,
+  items: manualItems,
+  categoryFilter,
+  weekday,
   showViewAllButton,
   title,
   viewAllButtonLabel,
   insideTabs,
 }: CollectionGridBlockType & { insideTabs?: boolean }) {
   const { isEnabled: draft } = await draftMode()
-  const items = await getCollectionDocuments(collectionType, itemLimit, draft, galleryAlbum)
+  const items = await getCollectionDocuments(
+    collectionType,
+    itemLimit,
+    draft,
+    galleryAlbum,
+    manualSelection,
+    manualItems,
+    categoryFilter,
+    weekday,
+  )
   const gallerySlides =
     collectionType === 'galleryAlbums'
       ? buildGalleryPhotoSlides(items as GalleryAlbum[])
@@ -259,7 +312,11 @@ export async function CollectionGridBlock({
                 className={collectionType === 'jobs' ? 'mx-auto w-fit max-w-full' : undefined}
                 description={
                   collectionType === 'clubs'
-                    ? 'Добавьте хотя бы одну активную программу в Payload, чтобы она появилась в этой сетке.'
+                    ? manualSelection
+                      ? 'Выберите программы в поле «Программы», чтобы они появились в этой сетке.'
+                      : weekday
+                        ? 'Отметьте этот день в поле «Дни занятий» карточки кружка, чтобы он появился здесь.'
+                        : 'Добавьте хотя бы одну активную программу в Payload, чтобы она появилась в этой сетке.'
                     : collectionType === 'news'
                       ? 'Добавьте опубликованные новости в Payload, чтобы они появились в этой сетке.'
                       : collectionType === 'teachers'
@@ -272,7 +329,11 @@ export async function CollectionGridBlock({
                 }
                 title={
                   collectionType === 'clubs'
-                    ? 'Активные программы пока не найдены'
+                    ? manualSelection
+                      ? 'Программы пока не выбраны'
+                      : weekday
+                        ? 'В этот день кружков пока нет'
+                        : 'Активные программы пока не найдены'
                     : collectionType === 'news'
                       ? 'Новостей пока нет'
                       : collectionType === 'teachers'

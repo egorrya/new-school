@@ -16,13 +16,21 @@ import { TabsBlockClient } from './TabsBlock/TabsBlock.client'
 type TabsBlockProps = TabsBlockType & {
   pageUrl: string
   clubId?: number | null
+  hideNavigation?: boolean | null
 }
 
 function hasRichText(data?: DefaultTypedEditorState | null) {
   return Boolean(data?.root?.children?.length)
 }
 
-export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlockProps) {
+export function TabsBlock({
+  title,
+  description,
+  tabs,
+  pageUrl,
+  clubId,
+  hideNavigation,
+}: TabsBlockProps) {
   const tabItems = tabs ?? []
   const tabsNavItems = tabItems.map((tab, index) => ({
     id: `tab-${index}`,
@@ -95,7 +103,11 @@ export function TabsBlock({ title, description, tabs, pageUrl, clubId }: TabsBlo
         ) : null}
 
         {tabItems.length > 0 ? (
-          <TabsBlockClient panelContainerClassName="container" tabs={tabsNavItems}>
+          <TabsBlockClient
+            hideNavigation={Boolean(hideNavigation)}
+            panelContainerClassName="container"
+            tabs={tabsNavItems}
+          >
             {tabPanels}
           </TabsBlockClient>
         ) : (

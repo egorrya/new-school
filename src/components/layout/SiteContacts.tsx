@@ -32,8 +32,8 @@ const staggerContainer: Variants = {
   hidden: {},
   visible: {
     transition: {
-      staggerChildren: 0.2,
-      delayChildren: 0.05,
+      staggerChildren: 0.08,
+      delayChildren: 0.62,
     },
   },
 }
@@ -53,14 +53,14 @@ const contactRevealItemVariants: Variants = {
     opacity: 1,
     y: 0,
     transition: {
-      delay: index * 0.1 + 0.18,
+      delay: index * 0.1 + 0.32,
       duration: 0.47,
       ease: 'easeOut',
     },
   }),
 }
 
-const contactsRevealViewport = { amount: 0.1, margin: '0px 0px 15% 0px', once: true } as const
+const contactsRevealViewport = { amount: 0.35, margin: '0px 0px -25% 0px', once: false } as const
 
 const plainSocialContainerVariants: Variants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
@@ -189,7 +189,6 @@ export function SiteSocialLinks({
 }: SocialLinkProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
-  const shouldSimplifyMotion = shouldReduceMotion || isMobile
   const shouldAnimatePlainMobile = animatePlainMobile && isMobile && !shouldReduceMotion
   const socialLinks: Array<(typeof socialItems)[number] & { href: string }> = []
 
@@ -249,10 +248,10 @@ export function SiteSocialLinks({
     return (
       <motion.div
         className={cn('flex flex-wrap items-center gap-4', className)}
-        initial={shouldSimplifyMotion ? undefined : 'hidden'}
-        variants={shouldSimplifyMotion ? undefined : staggerContainer}
+        initial={shouldReduceMotion ? undefined : 'hidden'}
+        variants={shouldReduceMotion ? undefined : staggerContainer}
         viewport={contactsRevealViewport}
-        whileInView={shouldSimplifyMotion ? undefined : 'visible'}
+        whileInView={shouldReduceMotion ? undefined : 'visible'}
       >
         {socialLinks.map((item) => {
           const Icon = item.icon
@@ -265,7 +264,7 @@ export function SiteSocialLinks({
               key={item.key}
               rel="noopener noreferrer"
               target="_blank"
-              variants={shouldSimplifyMotion ? undefined : staggerItem}
+              variants={shouldReduceMotion ? undefined : staggerItem}
             >
               <Icon aria-hidden="true" className="size-full" />
             </motion.a>
@@ -290,7 +289,6 @@ export function SiteSocialLinks({
 
 export function SiteContacts({ siteSettings, className, variant = 'card' }: SiteContactProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
-  const isMobile = useIsMobileViewport()
   const contactEntries: ContactEntry[] = []
 
   if (siteSettings?.phone) {
@@ -332,7 +330,7 @@ export function SiteContacts({ siteSettings, className, variant = 'card' }: Site
   }
 
   if (variant === 'plain') {
-    const shouldAnimateContactsReveal = !shouldReduceMotion && !isMobile
+    const shouldAnimateContactsReveal = !shouldReduceMotion
 
     return (
       <motion.div

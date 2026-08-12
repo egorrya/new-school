@@ -117,7 +117,7 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
       >
         <div
           ref={scrollContainerRef}
-          className="flex max-w-full overflow-x-auto rounded-full border border-foreground bg-background p-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+          className="flex max-w-full overflow-x-auto rounded-base border border-foreground bg-background p-1.5 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         >
           <nav
             aria-label="Вкладки"
@@ -131,7 +131,7 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
                   key={tab.id}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'relative inline-flex shrink-0 items-center justify-center rounded-full px-5 py-3 text-sm font-medium leading-none transition-colors duration-300 ease-out sm:px-7 sm:py-3.5 sm:text-base',
+                    'relative inline-flex shrink-0 items-center justify-center rounded-base px-5 py-3 text-sm font-medium leading-none transition-colors duration-300 ease-out sm:px-7 sm:py-3.5 sm:text-base',
                     isActive ? 'text-white' : 'text-foreground',
                   )}
                   href={`#${tab.id}`}
@@ -147,7 +147,7 @@ export function TabsNav({ activeId, className, onTabChange, tabs }: TabsNavProps
                   {isActive ? (
                     <motion.span
                       aria-hidden="true"
-                      className="absolute inset-0 rounded-full bg-foreground"
+                      className="absolute inset-0 rounded-base bg-foreground"
                       layoutId="tabs-active-pill"
                       transition={{ type: 'spring', stiffness: 520, damping: 38, mass: 0.75 }}
                     />

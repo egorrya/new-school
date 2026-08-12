@@ -18,6 +18,7 @@ export const ProgramCategories: CollectionConfig<'programCategories'> = {
   },
   admin: {
     group: 'Контент',
+    defaultColumns: ['title', 'isActive', 'sortOrder', 'updatedAt'],
     useAsTitle: 'title',
   },
   fields: [
@@ -26,8 +27,21 @@ export const ProgramCategories: CollectionConfig<'programCategories'> = {
       type: 'text',
       label: 'Название',
       required: true,
+      admin: {
+        description:
+          'Используется в карточках и списках категорий. Не влияет на заголовок страницы категории — для него есть отдельное поле ниже.',
+      },
     },
     slugField(),
+    {
+      name: 'pageTitle',
+      type: 'text',
+      label: 'Заголовок на странице категории',
+      admin: {
+        description:
+          'Выводится как H1 на странице категории (/programs/category/...). Если не заполнено, используется поле «Название».',
+      },
+    },
     {
       name: 'description',
       type: 'textarea',
@@ -40,6 +54,21 @@ export const ProgramCategories: CollectionConfig<'programCategories'> = {
       relationTo: 'media',
       admin: {
         description: 'Используется как фон карточки категории на странице списка программ.',
+      },
+    },
+    {
+      name: 'isActive',
+      type: 'checkbox',
+      label: 'Показывать на странице программ',
+      defaultValue: true,
+    },
+    {
+      name: 'sortOrder',
+      type: 'number',
+      label: 'Порядок',
+      defaultValue: 0,
+      admin: {
+        position: 'sidebar',
       },
     },
   ],
