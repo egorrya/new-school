@@ -9,6 +9,7 @@ import { useId, useState } from 'react'
 
 import { Media } from '@/components/shared/Media'
 import RichText from '@/components/shared/RichText'
+import { modalOverlayClassName } from '@/components/ui/modal'
 
 import { cn } from '@/utilities/ui'
 import { getIsMobileViewportSync, useIsMobileViewport } from '@/utilities/useIsMobileViewport'
@@ -312,14 +313,14 @@ function TeacherDetailModal({
             <DialogPrimitive.Overlay asChild forceMount>
               <motion.div
                 {...presenceMotionProps}
-                className="fixed inset-0 z-60 bg-white/80"
+                className={modalOverlayClassName}
                 variants={shouldReduceMotion ? undefined : overlayVariants}
               />
             </DialogPrimitive.Overlay>
 
             <DialogPrimitive.Content asChild forceMount>
               <motion.div
-                className="fixed inset-x-0 bottom-0 top-[calc(var(--site-header-fixed-bottom,var(--site-header-height,0px))+0.75rem)] z-60 flex items-start justify-center overflow-y-auto p-4 sm:inset-0 sm:items-center sm:p-6"
+                className="fixed inset-x-0 bottom-0 top-[calc(var(--site-header-fixed-bottom,var(--site-header-height,0px))+0.75rem)] z-100 flex items-start justify-center overflow-y-auto p-4 sm:inset-0 sm:items-center sm:p-6"
                 onPointerDown={(event) => {
                   if (event.target === event.currentTarget) {
                     closeModal()
