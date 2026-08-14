@@ -189,6 +189,7 @@ function PhotoRow({
 }
 
 export function TeacherPhotoWall({ photos, names, className }: TeacherPhotoWallProps) {
+  const isMobile = useIsMobileViewport()
   const [hovered, setHovered] = useState(false)
   const rows = useMemo(() => {
     const entries = photos.map((photo, index) => ({ photo, name: names?.[index] }))
@@ -202,22 +203,22 @@ export function TeacherPhotoWall({ photos, names, className }: TeacherPhotoWallP
   return (
     <div
       className={cn('group relative w-full overflow-hidden rounded-base bg-background', className)}
-      onPointerEnter={() => setHovered(true)}
-      onPointerLeave={() => setHovered(false)}
+      onPointerEnter={isMobile ? undefined : () => setHovered(true)}
+      onPointerLeave={isMobile ? undefined : () => setHovered(false)}
     >
       <div
         className={cn(
           'absolute left-1/2 top-1/2 flex h-[170%] w-[170%] flex-col gap-1',
           'opacity-100 transition-transform duration-700 ease-out',
           'transform-[translate(-50%,-50%)_rotate(-25deg)_scale(1.06)]',
-          'group-hover:transform-[translate(-50%,-50%)_rotate(-25deg)_scale(1.1)]',
+          !isMobile && 'group-hover:transform-[translate(-50%,-50%)_rotate(-25deg)_scale(1.1)]',
         )}
       >
         {rows.map((rowEntries, rowIndex) => (
           <div className="min-h-0 flex-1" key={rowIndex}>
             <PhotoRow
               entries={rowEntries}
-              hovered={hovered}
+              hovered={isMobile ? false : hovered}
               offset={rowIndex % 2 === 0}
               reverse={rowIndex % 2 === 1}
             />
@@ -226,7 +227,10 @@ export function TeacherPhotoWall({ photos, names, className }: TeacherPhotoWallP
       </div>
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 ease-out group-hover:opacity-100"
+        className={cn(
+          'pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-700 ease-out',
+          !isMobile && 'group-hover:opacity-100',
+        )}
         style={{
           background:
             'radial-gradient(circle at 0% 0%, var(--background) 0%, transparent 36%), radial-gradient(circle at 100% 100%, var(--background) 0%, transparent 36%)',

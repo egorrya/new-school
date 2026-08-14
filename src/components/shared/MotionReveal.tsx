@@ -25,12 +25,17 @@ type MotionRevealProps = {
   y?: number
 }
 
+// Keep viewport reveals responsive on first paint even when a caller requests
+// a large intersection threshold for a tall element.
+const MAX_VIEWPORT_REVEAL_AMOUNT = 0.08
+const MOBILE_VIEWPORT_MARGIN = '0px 0px -5% 0px'
+
 export function MotionReveal({
   children,
   className,
   delay = 0,
   duration = 0.47,
-  amount = 0.12,
+  amount = MAX_VIEWPORT_REVEAL_AMOUNT,
   margin = '-10% 0px -10% 0px',
   allowMobileMotion = false,
   once = false,
@@ -38,6 +43,9 @@ export function MotionReveal({
 }: MotionRevealProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
+  const viewportAmount = Math.min(amount, MAX_VIEWPORT_REVEAL_AMOUNT)
+  const viewportMargin = isMobile ? MOBILE_VIEWPORT_MARGIN : margin
+  const viewportOnce = isMobile || once
 
   if (shouldReduceMotion) {
     return <div className={cn(className)}>{children}</div>
@@ -70,7 +78,7 @@ export function MotionReveal({
       initial={initialState}
       transition={revealTransition}
       exit={exitState}
-      viewport={{ amount, margin, once }}
+      viewport={{ amount: viewportAmount, margin: viewportMargin, once: viewportOnce }}
       whileInView={visibleState}
     >
       {children}

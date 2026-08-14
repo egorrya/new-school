@@ -154,7 +154,7 @@ export function JobCard({ job, index = 0 }: { job: Job; index?: number }) {
 
   return (
     <MotionReveal delay={index * 0.06} duration={0.4} y={16}>
-      <CollectionCardShell className="transition-transform duration-300 ease-out hover:-translate-y-1">
+      <CollectionCardShell className="transition-transform duration-300 ease-out sm:hover:-translate-y-1">
         <Link
           aria-label={job.title}
           className="group block"
@@ -163,7 +163,7 @@ export function JobCard({ job, index = 0 }: { job: Job; index?: number }) {
           target={isExternal ? '_blank' : undefined}
         >
           <div className="flex items-start justify-between gap-3">
-            <h3 className="font-heading text-2xl leading-[1.1] transition-colors group-hover:text-main">
+            <h3 className="font-heading text-2xl leading-[1.1] transition-colors sm:group-hover:text-main">
               {job.title}
             </h3>
             {isExternal ? (

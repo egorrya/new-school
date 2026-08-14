@@ -70,7 +70,7 @@ export async function TeacherSpotlightBlock({
         <div className="grid grid-cols-1 gap-0 lg:grid-cols-2 lg:items-center">
           <div
             className={cn(
-              'flex flex-col justify-center gap-6 p-6 sm:p-8 lg:p-10',
+              'flex flex-col justify-center gap-6 py-6 sm:p-8 lg:p-10',
               !isImageLeft && 'lg:pr-20',
               isImageLeft && 'lg:order-2',
             )}

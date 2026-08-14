@@ -209,7 +209,7 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
           <Label className="cursor-pointer text-sm leading-snug text-foreground/80" htmlFor="vacancy-consent">
             Даю согласие на обработку персональных данных в соответствии с{' '}
             <a
-              className="underline underline-offset-2 transition-colors hover:text-main"
+              className="underline underline-offset-2 transition-colors sm:hover:text-main"
               href="/personal-data"
               rel="noreferrer"
               target="_blank"

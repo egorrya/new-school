@@ -15,15 +15,11 @@ type FooterRevealProps = {
 
 /**
  * Reference "curtain reveal" mechanic, ported from GSAP ScrollTrigger to
- * motion/react: the footer is genuinely `position: fixed` to the viewport
- * bottom (a fixed element never contributes height to its parent, so the
- * wrapper reserves scroll room explicitly via its measured height). `main`
- * (see layout.tsx, which also renders InfiniteGridBackground as its own
- * scoped-to-main background) is opaque and paints over the fixed footer
- * until it scrolls out of the way — that IS what makes this technique work:
- * `main` is the only thing that ever really "moves away", so it has to be
- * the opaque layer. The footer just needs to stay below `main`'s z-10,
- * which plain document order + z-index:auto already guarantees.
+ * motion/react: from `sm` upward the footer is genuinely `position: fixed`
+ * to the viewport bottom (a fixed element never contributes height to its
+ * parent, so the wrapper reserves scroll room explicitly via its measured
+ * height). On smaller screens it returns to normal document flow: otherwise
+ * a tall footer starts above the viewport and is obscured by the fixed header.
  */
 export function FooterReveal({ className, brand, navigation, legal }: FooterRevealProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
@@ -62,13 +58,13 @@ export function FooterReveal({ className, brand, navigation, legal }: FooterReve
 
   return (
     <div className="relative" ref={wrapperRef} style={{ height: footerHeight || undefined }}>
-      <footer className={cn('fixed inset-x-0 bottom-0', className)} ref={footerRef}>
+      <footer className={cn('relative inset-x-0 bottom-0 sm:fixed', className)} ref={footerRef}>
         <div className="container py-8 sm:py-10 lg:py-12">
           <motion.div
-            className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr_0.9fr]"
+            className="grid gap-8 max-sm:!opacity-100 lg:grid-cols-[1.1fr_0.9fr_0.9fr]"
             style={shouldReduceMotion ? undefined : { opacity }}
           >
-            <div>{brand}</div>
+            <div className="hidden sm:block">{brand}</div>
             <div className="min-w-0 max-w-xs">{navigation}</div>
             <div>{legal}</div>
           </motion.div>
