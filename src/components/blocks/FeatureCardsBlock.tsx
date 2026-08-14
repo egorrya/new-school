@@ -117,7 +117,7 @@ function FeatureCard({
       amount={0.12}
       delay={index * 0.15}
       duration={0.235}
-      margin="0px 0px -25% 0px"
+      margin="-25% 0px -25% 0px"
       y={18}
     >
       <article

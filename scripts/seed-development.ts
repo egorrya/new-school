@@ -429,6 +429,15 @@ function makeTitleDescriptionBlock(title: string, description: string = PLACEHOL
   }
 }
 
+function makeSchoolLifeBlock() {
+  return {
+    blockType: 'schoolLife',
+    title: 'Новая школа\nэто больше чем учеба',
+    description:
+      'Дружелюбная атмосфера, праздники, внеклассные мероприятия, разнообразные экскурсии, литературные гостиные и театральные постановки — все для раскрытия талантов каждого ребенка.',
+  }
+}
+
 const DEFAULT_MARQUEE_ITEMS = [
   'Собираем роботов',
   'Пишем код',
@@ -3586,7 +3595,7 @@ async function seedPages(
           description:
             'Классы до 15 человек, все предметы по ФГОС, углублённое изучение английского по британским программам и подготовка к экзаменам с профессиональными педагогами.',
           primaryButtonLabel: 'Школа',
-          primaryButtonLink: '/shkola',
+          primaryButtonLink: '/school',
           secondaryButtonLabel: 'Дополнительные программы',
           secondaryButtonLink: '/programs',
           images: [
@@ -3610,17 +3619,16 @@ async function seedPages(
       },
     },
     {
-      slug: 'shkola',
+      slug: 'school',
       title: 'Школа',
       pageTitle: 'Школа',
       layout: [
         makeHeroBlock({
-          title: 'Миссия «Новой школы» в г. Королёве',
+          title: 'Миссия Новой школы\nв г. Королеве',
           description:
-            'Качественное образование в дружелюбной обстановке — мы соединили лучшее из современных образовательных технологий, чтобы в школу хотелось возвращаться.',
+            'Это качественное образование в дружелюбной обстановке. Мы соединили лучшее из современных образовательных технологий, чтобы в школу хотелось возвращаться.',
+          primaryButtonLabel: 'Записаться на урок',
           primaryButtonLink: '/contacts',
-          secondaryButtonLabel: 'Дополнительные программы',
-          secondaryButtonLink: '/programs',
           image: media.hero.id,
         }),
         makeMarqueeBlock([
@@ -3640,7 +3648,7 @@ async function seedPages(
         }),
         makeWhyUsFeatureCardsBlock(),
         {
-          blockType: 'textImage',
+          blockType: 'teacherSpotlight',
           title: 'Педагоги Новой школы',
           text: 'Педагоги Новой школы совмещают высокий уровень преподавания с индивидуальным подходом к возможностям каждого ребёнка:',
           items: [
@@ -3656,12 +3664,12 @@ async function seedPages(
           ],
           closingText:
             'Дети, обучающиеся в Новой школе, проходят аттестации в аккредитованной образовательной организации, а мы проводим для них занятия по подготовке к аттестациям и экзаменам в соответствии с ФГОС, совмещая государственные стандарты с альтернативными современными методиками.',
-          image: media.teacherJulia.id,
-          buttonLabel: 'Все преподаватели',
+          buttonLabel: 'Наши преподаватели',
           buttonLink: '/teachers',
           imagePosition: 'right',
         },
-        makeCollectionGridBlock('', 'galleryAlbums', 6, false, ''),
+        makeCollectionGridBlock('Галерея', 'galleryAlbums', 6, false, '', { hideTitle: true }),
+        makeSchoolLifeBlock(),
         makeCollectionGridBlock('О нас говорят', 'reviews', 3, false, ''),
         makeCollectionGridBlock('Новости', 'news', 3, true, ''),
       ],
@@ -4002,9 +4010,9 @@ async function seedHeader(
           : makeUrlNavigationSubLink('Контакты', '/contacts'),
       ],
     },
-    pages.shkola
-      ? makePageNavigationLink('Школа', pages.shkola.id)
-      : makeUrlNavigationLink('Школа', '/shkola'),
+    pages.school
+      ? makePageNavigationLink('Школа', pages.school.id)
+      : makeUrlNavigationLink('Школа', '/school'),
     pages.programs
       ? makePageNavigationLink('Дополнительные программы', pages.programs.id)
       : makeUrlNavigationLink('Дополнительные программы', '/programs'),

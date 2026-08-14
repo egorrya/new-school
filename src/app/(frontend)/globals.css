@@ -78,6 +78,16 @@
   }
 }
 
+@keyframes marqueeReverse {
+  from {
+    transform: translate3d(calc(var(--marquee-distance, 50%) * -1), 0, 0);
+  }
+
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @keyframes orbFloat {
   0% {
     transform: translate3d(0, 0, 0);
@@ -156,8 +166,19 @@
   }
 
   .animate-marquee {
-    animation: marquee var(--marquee-duration, 24s) linear infinite;
+    animation:
+      marquee var(--marquee-duration, 24s) linear infinite,
+      marqueeStart 0.4s ease-out forwards;
     will-change: transform;
+  }
+
+  @keyframes marqueeStart {
+    from {
+      opacity: 0.95;
+    }
+    to {
+      opacity: 1;
+    }
   }
 
   .animate-orb-top-right {

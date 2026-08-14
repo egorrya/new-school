@@ -50,7 +50,9 @@ export function ProgramCategoryCard({
             htmlElement={null}
             imgClassName="h-full w-full object-cover"
             pictureClassName="absolute inset-0 block h-full w-full"
+            quality={75}
             resource={mediaResource}
+            size="(min-width: 640px) 50vw, 100vw"
           />
         ) : null}
 

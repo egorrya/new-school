@@ -23,14 +23,14 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
   },
   admin: {
     group: 'Обращения',
-    defaultColumns: ['name', 'phone', 'formType', 'club', 'consentAccepted', 'createdAt'],
+    defaultColumns: ['name', 'job', 'phone', 'formType', 'consentAccepted', 'createdAt'],
     useAsTitle: 'name',
   },
   fields: [
     {
       name: 'name',
       type: 'text',
-      label: 'Имя',
+      label: 'ФИО / имя',
       required: true,
     },
     {
@@ -56,6 +56,15 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
       options: formTypeOptions,
     },
     {
+      name: 'job',
+      type: 'relationship',
+      relationTo: 'jobs',
+      label: 'Вакансия',
+      admin: {
+        description: 'Заполняется при отклике на конкретную вакансию.',
+      },
+    },
+    {
       name: 'club',
       type: 'relationship',
       relationTo: 'clubs',
@@ -64,6 +73,62 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
         condition: (_, siblingData: { formType?: string } | undefined) => siblingData?.formType === 'club',
         description: 'Заполняется только для заявки из страницы программы.',
       },
+    },
+    {
+      name: 'age',
+      type: 'number',
+      label: 'Возраст',
+      admin: {
+        description: 'Заполняется в анкете соискателя.',
+      },
+    },
+    {
+      name: 'city',
+      type: 'text',
+      label: 'Город проживания',
+    },
+    {
+      name: 'email',
+      type: 'email',
+      label: 'Адрес электронной почты',
+    },
+    {
+      name: 'education',
+      type: 'select',
+      label: 'Образование',
+      options: [
+        {
+          label: 'Высшее',
+          value: 'higher',
+        },
+        {
+          label: 'Среднее специальное',
+          value: 'vocational',
+        },
+      ],
+    },
+    {
+      name: 'educationalInstitution',
+      type: 'textarea',
+      label: 'Учебное заведение и год окончания',
+      admin: {
+        description: 'Укажите название учебного заведения и год окончания, если есть образование.',
+      },
+    },
+    {
+      name: 'specialty',
+      type: 'text',
+      label: 'Специальность по диплому',
+    },
+    {
+      name: 'workExperience',
+      type: 'textarea',
+      label: 'Стаж работы по специальности',
+    },
+    {
+      name: 'about',
+      type: 'textarea',
+      label: 'Дополнительная информация о соискателе',
     },
     {
       name: 'submissionKey',

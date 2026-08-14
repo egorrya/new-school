@@ -6,6 +6,7 @@ import { cache } from 'react'
 import { getPayload } from 'payload'
 
 import { OrgInfoSectionCard } from '@/components/collections/CollectionCards'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
@@ -35,33 +36,36 @@ export default async function OrgInfoPage() {
   const sections = await queryOrgInfoSections()
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <div className="space-y-8">
-          <PageBlockHeader
-            className="mx-auto max-w-4xl text-center"
-            description="Информация публикуется в соответствии с требованиями законодательства Российской Федерации об образовании."
-            descriptionClassName="mx-auto max-w-3xl text-center"
-            headingLevel={1}
-            title="Сведения об образовательной организации"
-            titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
-          />
-
-          {sections.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {sections.map((section, index) => (
-                <OrgInfoSectionCard index={index} key={section.id} section={section} />
-              ))}
-            </div>
-          ) : (
-            <PageBlockEmptyState
-              description="Добавьте разделы сведений об образовательной организации в панели управления."
-              title="Разделы пока не добавлены"
+    <>
+      <PageBlockSection>
+        <PageBlockContainer>
+          <div className="space-y-8">
+            <PageBlockHeader
+              className="mx-auto max-w-4xl text-center"
+              description="Информация публикуется в соответствии с требованиями законодательства Российской Федерации об образовании."
+              descriptionClassName="mx-auto max-w-3xl text-center"
+              headingLevel={1}
+              title="Сведения об образовательной организации"
+              titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
             />
-          )}
-        </div>
-      </PageBlockContainer>
-    </PageBlockSection>
+
+            {sections.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {sections.map((section, index) => (
+                  <OrgInfoSectionCard index={index} key={section.id} section={section} />
+                ))}
+              </div>
+            ) : (
+              <PageBlockEmptyState
+                description="Добавьте разделы сведений об образовательной организации в панели управления."
+                title="Разделы пока не добавлены"
+              />
+            )}
+          </div>
+        </PageBlockContainer>
+      </PageBlockSection>
+      <SiteContactsSection />
+    </>
   )
 }
 

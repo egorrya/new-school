@@ -58,7 +58,7 @@ const morphTransition = { type: 'spring', stiffness: 260, damping: 28 } as const
 // (re)connected observer has no data for a beat, which read as "left the
 // viewport" and replayed the hidden entrance state on cards nowhere near
 // actually leaving view.
-const cardRevealViewport = { amount: 0.12, once: false }
+const cardRevealViewport = { amount: 0.12, margin: '-10% 0px -10% 0px', once: false }
 const cardRevealVisibleState = { opacity: 1, y: 0 }
 
 function cardRevealTransition(index: number) {
@@ -227,12 +227,16 @@ function TeacherCard({
         type="button"
         onClick={isPlaceholder ? undefined : () => onOpen()}
       >
-        <div className="overflow-hidden">
+        <div className="relative overflow-hidden">
           <TeacherPhoto
             className="aspect-4/5 w-full"
-            imgClassName="teacher-photo transition-all duration-500 ease-out group-hover:scale-[1.05] filter-none!"
+            imgClassName="teacher-photo origin-center transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-[1.12] filter-none!"
             layoutId={useSharedLayoutMotion ? photoLayoutId(groupId, teacher.id) : undefined}
             teacher={teacher}
+          />
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-linear-to-t from-[#222]/35 via-transparent to-transparent opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
           />
         </div>
 

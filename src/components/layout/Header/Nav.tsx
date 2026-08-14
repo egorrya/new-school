@@ -10,12 +10,8 @@ import { Button } from '@/components/ui/button'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import { SiteSocialLinks } from '@/components/layout/SiteContacts'
 import { MobileMenu } from './MobileMenu.client'
-import { getDocumentHref } from '@/utilities/getDocumentHref'
+import { resolveHref } from '@/utilities/resolveNavigationHref'
 import { cn } from '@/utilities/ui'
-
-type HeaderNavigationItem = NonNullable<Header['navigationLinks']>[number]
-type HeaderSubNavigationItem = NonNullable<HeaderNavigationItem['subLinks']>[number]
-type SecondaryHeaderItem = NonNullable<Header['secondaryHeaderLinks']>[number]
 
 type NavigationLinksProps = {
   className?: string
@@ -48,24 +44,6 @@ export const headerNavigationItemRevealDuration = 0.42
 const headerActionsStagger = 0.1
 const headerActionsRevealDuration = 0.22
 
-export function resolveHref(
-  link: HeaderNavigationItem['link'] | HeaderSubNavigationItem['link'] | SecondaryHeaderItem['link'],
-) {
-  if (link.type === 'reference') {
-    if (!link.reference) {
-      return ''
-    }
-
-    const reference = link.reference.value
-
-    if (reference && typeof reference === 'object' && 'slug' in reference) {
-      return getDocumentHref(link.reference.relationTo, reference.slug)
-    }
-  }
-
-  return link.url?.trim() || ''
-}
-
 function NavigationLinks({
   className,
   header,
@@ -81,7 +59,10 @@ function NavigationLinks({
   return (
     <nav
       aria-label="Основное меню"
-      className={cn('pointer-events-auto flex w-max flex-nowrap items-center gap-5 lg:gap-6', className)}
+      className={cn(
+        'pointer-events-auto flex w-max flex-nowrap items-center gap-5 lg:gap-6',
+        className,
+      )}
     >
       {navigationLinks.map((item, index) => {
         const href = resolveHref(item.link)
@@ -257,14 +238,23 @@ export function HeaderNavActions({
           whileInView={revealWhileInView}
           style={revealStyle}
         >
-          <MobileMenu header={header} onOpenChange={onMenuOpenChange} open={menuOpen} siteSettings={siteSettings} />
+          <MobileMenu
+            header={header}
+            onOpenChange={onMenuOpenChange}
+            open={menuOpen}
+            siteSettings={siteSettings}
+          />
         </motion.div>
       </div>
     </div>
   )
 }
 
-export function SecondaryHeaderLinks({ className, header, siteSettings }: SecondaryHeaderLinksProps) {
+export function SecondaryHeaderLinks({
+  className,
+  header,
+  siteSettings,
+}: SecondaryHeaderLinksProps) {
   const secondaryLinks = header.secondaryHeaderLinks ?? []
 
   return (

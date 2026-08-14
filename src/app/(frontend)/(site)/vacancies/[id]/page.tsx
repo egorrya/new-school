@@ -92,11 +92,16 @@ export default async function JobDetailPage({ params: paramsPromise }: Args) {
             </MotionReveal>
           ) : null}
 
-          <MotionReveal delay={0.24} duration={0.47} y={18}>
-            <Button asChild variant="neutral">
-              <Link href="/vacancies">Ко всем вакансиям</Link>
-            </Button>
-          </MotionReveal>
+            <MotionReveal delay={0.24} duration={0.47} y={18}>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild>
+                  <Link href={`/vacancies?job=${job.id}`}>Откликнуться на вакансию</Link>
+                </Button>
+                <Button asChild variant="neutral">
+                  <Link href="/vacancies">Ко всем вакансиям</Link>
+                </Button>
+              </div>
+            </MotionReveal>
         </article>
       </PageBlockContainer>
     </PageBlockSection>

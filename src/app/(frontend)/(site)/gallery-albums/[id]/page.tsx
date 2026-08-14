@@ -11,6 +11,7 @@ import { isMediaDocument } from '@/components/collections/CollectionCards'
 import { GalleryAlbumsIntro } from '@/components/collections/GalleryAlbumsIntro'
 import { GalleryPhotoSlider } from '@/components/collections/GalleryPhotoSlider'
 import { buildGalleryPhotoSlides } from '@/components/collections/galleryPhotoSlides'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import {
@@ -68,42 +69,45 @@ export default async function GalleryAlbumDetailPage({ params: paramsPromise }: 
   const slides = buildGalleryPhotoSlides([album])
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <PageBlockSurface className="bg-card p-6 sm:p-8 lg:p-10">
-          <article className="space-y-8">
-            <div className="space-y-3">
-              <Badge variant="neutral">Альбом</Badge>
-              <GalleryAlbumsIntro description={album.description} title={album.title} />
-              <Badge variant="neutral">{images.length} фото</Badge>
-            </div>
+    <>
+      <PageBlockSection>
+        <PageBlockContainer>
+          <PageBlockSurface className="bg-card p-6 sm:p-8 lg:p-10">
+            <article className="space-y-8">
+              <div className="space-y-3">
+                <Badge variant="neutral">Альбом</Badge>
+                <GalleryAlbumsIntro description={album.description} title={album.title} />
+                <Badge variant="neutral">{images.length} фото</Badge>
+              </div>
 
-            {images.length > 0 ? (
-              <GalleryPhotoSlider slides={slides} />
-            ) : (
-              <div className="space-y-4">
-                <PageBlockEmptyState
-                  description="Добавьте фотографии в альбом, чтобы он отображался здесь."
-                  title="Фотографии пока не добавлены"
-                />
+              {images.length > 0 ? (
+                <GalleryPhotoSlider slides={slides} />
+              ) : (
+                <div className="space-y-4">
+                  <PageBlockEmptyState
+                    description="Добавьте фотографии в альбом, чтобы он отображался здесь."
+                    title="Фотографии пока не добавлены"
+                  />
+                  <Button asChild variant="neutral">
+                    <Link href="/gallery-albums">К альбомам</Link>
+                  </Button>
+                </div>
+              )}
+
+              <div className="flex flex-wrap gap-3">
                 <Button asChild variant="neutral">
                   <Link href="/gallery-albums">К альбомам</Link>
                 </Button>
+                <Button asChild>
+                  <Link href="/">На главную</Link>
+                </Button>
               </div>
-            )}
-
-            <div className="flex flex-wrap gap-3">
-              <Button asChild variant="neutral">
-                <Link href="/gallery-albums">К альбомам</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/">На главную</Link>
-              </Button>
-            </div>
-          </article>
-        </PageBlockSurface>
-      </PageBlockContainer>
-    </PageBlockSection>
+            </article>
+          </PageBlockSurface>
+        </PageBlockContainer>
+      </PageBlockSection>
+      <SiteContactsSection />
+    </>
   )
 }
 

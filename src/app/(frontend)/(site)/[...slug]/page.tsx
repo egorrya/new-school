@@ -1,16 +1,16 @@
 import type { Metadata } from 'next'
 
-import configPromise from '@payload-config'
-import type { Page as PageDocument, Redirect } from '@/payload-types'
+import type { Redirect } from '@/payload-types'
+import { AboutLinksBlock } from '@/components/blocks/AboutLinksBlock'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { generateMeta } from '@/lib/generateMeta'
 import { getDocumentHref } from '@/utilities/getDocumentHref'
 import { getCachedDocument } from '@/utilities/getDocument'
+import { queryPageBySlug } from '@/utilities/getPageBySlug'
 import { getCachedRedirects } from '@/utilities/getRedirects'
 import { getServerSideURL } from '@/utilities/getURL'
-import { draftMode } from 'next/headers'
 import { notFound, redirect } from 'next/navigation'
-import { getPayload } from 'payload'
 import { cache } from 'react'
 
 export const dynamic = 'force-dynamic'
@@ -25,32 +25,6 @@ type Args = {
 
 const resolveSlug = (params?: RouteParams | null) => params?.slug?.join('/') || 'home'
 
-const queryPageBySlug = cache(async (slug: string) => {
-  try {
-    const { isEnabled: draft } = await draftMode()
-
-    const payload = await getPayload({ config: configPromise })
-
-    const result = await payload.find({
-      collection: 'pages',
-      draft,
-      depth: 2,
-      limit: 1,
-      pagination: false,
-      overrideAccess: draft,
-      where: {
-        slug: {
-          equals: slug,
-        },
-      },
-    })
-
-    return (result.docs?.[0] as PageDocument | undefined) || null
-  } catch {
-    return null
-  }
-})
-
 const resolveRedirectUrl = cache(async (url: string) => {
   const redirects = (await getCachedRedirects()()) as Redirect[]
   const redirectItem = redirects.find((item) => item.from === url)
@@ -63,23 +37,19 @@ const resolveRedirectUrl = cache(async (url: string) => {
     return redirectItem.to.url
   }
 
-  const reference = redirectItem.to?.reference as
-    | {
-        relationTo: Parameters<typeof getCachedDocument>[0]
-        value?: string | { slug?: string | null } | null
-      }
-    | null
+  const reference = redirectItem.to?.reference as {
+    relationTo: Parameters<typeof getCachedDocument>[0]
+    value?: string | { slug?: string | null } | null
+  } | null
 
   if (!reference) {
     return null
   }
 
   if (typeof reference.value === 'string') {
-    const document = (await getCachedDocument(reference.relationTo, reference.value)()) as
-      | {
-          slug?: string | null
-        }
-      | null
+    const document = (await getCachedDocument(reference.relationTo, reference.value)()) as {
+      slug?: string | null
+    } | null
 
     return getDocumentHref(reference.relationTo, document?.slug)
   }
@@ -103,10 +73,20 @@ export default async function Page({ params: paramsPromise }: Args) {
     notFound()
   }
 
+  const isHome = slug === 'home'
+  const layout = page.layout ?? []
+  const heroBlock = isHome ? layout[0] : undefined
+  const remainingBlocks = heroBlock ? layout.slice(1) : layout
+
   return (
-    <article className={slug === 'contacts' ? undefined : 'pb-12 sm:pb-16'}>
-      <RenderBlocks blocks={page.layout} pageUrl={pageUrl} />
-    </article>
+    <>
+      <article className={slug === 'contacts' ? undefined : 'pb-12 sm:pb-16'}>
+        {heroBlock ? <RenderBlocks blocks={[heroBlock]} pageUrl={pageUrl} /> : null}
+        {isHome ? <AboutLinksBlock /> : null}
+        <RenderBlocks blocks={remainingBlocks} pageUrl={pageUrl} />
+      </article>
+      {slug !== 'contacts' && !isHome ? <SiteContactsSection /> : null}
+    </>
   )
 }
 

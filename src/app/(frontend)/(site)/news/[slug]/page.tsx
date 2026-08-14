@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { formatRussianDate } from '@/components/collections/CollectionCards'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import RichText from '@/components/shared/RichText'
@@ -73,57 +74,58 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
   }
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <article className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-          <MotionReveal duration={0.47} y={18}>
-            <MediaFrame
-              alt={news.title}
-              aspectClassName="aspect-[4/3]"
-              fallbackImageSrc="/seed-media/seed-banner-1.svg"
-              priority
-              resource={news.coverImage}
-            />
-          </MotionReveal>
+    <>
+      <PageBlockSection>
+        <PageBlockContainer>
+          <article className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+            <MotionReveal duration={0.47} y={18}>
+              <MediaFrame
+                alt={news.title}
+                aspectClassName="aspect-[4/3]"
+                fallbackImageSrc="/seed-media/seed-banner-1.svg"
+                priority
+                resource={news.coverImage}
+              />
+            </MotionReveal>
 
-          <div className="space-y-6">
-            <div className="space-y-3">
-              <MotionReveal delay={0.08} duration={0.47} y={18}>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge variant="neutral">{formatRussianDate(news.publishedAt)}</Badge>
+            <div className="space-y-6">
+              <div className="space-y-3">
+                <MotionReveal delay={0.08} duration={0.47} y={18}>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="neutral">{formatRussianDate(news.publishedAt)}</Badge>
+                  </div>
+                </MotionReveal>
+                <MotionReveal delay={0.16} duration={0.47} y={18}>
+                  <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">{news.title}</h1>
+                </MotionReveal>
+              </div>
+
+              <MotionReveal delay={0.24} duration={0.47} y={18}>
+                <div className="space-y-3">
+                  {news.content ? (
+                    <RichText data={news.content} enableGutter={false} enableProse={true} />
+                  ) : (
+                    <PageBlockEmptyState
+                      description="Добавьте текст новости в Payload, чтобы эта страница стала содержательнее."
+                      title="Текст новости пока не добавлен"
+                    />
+                  )}
                 </div>
               </MotionReveal>
-              <MotionReveal delay={0.16} duration={0.47} y={18}>
-                <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">
-                  {news.title}
-                </h1>
+
+              <MotionReveal delay={0.32} duration={0.47} y={18}>
+                <div className="flex flex-wrap gap-3">
+                  <Button asChild variant="neutral">
+                    <Link href="/news">К новостям</Link>
+                  </Button>
+                </div>
               </MotionReveal>
             </div>
-
-            <MotionReveal delay={0.24} duration={0.47} y={18}>
-              <div className="space-y-3">
-                {news.content ? (
-                  <RichText data={news.content} enableGutter={false} enableProse={true} />
-                ) : (
-                  <PageBlockEmptyState
-                    description="Добавьте текст новости в Payload, чтобы эта страница стала содержательнее."
-                    title="Текст новости пока не добавлен"
-                  />
-                )}
-              </div>
-            </MotionReveal>
-
-            <MotionReveal delay={0.32} duration={0.47} y={18}>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild variant="neutral">
-                  <Link href="/news">К новостям</Link>
-                </Button>
-              </div>
-            </MotionReveal>
-          </div>
-        </article>
-      </PageBlockContainer>
-    </PageBlockSection>
+          </article>
+        </PageBlockContainer>
+      </PageBlockSection>
+      <SiteContactsSection />
+    </>
   )
 }
 

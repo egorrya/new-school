@@ -60,7 +60,7 @@ const contactRevealItemVariants: Variants = {
   }),
 }
 
-const contactsRevealViewport = { amount: 0.12, margin: '0px 0px -10% 0px', once: false } as const
+const contactsRevealViewport = { amount: 0.12, margin: '-10% 0px -10% 0px', once: false } as const
 
 const plainSocialContainerVariants: Variants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },

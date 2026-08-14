@@ -12,8 +12,10 @@ import { MarqueeBlock } from './MarqueeBlock/config'
 import { ProgramBlock } from './ProgramBlock/config'
 import { ProgramCategoriesBlock } from './ProgramCategoriesBlock/config'
 import { ScheduleBlock } from './ScheduleBlock/config'
+import { SchoolLifeBlock } from './SchoolLifeBlock/config'
 import { TabsBlock } from './TabsBlock/config'
 import { TeacherListBlock } from './TeacherListBlock/config'
+import { TeacherSpotlightBlock } from './TeacherSpotlightBlock/config'
 import { TestimonialsBlock } from './TestimonialsBlock/config'
 import { TextImageBlock } from './TextImageBlock/config'
 import { TitleDescriptionBlock } from './TitleDescriptionBlock/config'
@@ -31,8 +33,10 @@ export {
   ProgramBlock,
   ProgramCategoriesBlock,
   ScheduleBlock,
+  SchoolLifeBlock,
   TabsBlock,
   TeacherListBlock,
+  TeacherSpotlightBlock,
   TestimonialsBlock,
   TextImageBlock,
   TitleDescriptionBlock,
@@ -49,8 +53,10 @@ export const pageBlocks: Block[] = [
   ProgramBlock,
   ProgramCategoriesBlock,
   ScheduleBlock,
+  SchoolLifeBlock,
   TabsBlock,
   TeacherListBlock,
+  TeacherSpotlightBlock,
   TestimonialsBlock,
   CollectionGridBlock,
   FaqBlock,

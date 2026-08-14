@@ -12,8 +12,13 @@ import { TabsBlock } from '@/components/blocks/TabsBlock'
 import { BackLink } from '@/components/shared/BackLink'
 import { ClubCoverImage } from '@/components/clubs/ClubCoverImage.client'
 import { ClubTabsNavCards } from '@/components/clubs/ClubTabsNavCards.client'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { MotionReveal } from '@/components/shared/MotionReveal'
-import { PageBlockContainer, PageBlockHeader, PageBlockSection } from '@/components/shared/PageBlock'
+import {
+  PageBlockContainer,
+  PageBlockHeader,
+  PageBlockSection,
+} from '@/components/shared/PageBlock'
 import { generateMeta } from '@/lib/generateMeta'
 import { getDocumentHref } from '@/utilities/getDocumentHref'
 import { getServerSideURL } from '@/utilities/getURL'
@@ -100,7 +105,9 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
   }
 
   const linkedCategory =
-    typeof club.linkToCategory === 'object' && club.linkToCategory !== null ? club.linkToCategory : null
+    typeof club.linkToCategory === 'object' && club.linkToCategory !== null
+      ? club.linkToCategory
+      : null
 
   if (linkedCategory) {
     redirect(getDocumentHref('programCategories', linkedCategory.slug))
@@ -109,7 +116,8 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
   const clubPageUrl = new URL(`/programs/${club.slug}`, getServerSideURL()).toString()
   const hasCoverImage = typeof club.coverImage === 'object' && club.coverImage !== null
-  const category = typeof club.category === 'object' && club.category !== null ? club.category : null
+  const category =
+    typeof club.category === 'object' && club.category !== null ? club.category : null
   const categoryClubCount = category ? await queryCategoryClubCount(category.id, draft) : 0
   const showTabsNav = Boolean(club.useTabsNavigation)
 
@@ -119,7 +127,7 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
   const categoryBadge = customBackLinkHref ? (
     <BackLink href={customBackLinkHref} label={club.customBackLink?.label || 'На главную'} />
   ) : isSchoolCategory ? (
-    <BackLink href="/" label="На главную" />
+    <BackLink href="/school" label="Школа" />
   ) : category ? (
     categoryClubCount > 1 ? (
       <BackLink href={getDocumentHref('programCategories', category.slug)} label={category.title} />
@@ -167,6 +175,8 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
         tabs={club.tabs}
         title={null}
       />
+
+      <SiteContactsSection />
     </>
   )
 }

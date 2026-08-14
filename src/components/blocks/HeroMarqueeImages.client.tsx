@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from 'react'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 
 import type { Media as MediaType } from '@/payload-types'
 
@@ -21,31 +22,30 @@ type HeroMarqueeImagesProps = {
   className?: string
 }
 
+const GALLERY_START_DELAY = 0.95
+
 export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps) {
   const isMobile = useIsMobileViewport()
+  const shouldReduceMotion = useReducedMotion() ?? false
   const containerRef = useRef<HTMLDivElement | null>(null)
   const segmentRef = useRef<HTMLDivElement | null>(null)
   const [repeatCount, setRepeatCount] = useState(minRepeatCount)
   const [segmentWidth, setSegmentWidth] = useState<number | null>(null)
-  const [containerWidth, setContainerWidth] = useState<number | null>(null)
-  const [introStarted, setIntroStarted] = useState(false)
-  const [introDone, setIntroDone] = useState(false)
-  const [skipIntro, setSkipIntro] = useState(false)
+  const [galleryVisible, setGalleryVisible] = useState(false)
 
   const imagesKey = images.map((image) => image.id).join('')
   const marqueeDuration = isMobile ? 28 : 36
+  const galleryIsVisible = galleryVisible || shouldReduceMotion
 
   useEffect(() => {
-    if (typeof window === 'undefined') {
+    if (typeof window === 'undefined' || shouldReduceMotion) {
       return
     }
 
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setSkipIntro(true)
-      setIntroStarted(true)
-      setIntroDone(true)
-    }
-  }, [])
+    const timer = window.setTimeout(() => setGalleryVisible(true), GALLERY_START_DELAY * 1000)
+
+    return () => window.clearTimeout(timer)
+  }, [shouldReduceMotion])
 
   useLayoutEffect(() => {
     const container = containerRef.current
@@ -74,11 +74,6 @@ export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps)
           ? current
           : nextSegmentWidth,
       )
-      setContainerWidth((current) =>
-        current !== null && Math.abs(current - nextContainerWidth) < 0.5
-          ? current
-          : nextContainerWidth,
-      )
     }
 
     measure()
@@ -92,49 +87,34 @@ export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps)
     }
   }, [imagesKey])
 
-  // Start the entrance slide only once we know the real container width, so it
-  // travels at the exact same px/s speed as the infinite loop that follows it.
-  useEffect(() => {
-    if (skipIntro || introStarted || containerWidth === null || segmentWidth === null) {
-      return
-    }
-
-    const raf = requestAnimationFrame(() => setIntroStarted(true))
-    return () => cancelAnimationFrame(raf)
-  }, [skipIntro, introStarted, containerWidth, segmentWidth])
-
-  const speed = segmentWidth ? segmentWidth / marqueeDuration : null
-  const introDuration = speed && containerWidth ? containerWidth / speed : marqueeDuration * 0.4
-
   const marqueeStyle: MarqueeStyle = {
     '--marquee-duration': `${marqueeDuration}s`,
     ...(segmentWidth ? { '--marquee-distance': `${segmentWidth}px` } : {}),
-    ...(!introDone
-      ? {
-          transform: introStarted ? 'translate3d(0, 0, 0)' : 'translate3d(100vw, 0, 0)',
-          transition: introStarted ? `transform ${introDuration}s linear` : undefined,
-        }
-      : {}),
   }
 
   return (
-    <div
+    <motion.div
       className={cn(
         'overflow-x-hidden py-2 mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] sm:py-3',
         className,
       )}
+      animate={
+        galleryIsVisible
+          ? { opacity: 1, y: 0 }
+          : { opacity: 0, y: 6 }
+      }
+      initial={shouldReduceMotion ? false : { opacity: 0, y: 6 }}
       ref={containerRef}
+      transition={{
+        duration: shouldReduceMotion ? 0 : 1.15,
+        ease: [0.25, 0.1, 0.25, 1],
+      }}
     >
       <div
         className={cn(
           'flex w-max min-w-full items-stretch gap-1 motion-reduce:animate-none sm:gap-2',
-          introDone && 'animate-marquee',
+          'animate-marquee',
         )}
-        onTransitionEnd={(event) => {
-          if (event.propertyName === 'transform' && introStarted && !introDone) {
-            setIntroDone(true)
-          }
-        }}
         style={marqueeStyle}
       >
         {Array.from({ length: repeatCount }).map((_, copyIndex) => (
@@ -144,25 +124,28 @@ export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps)
             key={copyIndex}
             ref={copyIndex === 0 ? segmentRef : undefined}
           >
-            {images.map((image, index) => (
-              <div
-                className="h-44 shrink-0 overflow-hidden rounded-base shadow-shadow sm:h-56 lg:h-72"
-                key={`${copyIndex}-${image.id}-${index}`}
-              >
-                <Media
-                  className="h-full"
-                  imgClassName="h-full w-auto object-contain"
-                  loading={copyIndex === 0 ? 'eager' : 'lazy'}
-                  priority={copyIndex === 0 && index < 2}
-                  quality={75}
-                  resource={image}
-                  size="(max-width: 640px) 200px, (max-width: 1024px) 260px, 340px"
-                />
-              </div>
-            ))}
+            {images.map((image, index) => {
+              return (
+                <div
+                  className="h-44 shrink-0 overflow-hidden rounded-base shadow-shadow sm:h-56 lg:h-72"
+                  key={`${copyIndex}-${image.id}-${index}`}
+                >
+                  <Media
+                    className="h-full"
+                    disableFadeIn
+                    imgClassName="h-full w-auto object-contain"
+                    loading={copyIndex === 0 ? 'eager' : 'lazy'}
+                    priority={copyIndex === 0 && index < 2}
+                    quality={75}
+                    resource={image}
+                    size="(max-width: 640px) 200px, (max-width: 1024px) 260px, 340px"
+                  />
+                </div>
+              )
+            })}
           </div>
         ))}
       </div>
-    </div>
+    </motion.div>
   )
 }

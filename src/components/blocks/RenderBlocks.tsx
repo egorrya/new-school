@@ -14,8 +14,10 @@ import { MarqueeBlock } from './MarqueeBlock'
 import { ProgramBlock } from './ProgramBlock'
 import { ProgramCategoriesBlock } from './ProgramCategoriesBlock'
 import { ScheduleBlock } from './ScheduleBlock'
+import { SchoolLifeBlock } from './SchoolLifeBlock'
 import { TabsBlock } from './TabsBlock'
 import { TeacherListBlock } from './TeacherListBlock'
+import { TeacherSpotlightBlock } from './TeacherSpotlightBlock'
 import { TestimonialsBlock } from './TestimonialsBlock'
 import { TextImageBlock } from './TextImageBlock'
 import { TitleDescriptionBlock } from './TitleDescriptionBlock'
@@ -74,10 +76,14 @@ function renderBlock(
       )
     case 'schedule':
       return <ScheduleBlock {...block} insideTabs={insideTabs} />
+    case 'schoolLife':
+      return <SchoolLifeBlock {...block} />
     case 'tabs':
       return <TabsBlock {...block} clubId={clubId} pageUrl={pageUrl} />
     case 'teacherList':
       return <TeacherListBlock {...block} insideTabs={insideTabs} />
+    case 'teacherSpotlight':
+      return <TeacherSpotlightBlock {...block} insideTabs={insideTabs} />
     case 'testimonials':
       return <TestimonialsBlock {...block} insideTabs={insideTabs} />
     case 'collectionGrid':

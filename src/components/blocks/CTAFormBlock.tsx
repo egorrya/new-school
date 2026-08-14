@@ -193,7 +193,7 @@ export async function CTAFormBlock({
   return (
     <PageBlockSection>
       <PageBlockContainer container={!insideTabs}>
-        <MotionReveal amount={0.1} duration={0.235} margin="0px 0px 15% 0px" y={18}>
+        <MotionReveal amount={0.1} duration={0.235} margin="-15% 0px -15% 0px" y={18}>
           <div className={cn('grid items-center gap-0 overflow-hidden', !clubId && 'lg:grid-cols-12')}>
             {!clubId ? (
               <div className="py-6 sm:p-8 lg:col-span-7 lg:p-10">

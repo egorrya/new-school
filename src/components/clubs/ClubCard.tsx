@@ -27,9 +27,26 @@ const weekdayPills = [
   { color: '#1E9C67', label: 'Вс' },
 ]
 
-function ScheduleCardLink({ club, className, href }: { club: Club; className?: string; href: string }) {
+function ScheduleCardLink({
+  club,
+  className,
+  href,
+  index = 0,
+}: {
+  club: Club
+  className?: string
+  href: string
+  index?: number
+}) {
   return (
-    <MotionReveal className={cn('h-full', className)} duration={0.47} y={18}>
+    <MotionReveal
+      amount={0.15}
+      className={cn('h-full', className)}
+      delay={index * 0.08}
+      duration={0.47}
+      margin="-10% 0px -10% 0px"
+      y={18}
+    >
       <Link
         aria-label={club.title}
         className="group relative flex h-full min-h-72 flex-col overflow-hidden rounded-base bg-[linear-gradient(150deg,#06336f_0%,#0d4590_50%,#2266B8_100%)] p-6 text-white shadow-shadow transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2 sm:p-7"
@@ -95,11 +112,18 @@ export function ClubCard({ club, priority, index = 0, className }: ClubCardProps
   const hasOwnCover = Boolean(club.previewImage ?? club.coverImage)
 
   if (club.slug === SCHEDULE_CARD_SLUG && !hasOwnCover) {
-    return <ScheduleCardLink className={className} club={club} href={href} />
+    return <ScheduleCardLink className={className} club={club} href={href} index={index} />
   }
 
   return (
-    <MotionReveal className={className} delay={index * 0.08} duration={0.47} y={18}>
+    <MotionReveal
+      amount={0.15}
+      className={className}
+      delay={index * 0.08}
+      duration={0.47}
+      margin="-10% 0px -10% 0px"
+      y={18}
+    >
       <Link
         aria-label={club.title}
         className="group flex h-full flex-col space-y-3 pb-4 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-2"
@@ -111,7 +135,9 @@ export function ClubCard({ club, priority, index = 0, className }: ClubCardProps
           fallbackImageSrc="/seed-media/seed-banner-1.svg"
           imageClassName="transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-105"
           priority={priority}
+          quality={75}
           resource={club.previewImage ?? club.coverImage}
+          size="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
         />
 
         <h3 className="font-heading text-2xl leading-[1.1]">{club.title}</h3>

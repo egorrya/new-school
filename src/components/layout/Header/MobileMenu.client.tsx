@@ -10,7 +10,7 @@ import type { Header, SiteSetting } from '@/payload-types'
 
 import { SiteSocialLinks } from '@/components/layout/SiteContacts'
 import { Button } from '@/components/ui/button'
-import { resolveHref } from './Nav'
+import { resolveHref } from '@/utilities/resolveNavigationHref'
 import { cn } from '@/utilities/ui'
 
 type MobileMenuProps = {

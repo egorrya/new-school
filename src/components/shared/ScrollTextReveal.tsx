@@ -14,13 +14,16 @@ export function ScrollTextReveal({ text, className }: ScrollTextRevealProps) {
   const targetRef = useRef<HTMLParagraphElement>(null)
   const { scrollYProgress } = useScroll({
     target: targetRef,
-    offset: ['start 0.7', 'end 0.5'],
+    offset: ['start 0.8', 'end 0.78'],
   })
 
   const words = text.split(' ')
 
   return (
-    <p ref={targetRef} className={cn(className)}>
+    <p
+      ref={targetRef}
+      className={cn('leading-normal text-justify [text-align-last:justify]', className)}
+    >
       {words.map((word, index) => {
         const start = index / words.length
         const end = start + 1 / words.length

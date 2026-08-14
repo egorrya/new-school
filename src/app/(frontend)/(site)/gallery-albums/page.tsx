@@ -6,11 +6,10 @@ import { cache } from 'react'
 import Link from 'next/link'
 import { getPayload } from 'payload'
 
-import {
-  GalleryPhotoSlider,
-} from '@/components/collections/GalleryPhotoSlider'
+import { GalleryPhotoSlider } from '@/components/collections/GalleryPhotoSlider'
 import { GalleryAlbumsIntro } from '@/components/collections/GalleryAlbumsIntro'
 import { buildGalleryPhotoSlides } from '@/components/collections/galleryPhotoSlides'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
@@ -42,32 +41,35 @@ export default async function GalleryAlbumsPage() {
   const slides = buildGalleryPhotoSlides(albums)
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <PageBlockSurface className="bg-card p-6 sm:p-8 lg:p-10">
-          <div className="space-y-8">
-            <GalleryAlbumsIntro
-              description="Фотографии с событий, поездок и школьной жизни."
-              title="Галерея"
-            />
+    <>
+      <PageBlockSection>
+        <PageBlockContainer>
+          <PageBlockSurface className="bg-card p-6 sm:p-8 lg:p-10">
+            <div className="space-y-8">
+              <GalleryAlbumsIntro
+                description="Фотографии с событий, поездок и школьной жизни."
+                title="Галерея"
+              />
 
-            {slides.length > 0 ? (
-              <GalleryPhotoSlider slides={slides} />
-            ) : (
-              <div className="space-y-4">
-                <PageBlockEmptyState
-                  description="Добавьте фотографии в альбомы галереи в Payload, чтобы они появились в этом разделе."
-                  title="Фотографии пока не добавлены"
-                />
-                <Button asChild>
-                  <Link href="/">На главную</Link>
-                </Button>
-              </div>
-            )}
-          </div>
-        </PageBlockSurface>
-      </PageBlockContainer>
-    </PageBlockSection>
+              {slides.length > 0 ? (
+                <GalleryPhotoSlider slides={slides} />
+              ) : (
+                <div className="space-y-4">
+                  <PageBlockEmptyState
+                    description="Добавьте фотографии в альбомы галереи в Payload, чтобы они появились в этом разделе."
+                    title="Фотографии пока не добавлены"
+                  />
+                  <Button asChild>
+                    <Link href="/">На главную</Link>
+                  </Button>
+                </div>
+              )}
+            </div>
+          </PageBlockSurface>
+        </PageBlockContainer>
+      </PageBlockSection>
+      <SiteContactsSection />
+    </>
   )
 }
 

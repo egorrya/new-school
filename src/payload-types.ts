@@ -187,8 +187,10 @@ export interface Page {
         | ProgramBlock
         | ProgramCategoriesBlock
         | ScheduleBlock
+        | SchoolLifeBlock
         | TabsBlock
         | TeacherListBlock
+        | TeacherSpotlightBlock
         | TestimonialsBlock
         | CollectionGridBlock
         | FaqBlock
@@ -1076,6 +1078,17 @@ export interface CTAFormBlock {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SchoolLifeBlock".
+ */
+export interface SchoolLifeBlock {
+  title: string;
+  description: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'schoolLife';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TabsBlock".
  */
 export interface TabsBlock {
@@ -1135,6 +1148,49 @@ export interface TabsBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'tabs';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeacherSpotlightBlock".
+ */
+export interface TeacherSpotlightBlock {
+  /**
+   * Короткая строка над заголовком.
+   */
+  eyebrow?: string | null;
+  title: string;
+  /**
+   * Основной текст блока.
+   */
+  text?: string | null;
+  /**
+   * Необязательно. Список с галочками под основным текстом.
+   */
+  items?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Необязательно. Абзац, который идёт после списка пунктов.
+   */
+  closingText?: string | null;
+  /**
+   * Необязательно. Показывается только если заполнены оба поля.
+   */
+  buttonLabel?: string | null;
+  /**
+   * Адрес для кнопки.
+   */
+  buttonLink?: string | null;
+  /**
+   * С какой стороны показывать бегущую ленту фото преподавателей.
+   */
+  imagePosition: 'left' | 'right';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'teacherSpotlight';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1281,9 +1337,27 @@ export interface FormSubmission {
   pageUrl: string;
   formType: 'application' | 'callback' | 'club';
   /**
+   * Заполняется при отклике на конкретную вакансию.
+   */
+  job?: (number | null) | Job;
+  /**
    * Заполняется только для заявки из страницы программы.
    */
   club?: (number | null) | Club;
+  /**
+   * Заполняется в анкете соискателя.
+   */
+  age?: number | null;
+  city?: string | null;
+  email?: string | null;
+  education?: ('higher' | 'vocational') | null;
+  /**
+   * Укажите название учебного заведения и год окончания, если есть образование.
+   */
+  educationalInstitution?: string | null;
+  specialty?: string | null;
+  workExperience?: string | null;
+  about?: string | null;
   submissionKey: string;
   /**
    * Заявка должна содержать подтверждение согласия пользователя.
@@ -1585,8 +1659,10 @@ export interface PagesSelect<T extends boolean = true> {
         program?: T | ProgramBlockSelect<T>;
         programCategories?: T | ProgramCategoriesBlockSelect<T>;
         schedule?: T | ScheduleBlockSelect<T>;
+        schoolLife?: T | SchoolLifeBlockSelect<T>;
         tabs?: T | TabsBlockSelect<T>;
         teacherList?: T | TeacherListBlockSelect<T>;
+        teacherSpotlight?: T | TeacherSpotlightBlockSelect<T>;
         testimonials?: T | TestimonialsBlockSelect<T>;
         collectionGrid?: T | CollectionGridBlockSelect<T>;
         faq?: T | FaqBlockSelect<T>;
@@ -1779,6 +1855,16 @@ export interface ScheduleBlockSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SchoolLifeBlock_select".
+ */
+export interface SchoolLifeBlockSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "TabsBlock_select".
  */
 export interface TabsBlockSelect<T extends boolean = true> {
@@ -1881,6 +1967,27 @@ export interface CTAFormBlockSelect<T extends boolean = true> {
   description?: T;
   buttonLabel?: T;
   formType?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TeacherSpotlightBlock_select".
+ */
+export interface TeacherSpotlightBlockSelect<T extends boolean = true> {
+  eyebrow?: T;
+  title?: T;
+  text?: T;
+  items?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  closingText?: T;
+  buttonLabel?: T;
+  buttonLink?: T;
+  imagePosition?: T;
   id?: T;
   blockName?: T;
 }
@@ -2060,7 +2167,16 @@ export interface FormSubmissionsSelect<T extends boolean = true> {
   phone?: T;
   pageUrl?: T;
   formType?: T;
+  job?: T;
   club?: T;
+  age?: T;
+  city?: T;
+  email?: T;
+  education?: T;
+  educationalInstitution?: T;
+  specialty?: T;
+  workExperience?: T;
+  about?: T;
   submissionKey?: T;
   consentAccepted?: T;
   updatedAt?: T;

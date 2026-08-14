@@ -104,7 +104,7 @@ export function PageBlockHeader({
             className={leading ? 'lg:col-start-2 lg:row-start-1' : undefined}
             delay={titleDelay}
             duration={titleDuration}
-            margin="0px 0px -25% 0px"
+            margin="-25% 0px -25% 0px"
             y={titleY}
           >
             {renderHeading(
@@ -124,7 +124,7 @@ export function PageBlockHeader({
           amount={0.12}
           delay={descriptionDelay}
           duration={0.47}
-          margin="0px 0px -25% 0px"
+          margin="-25% 0px -25% 0px"
           y={12}
         >
           <p

@@ -62,14 +62,16 @@ export function HeroMarqueeBlock({
           ) : null}
 
           {hasPrimaryAction || hasSecondaryAction ? (
-            <MotionReveal allowMobileMotion amount={0.12} delay={0.32} duration={0.5} y={14}>
-              <div className="flex flex-wrap items-center justify-center gap-5">
-                {hasPrimaryAction ? (
+            <div className="flex flex-wrap items-center justify-center gap-5">
+              {hasPrimaryAction ? (
+                <MotionReveal allowMobileMotion amount={0.12} delay={0.32} duration={0.5} y={14}>
                   <Button asChild>
                     <Link href={primaryButtonLink || '/'}>{primaryButtonLabel}</Link>
                   </Button>
-                ) : null}
-                {hasSecondaryAction ? (
+                </MotionReveal>
+              ) : null}
+              {hasSecondaryAction ? (
+                <MotionReveal allowMobileMotion amount={0.12} delay={0.44} duration={0.5} y={14}>
                   <Button
                     asChild
                     className="h-auto px-0 py-1 sm:h-auto sm:px-0"
@@ -77,9 +79,9 @@ export function HeroMarqueeBlock({
                   >
                     <Link href={secondaryButtonLink || '/'}>{secondaryButtonLabel}</Link>
                   </Button>
-                ) : null}
-              </div>
-            </MotionReveal>
+                </MotionReveal>
+              ) : null}
+            </div>
           ) : null}
         </div>
 

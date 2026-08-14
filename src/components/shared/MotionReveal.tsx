@@ -31,7 +31,7 @@ export function MotionReveal({
   delay = 0,
   duration = 0.47,
   amount = 0.12,
-  margin,
+  margin = '-10% 0px -10% 0px',
   allowMobileMotion = false,
   once = false,
   y = 16,

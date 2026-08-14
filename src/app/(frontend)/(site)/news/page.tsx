@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { NewsCard } from '@/components/collections/CollectionCards'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import {
   PageBlockContainer,
@@ -75,101 +76,114 @@ export default async function NewsPage({ searchParams }: Args) {
   const pageNumbers = getPageNumbers(result.page ?? 1, result.totalPages)
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <div className="space-y-8">
-          <PageBlockHeader
-            className="mx-auto max-w-4xl text-center"
-            description="Свежие новости школы, анонсы и важные обновления."
-            descriptionClassName="mx-auto max-w-3xl text-center"
-            headingLevel={1}
-            title="Новости школы"
-            titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
-          />
+    <>
+      <PageBlockSection>
+        <PageBlockContainer>
+          <div className="space-y-8">
+            <PageBlockHeader
+              className="mx-auto max-w-4xl text-center"
+              description="Свежие новости школы, анонсы и важные обновления."
+              descriptionClassName="mx-auto max-w-3xl text-center"
+              headingLevel={1}
+              title="Новости школы"
+              titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
+            />
 
-          {news.length > 0 ? (
-            <>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-                {news.map((item, index) => (
-                  <NewsCard
-                    key={item.id || `${item.title}-${index}`}
-                    index={index}
-                    news={item}
-                    priority={index === 0}
-                  />
-                ))}
-              </div>
+            {news.length > 0 ? (
+              <>
+                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                  {news.map((item, index) => (
+                    <NewsCard
+                      key={item.id || `${item.title}-${index}`}
+                      index={index}
+                      news={item}
+                      priority={index === 0}
+                    />
+                  ))}
+                </div>
 
-              {result.totalPages > 1 ? (
-                <Pagination>
-                  <PaginationContent>
-                    <PaginationItem>
-                      <MotionReveal amount={0.15} delay={0} duration={0.27} y={10}>
-                        <PaginationPrevious
-                          aria-disabled={!result.hasPrevPage}
-                          className={!result.hasPrevPage ? 'pointer-events-none opacity-0' : undefined}
-                          href={`/news?page=${Math.max(1, page - 1)}`}
-                        />
-                      </MotionReveal>
-                    </PaginationItem>
+                {result.totalPages > 1 ? (
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <MotionReveal amount={0.15} delay={0} duration={0.27} y={10}>
+                          <PaginationPrevious
+                            aria-disabled={!result.hasPrevPage}
+                            className={
+                              !result.hasPrevPage ? 'pointer-events-none opacity-0' : undefined
+                            }
+                            href={`/news?page=${Math.max(1, page - 1)}`}
+                          />
+                        </MotionReveal>
+                      </PaginationItem>
 
-                    {pageNumbers.map((pageNumber, index) => {
-                      const previous = pageNumbers[index - 1]
-                      const showEllipsisBefore = previous !== undefined && pageNumber - previous > 1
+                      {pageNumbers.map((pageNumber, index) => {
+                        const previous = pageNumbers[index - 1]
+                        const showEllipsisBefore =
+                          previous !== undefined && pageNumber - previous > 1
 
-                      return (
-                        <Fragment key={pageNumber}>
-                          {showEllipsisBefore ? (
+                        return (
+                          <Fragment key={pageNumber}>
+                            {showEllipsisBefore ? (
+                              <PaginationItem>
+                                <PaginationEllipsis />
+                              </PaginationItem>
+                            ) : null}
                             <PaginationItem>
-                              <PaginationEllipsis />
-                            </PaginationItem>
-                          ) : null}
-                          <PaginationItem>
-                            <MotionReveal amount={0.15} delay={(index + 1) * 0.06} duration={0.27} y={10}>
-                              <PaginationLink
-                                href={`/news?page=${pageNumber}`}
-                                isActive={pageNumber === page}
+                              <MotionReveal
+                                amount={0.15}
+                                delay={(index + 1) * 0.06}
+                                duration={0.27}
+                                y={10}
                               >
-                                {pageNumber}
-                              </PaginationLink>
-                            </MotionReveal>
-                          </PaginationItem>
-                        </Fragment>
-                      )
-                    })}
+                                <PaginationLink
+                                  href={`/news?page=${pageNumber}`}
+                                  isActive={pageNumber === page}
+                                >
+                                  {pageNumber}
+                                </PaginationLink>
+                              </MotionReveal>
+                            </PaginationItem>
+                          </Fragment>
+                        )
+                      })}
 
-                    <PaginationItem>
-                      <MotionReveal
-                        amount={0.15}
-                        delay={(pageNumbers.length + 1) * 0.06}
-                        duration={0.27}
-                        y={10}
-                      >
-                        <PaginationNext
-                          aria-disabled={!result.hasNextPage}
-                          className={!result.hasNextPage ? 'pointer-events-none opacity-0' : undefined}
-                          href={`/news?page=${Math.min(result.totalPages, page + 1)}`}
-                        />
-                      </MotionReveal>
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
-              ) : null}
-            </>
-          ) : (
-            <div className="space-y-4">
-              <PageBlockEmptyState
-                description="Добавьте опубликованные новости в Payload, чтобы они появились в этом разделе."
-                title="Новостей пока нет"
-              />
-              <Button asChild>
-                <Link href="/">На главную</Link>
-              </Button>
-            </div>
-          )}
-        </div>
-      </PageBlockContainer>
-    </PageBlockSection>
+                      <PaginationItem>
+                        <MotionReveal
+                          amount={0.15}
+                          delay={(pageNumbers.length + 1) * 0.06}
+                          duration={0.27}
+                          y={10}
+                        >
+                          <PaginationNext
+                            aria-disabled={!result.hasNextPage}
+                            className={
+                              !result.hasNextPage ? 'pointer-events-none opacity-0' : undefined
+                            }
+                            href={`/news?page=${Math.min(result.totalPages, page + 1)}`}
+                          />
+                        </MotionReveal>
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                ) : null}
+              </>
+            ) : (
+              <div className="space-y-4">
+                <PageBlockEmptyState
+                  description="Добавьте опубликованные новости в Payload, чтобы они появились в этом разделе."
+                  title="Новостей пока нет"
+                />
+                <Button asChild>
+                  <Link href="/">На главную</Link>
+                </Button>
+              </div>
+            )}
+          </div>
+        </PageBlockContainer>
+      </PageBlockSection>
+      <SiteContactsSection />
+    </>
   )
 }
 

@@ -6,15 +6,24 @@ import { cache } from 'react'
 import { getPayload } from 'payload'
 
 import { JobCard } from '@/components/collections/CollectionCards'
+import { TeacherSpotlightBlock } from '@/components/blocks/TeacherSpotlightBlock'
+import { VacancyApplicationSection } from '@/components/vacancies/VacancyApplicationSection'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
-  PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
 import { generateMeta } from '@/lib/generateMeta'
 
 export const dynamic = 'force-dynamic'
+
+type SearchParams = {
+  job?: string | string[]
+}
+
+type Args = {
+  searchParams?: Promise<SearchParams>
+}
 
 const queryJobs = cache(async () => {
   const payload = await getPayload({ config: configPromise })
@@ -36,38 +45,45 @@ const queryJobs = cache(async () => {
   return result.docs as Job[]
 })
 
-export default async function VacanciesPage() {
+export default async function VacanciesPage({ searchParams: searchParamsPromise }: Args) {
   const jobs = await queryJobs()
+  const searchParams = searchParamsPromise ? await searchParamsPromise : {}
+  const jobParam = Array.isArray(searchParams.job) ? searchParams.job[0] : searchParams.job
+  const selectedJobId = typeof jobParam === 'string' ? Number(jobParam) : NaN
+  const selectedJob = Number.isInteger(selectedJobId)
+    ? jobs.find((job) => job.id === selectedJobId) || null
+    : null
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <div className="space-y-8">
-          <PageBlockHeader
-            className="mx-auto max-w-4xl text-center"
-            description="Актуальные вакансии в нашей образовательной организации."
-            descriptionClassName="mx-auto max-w-3xl text-center"
-            headingLevel={1}
-            title="Вакансии"
-            titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
-          />
+    <>
+      <TeacherSpotlightBlock
+        blockType="teacherSpotlight"
+        imagePosition="right"
+        text="Ищем увлечённых педагогов, которые любят своё дело и верят, что учиться можно с интересом."
+        title="Присоединяйтесь к команде «Новой школы»"
+      />
+      <PageBlockSection>
+        <PageBlockContainer>
+          <div className="space-y-8">
+            {jobs.length > 0 ? (
+              <div className="grid gap-6 md:grid-cols-2">
+                {jobs.map((job, index) => (
+                  <JobCard index={index} job={job} key={job.id} />
+                ))}
+              </div>
+            ) : (
+              <PageBlockEmptyState
+                className="mx-auto w-fit max-w-full"
+                description={null}
+                title="В данный момент вакансий нет"
+              />
+            )}
 
-          {jobs.length > 0 ? (
-            <div className="grid gap-6 md:grid-cols-2">
-              {jobs.map((job, index) => (
-                <JobCard index={index} job={job} key={job.id} />
-              ))}
-            </div>
-          ) : (
-            <PageBlockEmptyState
-              className="mx-auto w-fit max-w-full"
-              description={null}
-              title="В данный момент вакансий нет"
-            />
-          )}
-        </div>
-      </PageBlockContainer>
-    </PageBlockSection>
+            <VacancyApplicationSection jobs={jobs} selectedJob={selectedJob} />
+          </div>
+        </PageBlockContainer>
+      </PageBlockSection>
+    </>
   )
 }
 

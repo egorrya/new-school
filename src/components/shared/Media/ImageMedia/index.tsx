@@ -54,7 +54,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     imgClassName,
     imgStyle,
     priority,
-    quality = 100,
+    quality = 75,
     resource,
     size: sizeFromProps,
     src: srcFromProps,

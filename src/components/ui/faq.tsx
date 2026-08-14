@@ -102,7 +102,7 @@ export function Faq({ items, className }: FaqProps) {
             delay={index * 0.08}
             duration={0.47}
             key={item.id || `${item.question}-${index}`}
-            margin="0px 0px -15% 0px"
+            margin="-15% 0px -15% 0px"
             y={16}
           >
             <AccordionItem value={item.id || `faq-item-${index}`}>
@@ -135,7 +135,7 @@ function FaqFilterPill({
     <button
       aria-selected={isActive}
       className={cn(
-        'relative flex w-full min-w-0 cursor-pointer items-center justify-center rounded-base px-2 py-4 text-center text-xs leading-tight font-medium text-balance transition-colors duration-300 ease-out sm:flex-1 sm:px-4 sm:text-sm',
+        'relative flex w-full min-w-0 cursor-pointer items-center justify-center rounded-base px-2 py-4 text-center text-xs leading-tight font-medium transition-colors duration-300 ease-out sm:flex-1 sm:px-4 sm:text-sm sm:whitespace-nowrap',
         isActive ? 'text-white' : 'text-foreground',
       )}
       onClick={onClick}

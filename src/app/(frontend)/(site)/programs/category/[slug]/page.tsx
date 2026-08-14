@@ -9,6 +9,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 
 import { ClubCard } from '@/components/clubs/ClubCard'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { BackLink } from '@/components/shared/BackLink'
 import {
   PageBlockContainer,
@@ -101,49 +102,52 @@ export default async function ProgramCategoryPage({ params: paramsPromise }: Arg
 
   const isSchoolCategory = category.slug === 'shkola'
   const backLink = isSchoolCategory ? (
-    <BackLink href="/" label="На главную" />
+    <BackLink href="/school" label="Школа" />
   ) : (
     <BackLink href="/programs" label="Дополнительные программы" />
   )
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <div className="space-y-8">
-          <PageBlockHeader
-            className="mx-auto max-w-4xl space-y-8 text-center"
-            description={category.description}
-            descriptionClassName="mx-auto max-w-2xl text-center"
-            headingLevel={1}
-            leading={backLink}
-            title={category.pageTitle || category.title}
-            titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
-          />
-
-          {clubs.length > 0 ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-              {clubs.map((club, index) => (
-                <ClubCard
-                  className={cn(
-                    'xl:col-span-2',
-                    clubs.length === 2 && index === 0 && 'xl:col-start-2',
-                  )}
-                  club={club}
-                  index={index}
-                  key={club.id}
-                  priority={index === 0}
-                />
-              ))}
-            </div>
-          ) : (
-            <PageBlockEmptyState
-              description="Добавьте хотя бы одну активную программу в эту категорию, чтобы она появилась здесь."
-              title="Программы в этой категории пока не найдены"
+    <>
+      <PageBlockSection>
+        <PageBlockContainer>
+          <div className="space-y-8">
+            <PageBlockHeader
+              className="mx-auto max-w-4xl space-y-8 text-center"
+              description={category.description}
+              descriptionClassName="mx-auto max-w-2xl text-center"
+              headingLevel={1}
+              leading={backLink}
+              title={category.pageTitle || category.title}
+              titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
             />
-          )}
-        </div>
-      </PageBlockContainer>
-    </PageBlockSection>
+
+            {clubs.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+                {clubs.map((club, index) => (
+                  <ClubCard
+                    className={cn(
+                      'xl:col-span-2',
+                      clubs.length === 2 && index === 0 && 'xl:col-start-2',
+                    )}
+                    club={club}
+                    index={index}
+                    key={club.id}
+                    priority={index === 0}
+                  />
+                ))}
+              </div>
+            ) : (
+              <PageBlockEmptyState
+                description="Добавьте хотя бы одну активную программу в эту категорию, чтобы она появилась здесь."
+                title="Программы в этой категории пока не найдены"
+              />
+            )}
+          </div>
+        </PageBlockContainer>
+      </PageBlockSection>
+      <SiteContactsSection />
+    </>
   )
 }
 

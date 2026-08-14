@@ -9,6 +9,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { isMediaDocument } from '@/components/collections/CollectionCards'
+import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { Button } from '@/components/ui/button'
 import RichText from '@/components/shared/RichText'
 import { MotionReveal } from '@/components/shared/MotionReveal'
@@ -82,69 +83,78 @@ export default async function OrgInfoSectionPage({ params: paramsPromise }: Args
   const documents = (section.documents ?? []).filter((doc) => isMediaDocument(doc.file))
 
   return (
-    <PageBlockSection>
-      <PageBlockContainer>
-        <article className="mx-auto max-w-3xl space-y-8">
-          <MotionReveal duration={0.47} y={18}>
-            <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">{section.title}</h1>
-          </MotionReveal>
+    <>
+      <PageBlockSection>
+        <PageBlockContainer>
+          <article className="mx-auto max-w-3xl space-y-8">
+            <MotionReveal duration={0.47} y={18}>
+              <h1 className="font-heading text-3xl leading-[1.1] sm:text-4xl">{section.title}</h1>
+            </MotionReveal>
 
-          <MotionReveal delay={0.08} duration={0.47} y={18}>
-            <div className="space-y-3">
-              {section.content ? (
-                <RichText data={section.content} enableGutter={false} enableProse={true} />
-              ) : (
-                <PageBlockEmptyState
-                  description="Добавьте текст раздела в панели управления, чтобы эта страница стала содержательнее."
-                  title="Текст раздела пока не добавлен"
-                />
-              )}
-            </div>
-          </MotionReveal>
-
-          {documents.length > 0 ? (
-            <MotionReveal delay={0.16} duration={0.47} y={18}>
+            <MotionReveal delay={0.08} duration={0.47} y={18}>
               <div className="space-y-3">
-                <h2 className="font-heading text-xl leading-[1.1]">Документы</h2>
-                <ul className="space-y-2">
-                  {documents.map((doc, index) => {
-                    const file = isMediaDocument(doc.file) ? doc.file : null
-
-                    if (!file?.url) return null
-
-                    const fileSize = formatFileSize(file.filesize)
-
-                    return (
-                      <li key={doc.id || index}>
-                        <a
-                          className="group flex items-center gap-3 rounded-base border border-border bg-white px-4 py-3 text-sm font-medium text-foreground shadow-[0.125rem_0.125rem_0_0_var(--school-black)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
-                          href={file.url}
-                          rel="noopener noreferrer"
-                          target="_blank"
-                        >
-                          <FileText aria-hidden="true" className="size-5 shrink-0 text-foreground/70" />
-                          <span className="flex-1">{doc.title}</span>
-                          {fileSize ? (
-                            <span className="text-xs text-foreground/60">{fileSize}</span>
-                          ) : null}
-                          <Download aria-hidden="true" className="size-4 shrink-0 text-foreground/50" />
-                        </a>
-                      </li>
-                    )
-                  })}
-                </ul>
+                {section.content ? (
+                  <RichText data={section.content} enableGutter={false} enableProse={true} />
+                ) : (
+                  <PageBlockEmptyState
+                    description="Добавьте текст раздела в панели управления, чтобы эта страница стала содержательнее."
+                    title="Текст раздела пока не добавлен"
+                  />
+                )}
               </div>
             </MotionReveal>
-          ) : null}
 
-          <MotionReveal delay={0.24} duration={0.47} y={18}>
-            <Button asChild variant="neutral">
-              <Link href="/organization-info">Ко всем разделам</Link>
-            </Button>
-          </MotionReveal>
-        </article>
-      </PageBlockContainer>
-    </PageBlockSection>
+            {documents.length > 0 ? (
+              <MotionReveal delay={0.16} duration={0.47} y={18}>
+                <div className="space-y-3">
+                  <h2 className="font-heading text-xl leading-[1.1]">Документы</h2>
+                  <ul className="space-y-2">
+                    {documents.map((doc, index) => {
+                      const file = isMediaDocument(doc.file) ? doc.file : null
+
+                      if (!file?.url) return null
+
+                      const fileSize = formatFileSize(file.filesize)
+
+                      return (
+                        <li key={doc.id || index}>
+                          <a
+                            className="group flex items-center gap-3 rounded-base border border-border bg-white px-4 py-3 text-sm font-medium text-foreground shadow-[0.125rem_0.125rem_0_0_var(--school-black)] transition-all hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none"
+                            href={file.url}
+                            rel="noopener noreferrer"
+                            target="_blank"
+                          >
+                            <FileText
+                              aria-hidden="true"
+                              className="size-5 shrink-0 text-foreground/70"
+                            />
+                            <span className="flex-1">{doc.title}</span>
+                            {fileSize ? (
+                              <span className="text-xs text-foreground/60">{fileSize}</span>
+                            ) : null}
+                            <Download
+                              aria-hidden="true"
+                              className="size-4 shrink-0 text-foreground/50"
+                            />
+                          </a>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                </div>
+              </MotionReveal>
+            ) : null}
+
+            <MotionReveal delay={0.24} duration={0.47} y={18}>
+              <Button asChild variant="neutral">
+                <Link href="/organization-info">Ко всем разделам</Link>
+              </Button>
+            </MotionReveal>
+          </article>
+        </PageBlockContainer>
+      </PageBlockSection>
+      <SiteContactsSection />
+    </>
   )
 }
 

@@ -12,9 +12,11 @@ type MediaFrameProps = {
   className?: string
   imageClassName?: string
   priority?: boolean
+  quality?: number
   resource?: MediaType | number | null
   aspectClassName?: string
   fallbackImageSrc?: string
+  size?: string
 }
 
 export function MediaFrame({
@@ -23,9 +25,11 @@ export function MediaFrame({
   className,
   imageClassName,
   priority,
+  quality,
   resource,
   aspectClassName = 'aspect-[4/3]',
   fallbackImageSrc,
+  size,
 }: MediaFrameProps) {
   const mediaResource = typeof resource === 'object' ? resource : null
   const hasMedia = Boolean(mediaResource)
@@ -46,7 +50,9 @@ export function MediaFrame({
           pictureClassName="relative block h-full w-full"
           imgClassName={cn('h-full w-full object-cover', imageClassName)}
           priority={priority}
+          quality={quality}
           resource={mediaResource}
+          size={size}
           videoClassName={cn('absolute inset-0 h-full w-full object-cover', imageClassName)}
         />
       ) : fallbackImageSrc ? (
