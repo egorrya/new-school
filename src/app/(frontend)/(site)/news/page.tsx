@@ -104,7 +104,7 @@ export default async function NewsPage({ searchParams }: Args) {
                 <Pagination>
                   <PaginationContent>
                     <PaginationItem>
-                      <MotionReveal amount={0.6} delay={0} duration={0.27} y={10}>
+                      <MotionReveal amount={0.15} delay={0} duration={0.27} y={10}>
                         <PaginationPrevious
                           aria-disabled={!result.hasPrevPage}
                           className={!result.hasPrevPage ? 'pointer-events-none opacity-0' : undefined}
@@ -125,7 +125,7 @@ export default async function NewsPage({ searchParams }: Args) {
                             </PaginationItem>
                           ) : null}
                           <PaginationItem>
-                            <MotionReveal amount={0.6} delay={(index + 1) * 0.06} duration={0.27} y={10}>
+                            <MotionReveal amount={0.15} delay={(index + 1) * 0.06} duration={0.27} y={10}>
                               <PaginationLink
                                 href={`/news?page=${pageNumber}`}
                                 isActive={pageNumber === page}
@@ -140,7 +140,7 @@ export default async function NewsPage({ searchParams }: Args) {
 
                     <PaginationItem>
                       <MotionReveal
-                        amount={0.6}
+                        amount={0.15}
                         delay={(pageNumbers.length + 1) * 0.06}
                         duration={0.27}
                         y={10}

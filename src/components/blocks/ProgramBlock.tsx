@@ -6,6 +6,7 @@ import {
   PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
+import { ItemIconBadge } from '@/components/shared/ItemIconBadge'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -34,15 +35,13 @@ export function ProgramBlock({
           )}
 
           {programItems.length > 0 ? (
-            <MotionReveal amount={0.35} duration={0.47} y={18}>
+            <MotionReveal amount={0.12} duration={0.47} y={18}>
               <ol className="grid gap-4">
                 {programItems.map((item, index) => (
                   <li key={item.id || `${item.title}-${index}`}>
                     <Card className="bg-card">
                       <CardContent className="grid gap-4 p-5 sm:p-6 lg:grid-cols-[auto_1fr] lg:items-start">
-                        <div className="flex size-12 items-center justify-center rounded-base border border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
-                          {String(index + 1).padStart(2, '0')}
-                        </div>
+                        <ItemIconBadge icon={item.icon} index={index} />
                         <div className="space-y-2">
                           <h3 className="font-heading text-xl leading-[1.1]">{item.title}</h3>
                           <p className="max-w-3xl text-sm leading-relaxed text-foreground/80 sm:text-base">

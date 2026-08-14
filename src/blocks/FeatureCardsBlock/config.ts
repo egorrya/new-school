@@ -46,28 +46,40 @@ export const FeatureCardsBlock: Block = {
       },
       defaultValue: [
         {
-          text: 'Опытные учителя с профильным образованием',
+          text: 'Просторные современные классы',
+          iconName: 'building-2',
+        },
+        {
+          text: 'Профессиональные педагоги по всем предметам',
           iconName: 'graduation-cap',
         },
         {
-          text: 'Все предметы по ФГОС. Высокий уровень знаний',
-          iconName: 'book-open',
+          text: 'Английский язык с преподавателями Школы английского языка SkillSet',
+          iconName: 'languages',
         },
         {
-          text: 'Индивидуальный подход к способностям каждого ребенка',
-          iconName: 'users',
+          text: 'Спортивный зал',
+          iconName: 'dumbbell',
         },
         {
-          text: 'Дополнительный английский и шахматы в расписании',
-          iconName: 'calendar-days',
+          text: 'Компьютерный класс',
+          iconName: 'monitor',
         },
         {
-          text: 'Работа в элементах лучших финских образовательных технологий',
-          iconName: 'lightbulb',
+          text: 'Лаборатория',
+          iconName: 'flask-conical',
         },
         {
-          text: 'Коммуникативная методика при изучении английского языка',
-          iconName: 'heart-handshake',
+          text: 'ИЗО-студия и зал для музыкальных занятий',
+          iconName: 'palette',
+        },
+        {
+          text: 'Уютная столовая',
+          iconName: 'utensils-crossed',
+        },
+        {
+          text: 'Пространства для активных игр и отдыха',
+          iconName: 'volleyball',
         },
       ],
       fields: [

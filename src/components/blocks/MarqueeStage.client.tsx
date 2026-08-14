@@ -61,8 +61,8 @@ export function MarqueeStage({ items, className }: MarqueeStageProps) {
   )
   const rootRef = useRef<HTMLDivElement | null>(null)
   const inView = useInView(rootRef, {
-    amount: 0.35,
-    margin: '0px 0px -25% 0px',
+    amount: 0.12,
+    margin: '0px 0px -10% 0px',
     once: false,
   })
 

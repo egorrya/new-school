@@ -27,11 +27,11 @@ const HEADER_MINI_SCROLL_THRESHOLD = 32
 const headerShellClassName =
   'relative overflow-visible rounded-base border shadow-none transition-[border-color,background-color] duration-300 ease-out'
 const headerRowClassName =
-  'relative flex items-center justify-between gap-3 px-3 transition-[padding] duration-300 ease-out sm:gap-4 sm:px-6 lg:gap-6'
+  'relative flex items-center justify-between gap-3 px-3 transition-[padding] duration-300 ease-out sm:gap-4 lg:gap-6'
 const headerLogoClassName =
   'inline-flex shrink-0 items-center transition-[height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
 const headerNavClassName =
-  'pointer-events-none absolute left-1/2 hidden -translate-x-1/2 min-[900px]:flex'
+  'pointer-events-none absolute left-1/2 hidden -translate-x-1/2 xl:flex'
 const headerNavRevealDelay = 0.88
 const headerActionsRevealGap = 0.14
 const headerPositionTransitionDuration = 700
@@ -196,7 +196,9 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
             data-header-state={isMiniHeader ? 'compact' : 'expanded'}
             className={cn(
               headerRowClassName,
-              isMiniHeader ? 'py-1.5 sm:py-4' : 'py-0.5 sm:py-1 lg:py-1.5',
+              isMiniHeader
+                ? 'py-1.5 sm:py-2.5 sm:px-2.5 lg:py-4 lg:px-4'
+                : 'py-0.5 sm:py-1 sm:px-1 lg:py-1.5 lg:px-1.5',
             )}
             initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
             transition={{ delay: 0.36, duration: 0.62, ease: 'easeOut' }}

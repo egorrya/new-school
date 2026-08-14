@@ -14,7 +14,7 @@ export function BackLink({ href, label }: BackLinkProps) {
   const revealWidth = { '--back-link-reveal-width': `${label.length + 2}ch` } as CSSProperties
 
   return (
-    <MotionReveal amount={0.35} duration={0.4} y={10}>
+    <MotionReveal amount={0.12} duration={0.4} y={10}>
       <Link
         className="group inline-flex items-center gap-1.5 rounded-full text-sm font-medium text-foreground transition-all duration-500 ease-in-out lg:gap-0 lg:p-2.5 lg:hover:gap-1.5 lg:hover:bg-foreground/5"
         href={href}

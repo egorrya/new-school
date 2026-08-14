@@ -132,7 +132,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
   )
 
   return (
-    <MotionReveal amount={0.35} duration={0.47} y={18}>
+    <MotionReveal amount={0.12} duration={0.47} y={18}>
       <div
         className={cn(
           'flex flex-col items-center',

@@ -17,7 +17,7 @@ import { MotionReveal } from '@/components/shared/MotionReveal'
 import { ProgramCategoryCard } from '@/components/blocks/ProgramCategoryCard.client'
 import { cn } from '@/utilities/ui'
 
-const categoryColors = ['#06336f', '#FF6824', '#00B590', '#FF1E24', '#FFCB00']
+export const categoryColors = ['#06336f', '#FF6824', '#00B590', '#FF1E24', '#FFCB00']
 
 type ProgramCategoriesBlockProps = ProgramCategoriesBlockType & {
   hasMobileTopGap?: boolean
@@ -127,6 +127,7 @@ export async function ProgramCategoriesBlock({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
               {categories.map((category, index) => {
                 const color = categoryColors[index % categoryColors.length]
+                const isFourCategories = categories.length === 4
                 const isCenteredLastPair =
                   categories.length % 3 === 2 && index === categories.length - 2
 
@@ -134,12 +135,14 @@ export async function ProgramCategoriesBlock({
                   <MotionReveal
                     amount={0.15}
 
-                    className={cn('lg:col-span-2', isCenteredLastPair && 'lg:col-start-2')}
+                    className={cn(
+                      isFourCategories ? 'lg:col-span-3' : 'lg:col-span-2',
+                      isCenteredLastPair && 'lg:col-start-2',
+                    )}
                     delay={0.25 + index * 0.14}
                     duration={0.65}
                     key={category.id}
                     margin="0px 0px -10% 0px"
-                    once
                     y={22}
                   >
                     <ProgramCategoryCard

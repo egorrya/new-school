@@ -41,7 +41,7 @@ type SecondaryHeaderLinksProps = {
 }
 
 const navigationLinkClassName =
-  'inline-flex text-sm font-medium leading-none text-foreground transition-[font-size] duration-200 ease-out hover:text-base'
+  'inline-flex whitespace-nowrap text-sm font-medium leading-none text-foreground transition-[font-size] duration-200 ease-out hover:text-base'
 export const headerNavigationItemDelayStep = 0.18
 export const headerNavigationItemRevealDuration = 0.42
 // Hamburger reveals slightly after the CTA button so the two don't pop in as one blob.
@@ -81,7 +81,7 @@ function NavigationLinks({
   return (
     <nav
       aria-label="Основное меню"
-      className={cn('pointer-events-auto flex flex-wrap items-center gap-8', className)}
+      className={cn('pointer-events-auto flex w-max flex-nowrap items-center gap-5 lg:gap-6', className)}
     >
       {navigationLinks.map((item, index) => {
         const href = resolveHref(item.link)
@@ -202,7 +202,7 @@ export function HeaderNavActions({
   onMenuOpenChange,
   revealDelay = 0,
 }: HeaderNavActionsProps) {
-  const applicationText = siteSettings?.defaultApplicationCtaText || 'Оставить заявку'
+  const applicationText = siteSettings?.defaultApplicationCtaText || 'Связаться'
   const shouldReduceMotion = useReducedMotion() ?? false
 
   const revealInitial = shouldReduceMotion ? false : { opacity: 0, y: -10 }
@@ -214,7 +214,7 @@ export function HeaderNavActions({
     <div className={cn('flex items-center justify-end gap-6', className)}>
       {hideSocialLinks ? null : (
         <motion.div
-          className="hidden min-[900px]:flex"
+          className="hidden xl:flex"
           initial={revealInitial}
           transition={{
             delay: socialRevealDelay,
@@ -230,7 +230,7 @@ export function HeaderNavActions({
       )}
       <div className="flex items-center gap-2">
         <motion.div
-          className="hidden min-[900px]:inline-flex"
+          className="hidden xl:inline-flex"
           initial={revealInitial}
           transition={{
             delay: revealDelay,
@@ -246,7 +246,7 @@ export function HeaderNavActions({
           </Button>
         </motion.div>
         <motion.div
-          className="min-[900px]:hidden"
+          className="xl:hidden"
           initial={revealInitial}
           transition={{
             delay: revealDelay + headerActionsStagger * 2,

@@ -3,16 +3,15 @@
 import type { Teacher } from '@/payload-types'
 
 import * as DialogPrimitive from '@radix-ui/react-dialog'
-import { animate } from 'motion'
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion, type Variants } from 'motion/react'
 import { Sparkle, UserRound, X } from 'lucide-react'
-import { Fragment, useId, useLayoutEffect, useRef, useState } from 'react'
+import { useId, useState } from 'react'
 
 import { Media } from '@/components/shared/Media'
 import RichText from '@/components/shared/RichText'
 
 import { cn } from '@/utilities/ui'
-import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
+import { getIsMobileViewportSync, useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 
@@ -50,9 +49,20 @@ const mobileModalShellVariants: Variants = {
 
 const morphTransition = { type: 'spring', stiffness: 260, damping: 28 } as const
 
+// Stable references (not recreated per render): `viewport` and `whileInView`
+// are reactive props Motion's useInView tracks in its own effects, so a
+// fresh object identity on every render — which a `{...}` literal inline in
+// JSX always is, even with identical values — can tear down and recreate
+// the IntersectionObserver on every unrelated re-render of this card (e.g.
+// every state change from another card's own open/close cycle). A newly
+// (re)connected observer has no data for a beat, which read as "left the
+// viewport" and replayed the hidden entrance state on cards nowhere near
+// actually leaving view.
+const cardRevealViewport = { amount: 0.12, once: false }
+const cardRevealVisibleState = { opacity: 1, y: 0 }
+
 function cardRevealTransition(index: number) {
   return {
-    layout: morphTransition,
     opacity: { duration: 0.5, delay: index * 0.12, ease: EASE_OUT },
     y: { duration: 0.5, delay: index * 0.12, ease: EASE_OUT },
   }
@@ -74,22 +84,6 @@ function cardLayoutId(groupId: string, teacherId: number) {
   return `${groupId}-card-${teacherId}`
 }
 
-type TeacherTransitionRect = {
-  height: number
-  left: number
-  top: number
-  width: number
-}
-
-function getTransitionRect(rect: DOMRect): TeacherTransitionRect {
-  return {
-    height: rect.height,
-    left: rect.left,
-    top: rect.top,
-    width: rect.width,
-  }
-}
-
 function getPhoto(teacher: Teacher) {
   return teacher.photo && typeof teacher.photo === 'object' ? teacher.photo : null
 }
@@ -103,6 +97,32 @@ type TeacherPhotoProps = {
 
 function TeacherPhoto({ className, imgClassName, layoutId, teacher }: TeacherPhotoProps) {
   const photo = getPhoto(teacher)
+  const shouldReduceMotion = useReducedMotion() ?? false
+
+  const content = photo ? (
+    <Media
+      alt={teacher.name}
+      fill
+      htmlElement={null}
+      imgClassName={cn('h-full w-full object-cover', imgClassName)}
+      loading="eager"
+      // Card, placeholder, and modal each mount a fresh <img> for this same
+      // photo. ImageMedia has its own opacity fade-in, meant to skip itself
+      // once the browser reports the image already `complete` — but per the
+      // HTML spec that flag isn't guaranteed synchronous even for a cached
+      // src, so on a brand-new node it reliably plays the full fade anyway,
+      // fighting whatever's already animating this element below (Motion's
+      // layoutId crossfade here, or our own fade wrapper on mobile).
+      // Disabling it here means exactly one thing owns this photo's opacity.
+      disableFadeIn
+      pictureClassName="absolute inset-0 block h-full w-full"
+      resource={photo}
+    />
+  ) : (
+    <div className="absolute inset-0 flex items-center justify-center text-foreground/25">
+      <UserRound aria-hidden="true" className="size-12" strokeWidth={1.25} />
+    </div>
+  )
 
   return (
     <motion.div
@@ -112,19 +132,24 @@ function TeacherPhoto({ className, imgClassName, layoutId, teacher }: TeacherPho
       style={{ filter: 'none' }}
       transition={morphTransition}
     >
-      {photo ? (
-        <Media
-          alt={teacher.name}
-          fill
-          htmlElement={null}
-          imgClassName={cn('h-full w-full object-cover', imgClassName)}
-          pictureClassName="absolute inset-0 block h-full w-full"
-          resource={photo}
-        />
+      {layoutId ? (
+        // Card, placeholder, and modal all render this same real photo under
+        // a shared layoutId, so Motion's own crossfade already blends the
+        // content smoothly on its own — a second, independently-timed fade
+        // here would just double up against it and read as a flicker.
+        content
       ) : (
-        <div className="absolute inset-0 flex items-center justify-center text-foreground/25">
-          <UserRound aria-hidden="true" className="size-12" strokeWidth={1.25} />
-        </div>
+        // No shared layoutId here (mobile / reduced motion) means nothing
+        // else is smoothing this element's appearance, so mask its own
+        // mount with a quick fade instead of a raw pop.
+        <motion.div
+          animate={{ opacity: 1 }}
+          className="absolute inset-0"
+          initial={shouldReduceMotion ? false : { opacity: 0 }}
+          transition={{ duration: 0.28, ease: EASE_OUT }}
+        >
+          {content}
+        </motion.div>
       )}
     </motion.div>
   )
@@ -133,111 +158,120 @@ function TeacherPhoto({ className, imgClassName, layoutId, teacher }: TeacherPho
 type TeacherCardProps = {
   groupId: string
   index: number
-  isOpen: boolean
-  onOpen: (originRect: TeacherTransitionRect) => void
-  useCardRevealMotion: boolean
-  useSharedLayoutMotion: boolean
+  isPlaceholder: boolean
+  onOpen: () => void
   teacher: Teacher
+  useSharedLayoutMotion: boolean
 }
 
 function TeacherCard({
   groupId,
   index,
-  isOpen,
+  isPlaceholder,
   onOpen,
   teacher,
-  useCardRevealMotion,
   useSharedLayoutMotion,
 }: TeacherCardProps) {
-  return (
-    <motion.button
-      className={cn(
-        'teacher-card group relative flex flex-col cursor-pointer bg-transparent text-left outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2',
-        isOpen && 'pointer-events-none',
-        isOpen && !useSharedLayoutMotion && 'opacity-0',
-      )}
-      initial={useCardRevealMotion ? { opacity: 0, y: 22 } : false}
-      layout={useSharedLayoutMotion}
-      layoutId={useSharedLayoutMotion ? cardLayoutId(groupId, teacher.id) : undefined}
-      transition={cardRevealTransition(index)}
-      type="button"
-      viewport={{ amount: 0.25, once: true }}
-      whileInView={useCardRevealMotion ? { opacity: 1, y: 0 } : undefined}
-      onClick={(event) => onOpen(getTransitionRect(event.currentTarget.getBoundingClientRect()))}
-    >
-      <div className="overflow-hidden">
-        <TeacherPhoto
-          className="aspect-4/5 w-full"
-          imgClassName="teacher-photo transition-all duration-500 ease-out group-hover:scale-[1.05] filter-none!"
-          layoutId={useSharedLayoutMotion ? photoLayoutId(groupId, teacher.id) : undefined}
-          teacher={teacher}
-        />
-      </div>
+  // Resolved once, synchronously, on this card's first real (client) render
+  // — not via the SSR-safe useIsMobileViewport hook, which must guess
+  // "mobile" on the server and correct itself a render later. Motion only
+  // reads `initial`/`whileInView` at mount, so that later correction can't
+  // turn a skipped reveal back on, and the entrance never plays on desktop.
+  const [isMobileAtMount] = useState(getIsMobileViewportSync)
+  const revealY = isMobileAtMount ? 10 : 22
+  // This card stays mounted for its whole open → closing → returned cycle —
+  // TeacherListGrid only gives it a fresh key (forcing a real remount) the
+  // *next* time it's opened (see `openGenerations` there). So it never hands
+  // off to/from a separate placeholder component, keeping this element's
+  // projection node continuously alive: Motion always has a previous box to
+  // morph the shared layoutId from/to, on the very first open included, with
+  // no handoff moment left where content could pop or crossfade against
+  // nothing.
+  //
+  // Every *fresh mount* of this component happens to start out as a
+  // placeholder (that's the whole point of the key bump on open), so an
+  // instance that starts that way should never also play the plain
+  // scroll-entrance fade — frozen here since `isPlaceholder` later flips
+  // back to false on the same instance once the modal closes, and unlike
+  // `initial` (mount-only), `whileInView` is reactive to that.
+  const [revealDisabled] = useState(isPlaceholder)
 
-      <div className="flex items-start gap-2 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6">
-        <Sparkle
-          aria-hidden="true"
-          className="mt-0.5 size-3 shrink-0 fill-foreground text-foreground transition-transform duration-500 group-hover:rotate-90 sm:size-4"
-        />
-        <span className="min-w-0">
-          <motion.span
-            className="block truncate font-heading text-sm leading-tight sm:text-lg"
-            layout={useSharedLayoutMotion}
-            layoutId={useSharedLayoutMotion ? nameLayoutId(groupId, teacher.id) : undefined}
-            transition={morphTransition}
-          >
-            {teacher.name}
-          </motion.span>
-          {teacher.position ? (
+  return (
+    // The scroll-entrance reveal (initial/whileInView/viewport) lives on
+    // this outer, non-layout-tracked wrapper — kept apart from the inner
+    // button's `layout`/`layoutId`. Motion's viewport tracking on a node
+    // that's *also* under active layout/projection tracking (as every
+    // TeacherCard is, sharing a LayoutGroup with the card currently
+    // morphing into/out of the modal) intermittently misreported an
+    // in-view card as having just left the viewport whenever a sibling's
+    // layoutId transition ran, snapping it back to its hidden entrance
+    // state. Splitting the two concerns across separate elements avoids
+    // that cross-talk.
+    <motion.div
+      initial={revealDisabled ? false : { opacity: 0, y: revealY }}
+      transition={cardRevealTransition(index)}
+      viewport={cardRevealViewport}
+      whileInView={revealDisabled ? undefined : cardRevealVisibleState}
+    >
+      <motion.button
+        aria-hidden={isPlaceholder || undefined}
+        className={cn(
+          'teacher-card group relative flex flex-col cursor-pointer bg-transparent text-left outline-none focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2',
+          isPlaceholder && 'pointer-events-none',
+          isPlaceholder && !useSharedLayoutMotion && 'opacity-0',
+        )}
+        layout={useSharedLayoutMotion}
+        layoutId={useSharedLayoutMotion ? cardLayoutId(groupId, teacher.id) : undefined}
+        tabIndex={isPlaceholder ? -1 : undefined}
+        transition={morphTransition}
+        type="button"
+        onClick={isPlaceholder ? undefined : () => onOpen()}
+      >
+        <div className="overflow-hidden">
+          <TeacherPhoto
+            className="aspect-4/5 w-full"
+            imgClassName="teacher-photo transition-all duration-500 ease-out group-hover:scale-[1.05] filter-none!"
+            layoutId={useSharedLayoutMotion ? photoLayoutId(groupId, teacher.id) : undefined}
+            teacher={teacher}
+          />
+        </div>
+
+        <div className="flex items-start gap-2 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6">
+          <Sparkle
+            aria-hidden="true"
+            className="mt-0.5 size-3 shrink-0 fill-foreground text-foreground transition-transform duration-500 group-hover:rotate-90 sm:size-4"
+          />
+          <span className="min-w-0">
             <motion.span
-              className="mt-0.5 block text-[0.625rem] leading-tight text-muted-foreground sm:text-sm sm:leading-snug"
+              className="block truncate font-heading text-sm leading-tight sm:text-lg"
               layout={useSharedLayoutMotion}
-              layoutId={useSharedLayoutMotion ? roleLayoutId(groupId, teacher.id) : undefined}
+              layoutId={useSharedLayoutMotion ? nameLayoutId(groupId, teacher.id) : undefined}
               transition={morphTransition}
             >
-              {teacher.position}
+              {teacher.name}
             </motion.span>
-          ) : null}
-        </span>
-      </div>
-    </motion.button>
-  )
-}
-
-type TeacherCardPlaceholderProps = {
-  teacher: Teacher
-}
-
-function TeacherCardPlaceholder({ teacher }: TeacherCardPlaceholderProps) {
-  return (
-    <div
-      aria-hidden="true"
-      className="teacher-card invisible pointer-events-none flex flex-col bg-transparent"
-    >
-      <div className="aspect-4/5 w-full" />
-
-      <div className="flex items-start gap-2 px-3 py-3 sm:gap-6 sm:px-6 sm:py-6">
-        <Sparkle aria-hidden="true" className="mt-0.5 size-3 shrink-0 sm:size-4" />
-        <span className="min-w-0">
-          <span className="block truncate font-heading text-sm leading-tight sm:text-lg">
-            {teacher.name}
+            {teacher.position ? (
+              <motion.span
+                className="mt-0.5 block text-[0.625rem] leading-tight text-muted-foreground sm:text-sm sm:leading-snug"
+                layout={useSharedLayoutMotion}
+                layoutId={useSharedLayoutMotion ? roleLayoutId(groupId, teacher.id) : undefined}
+                transition={morphTransition}
+              >
+                {teacher.position}
+              </motion.span>
+            ) : null}
           </span>
-          {teacher.position ? (
-            <span className="mt-0.5 block text-[0.625rem] leading-tight sm:text-sm sm:leading-snug">
-              {teacher.position}
-            </span>
-          ) : null}
-        </span>
-      </div>
-    </div>
+        </div>
+      </motion.button>
+    </motion.div>
   )
 }
 
 type TeacherDetailModalProps = {
   groupId: string
   isMobile: boolean
+  onExited: () => void
   onOpenChange: (open: boolean) => void
-  originRect: TeacherTransitionRect | null
   shouldReduceMotion: boolean
   teacher: Teacher | null
   useSharedLayoutMotion: boolean
@@ -246,14 +280,12 @@ type TeacherDetailModalProps = {
 function TeacherDetailModal({
   groupId,
   isMobile,
+  onExited,
   onOpenChange,
-  originRect,
   shouldReduceMotion,
   teacher,
   useSharedLayoutMotion,
 }: TeacherDetailModalProps) {
-  const shellRef = useRef<HTMLDivElement | null>(null)
-  const teacherId = teacher?.id ?? null
   const closeModal = () => onOpenChange(false)
   const presenceMotionProps = shouldReduceMotion
     ? { initial: false as const }
@@ -265,76 +297,14 @@ function TeacherDetailModal({
     isMobile && !shouldReduceMotion
       ? { animate: 'visible' as const, exit: 'exit' as const, initial: 'hidden' as const }
       : useSharedLayoutMotion
-        ? {}
+        ? { animate: 'visible' as const, exit: 'exit' as const, initial: 'hidden' as const }
       : { exit: shouldReduceMotion ? undefined : { opacity: 1 }, initial: false as const }
-
-  useLayoutEffect(() => {
-    if (!teacherId || !useSharedLayoutMotion || shouldReduceMotion || !originRect) {
-      return
-    }
-
-    const shell = shellRef.current
-
-    if (!shell) {
-      return
-    }
-
-    const targetRect = shell.getBoundingClientRect()
-
-    if (targetRect.width === 0 || targetRect.height === 0) {
-      return
-    }
-
-    const x = originRect.left - targetRect.left
-    const y = originRect.top - targetRect.top
-    const scaleX = originRect.width / targetRect.width
-    const scaleY = originRect.height / targetRect.height
-
-    const clearMotionStyles = () => {
-      if (shellRef.current === shell) {
-        shell.style.transform = ''
-        shell.style.transformOrigin = ''
-        shell.style.willChange = ''
-      }
-    }
-
-    shell.style.transformOrigin = 'top left'
-    shell.style.willChange = 'transform'
-
-    let isCancelled = false
-    let cleanupFrame = 0
-    const controls = animate(
-      shell,
-      {
-        transform: [
-          `translate(${x}px, ${y}px) scale(${scaleX}, ${scaleY})`,
-          'translate(0px, 0px) scale(1, 1)',
-        ],
-      },
-      { duration: 0.42, ease: EASE_OUT },
-    )
-
-    void controls.finished
-      .then(() => {
-        if (!isCancelled) {
-          cleanupFrame = window.requestAnimationFrame(clearMotionStyles)
-        }
-      })
-      .catch(() => undefined)
-
-    return () => {
-      isCancelled = true
-      window.cancelAnimationFrame(cleanupFrame)
-      controls.stop()
-      clearMotionStyles()
-    }
-  }, [originRect, shouldReduceMotion, teacherId, useSharedLayoutMotion])
 
   return (
     <DialogPrimitive.Root open={teacher !== null} onOpenChange={onOpenChange}>
-      <AnimatePresence>
+      <AnimatePresence onExitComplete={onExited}>
         {teacher ? (
-          <Fragment key={teacher.id}>
+          <DialogPrimitive.Portal forceMount key={teacher.id}>
             <DialogPrimitive.Overlay asChild forceMount>
               <motion.div
                 {...presenceMotionProps}
@@ -353,13 +323,18 @@ function TeacherDetailModal({
                 }}
               >
                 <motion.div
-                  ref={shellRef}
                   {...shellMotionProps}
                   className="relative flex max-h-full w-full max-w-3xl flex-col overflow-y-auto rounded-base border border-border bg-card shadow-shadow sm:max-h-[88vh] sm:flex-row sm:overflow-hidden"
                   layout={useSharedLayoutMotion}
                   layoutId={useSharedLayoutMotion ? cardLayoutId(groupId, teacher.id) : undefined}
                   transition={morphTransition}
-                  variants={isMobile && !shouldReduceMotion ? mobileModalShellVariants : undefined}
+                  variants={
+                    isMobile && !shouldReduceMotion
+                      ? mobileModalShellVariants
+                      : useSharedLayoutMotion
+                        ? overlayVariants
+                        : undefined
+                  }
                   onClick={(event) => event.stopPropagation()}
                 >
                   <DialogPrimitive.Close asChild>
@@ -444,7 +419,7 @@ function TeacherDetailModal({
                 </motion.div>
               </motion.div>
             </DialogPrimitive.Content>
-          </Fragment>
+          </DialogPrimitive.Portal>
         ) : null}
       </AnimatePresence>
     </DialogPrimitive.Root>
@@ -459,49 +434,62 @@ export function TeacherListGrid({ teachers }: TeacherListGridProps) {
   const reactId = useId()
   const groupId = `teacher-list-${reactId.replace(/[^a-zA-Z0-9_-]/g, '')}`
   const [activeId, setActiveId] = useState<number | null>(null)
-  const [activeOriginRect, setActiveOriginRect] = useState<TeacherTransitionRect | null>(null)
+  const [closingId, setClosingId] = useState<number | null>(null)
+  // Bumped per-teacher every time that teacher is opened, and folded into
+  // that card's `key` below. TeacherCard stays mounted across its whole
+  // open → closing → returned cycle (no more separate placeholder
+  // component to hand off to/from) — the only time it actually needs a
+  // fresh instance is at the *start* of a new open, so Motion has a
+  // previous box to pair the modal's shared layoutId against. Bumping the
+  // key precisely there (and nowhere else) forces exactly that remount.
+  const [openGenerations, setOpenGenerations] = useState<Record<number, number>>({})
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
-  const useCardRevealMotion = !shouldReduceMotion && !isMobile
   const useSharedLayoutMotion = !shouldReduceMotion && !isMobile
   const activeTeacher = teachers.find((teacher) => teacher.id === activeId) ?? null
+
+  const openTeacher = (teacherId: number) => {
+    setActiveId(teacherId)
+    setOpenGenerations((prev) => ({ ...prev, [teacherId]: (prev[teacherId] ?? 0) + 1 }))
+  }
 
   return (
     <LayoutGroup id={groupId}>
       <div className="teacher-grid">
         <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
-          {teachers.map((teacher, index) =>
-            teacher.id === activeId && useSharedLayoutMotion ? (
-              <TeacherCardPlaceholder key={`placeholder-${teacher.id}`} teacher={teacher} />
-            ) : (
+          {teachers.map((teacher, index) => {
+            const isPlaceholder = useSharedLayoutMotion
+              ? teacher.id === activeId || teacher.id === closingId
+              : teacher.id === activeId
+            const cardKey = useSharedLayoutMotion
+              ? `${teacher.id}-${openGenerations[teacher.id] ?? 0}`
+              : teacher.id
+
+            return (
               <TeacherCard
-                key={teacher.id}
+                key={cardKey}
                 groupId={groupId}
                 index={index}
-                isOpen={teacher.id === activeId}
+                isPlaceholder={isPlaceholder}
                 teacher={teacher}
-                useCardRevealMotion={useCardRevealMotion}
                 useSharedLayoutMotion={useSharedLayoutMotion}
-                onOpen={(originRect) => {
-                  setActiveOriginRect(originRect)
-                  setActiveId(teacher.id)
-                }}
+                onOpen={() => openTeacher(teacher.id)}
               />
-            ),
-          )}
+            )
+          })}
         </div>
       </div>
 
       <TeacherDetailModal
         groupId={groupId}
         isMobile={isMobile}
-        originRect={activeOriginRect}
         shouldReduceMotion={shouldReduceMotion}
         teacher={activeTeacher}
         useSharedLayoutMotion={useSharedLayoutMotion}
+        onExited={() => setClosingId(null)}
         onOpenChange={(open) => {
           if (!open) {
-            setActiveOriginRect(null)
+            setClosingId(activeId)
             setActiveId(null)
           }
         }}

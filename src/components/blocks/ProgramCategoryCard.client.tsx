@@ -39,7 +39,7 @@ export function ProgramCategoryCard({
     >
       <Link
         aria-label={title}
-        className="group relative flex aspect-3/2 flex-col justify-end overflow-hidden rounded-base p-6 text-white shadow-shadow sm:p-8"
+        className="group relative flex aspect-video flex-col justify-end overflow-hidden rounded-base p-6 text-white shadow-shadow sm:p-8"
         href={href}
         style={{ backgroundColor: color }}
       >
@@ -86,7 +86,7 @@ export function ProgramCategoryCard({
 
           {description ? (
             <motion.span
-              className="absolute col-start-1 row-start-1 line-clamp-3 max-w-sm self-end text-sm leading-relaxed text-white/90 sm:text-base"
+              className="absolute col-start-1 row-start-1 line-clamp-6 max-w-sm self-end text-sm leading-relaxed text-white/90 sm:text-base"
               transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
               variants={{
                 hover: { opacity: 1, y: 0 },

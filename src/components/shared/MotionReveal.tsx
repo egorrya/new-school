@@ -30,7 +30,7 @@ export function MotionReveal({
   className,
   delay = 0,
   duration = 0.47,
-  amount = 0.2,
+  amount = 0.12,
   margin,
   allowMobileMotion = false,
   once = false,

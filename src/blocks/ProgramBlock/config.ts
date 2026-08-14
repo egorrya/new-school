@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { itemIconOptions } from '@/fields/itemIcons'
+
 export const ProgramBlock: Block = {
   slug: 'program',
   interfaceName: 'ProgramBlock',
@@ -57,6 +59,15 @@ export const ProgramBlock: Block = {
           label: 'Текст',
           admin: {
             description: 'Краткое описание этапа или темы.',
+          },
+        },
+        {
+          name: 'icon',
+          type: 'select',
+          label: 'Иконка',
+          options: itemIconOptions,
+          admin: {
+            description: 'Необязательно. Если не выбрана, показывается порядковый номер.',
           },
         },
       ],

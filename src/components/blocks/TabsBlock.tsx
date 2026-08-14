@@ -53,7 +53,7 @@ export function TabsBlock({
       >
         <div className="space-y-8">
           <div className="mx-auto max-w-3xl space-y-8">
-            <h3 className="text-xl font-semibold sm:text-2xl">{tab.title}</h3>
+            <h3 className="text-xl font-medium sm:text-2xl">{tab.title}</h3>
 
             {showRichText ? (
               <RichText

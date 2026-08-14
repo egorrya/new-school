@@ -20,6 +20,9 @@ const buttonVariants = cva(
           `bg-secondary-background text-foreground border border-border ${buttonShadow} hover:translate-x-[0.0625rem] hover:translate-y-[0.0625rem] hover:shadow-none sm:hover:translate-x-[0.125rem] sm:hover:translate-y-[0.125rem]`,
         reverse:
           `bg-foreground text-background border border-border ${buttonShadow} hover:translate-x-[-0.0625rem] hover:translate-y-[-0.0625rem] hover:shadow-none sm:hover:translate-x-[-0.125rem] sm:hover:translate-y-[-0.125rem]`,
+        outline:
+          "bg-transparent text-foreground border border-foreground underline underline-offset-4 decoration-1 hover:bg-foreground hover:text-background",
+        link: "relative bg-transparent text-foreground after:absolute after:inset-x-0 after:bottom-0.5 after:h-px after:origin-left after:scale-x-0 after:bg-current after:transition-transform after:duration-300 after:ease-out after:content-[''] hover:after:scale-x-100 focus-visible:after:scale-x-100",
       },
       size: {
         default: "h-11 px-6 sm:h-[3.25rem] sm:px-9",

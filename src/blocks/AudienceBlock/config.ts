@@ -1,5 +1,7 @@
 import type { Block } from 'payload'
 
+import { itemIconOptions } from '@/fields/itemIcons'
+
 export const AudienceBlock: Block = {
   slug: 'audience',
   interfaceName: 'AudienceBlock',
@@ -57,6 +59,15 @@ export const AudienceBlock: Block = {
           label: 'Текст',
           admin: {
             description: 'Короткое пояснение к пункту.',
+          },
+        },
+        {
+          name: 'icon',
+          type: 'select',
+          label: 'Иконка',
+          options: itemIconOptions,
+          admin: {
+            description: 'Необязательно. Если не выбрана, показывается порядковый номер.',
           },
         },
       ],

@@ -3,7 +3,7 @@ import 'dotenv/config'
 import { readFile } from 'fs/promises'
 import path from 'path'
 
-import { head, put } from '@vercel/blob'
+import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
@@ -81,10 +81,36 @@ const programMediaFiles: SeedMediaInput[] = [
     'mentalnaya-arifmetika.jpg',
     'Занятие по ментальной арифметике в «Новой школе»',
   ),
-  programImageDoc('clubAnglDoshkolniki', 'angl-doshkolniki.jpg', 'Английский для дошкольников в «Новой школе»'),
-  programImageDoc('clubAnglShkolniki', 'angl-shkolniki.jpg', 'Английский для школьников в «Новой школе»'),
-  programImageDoc('clubAnglOgeEge', 'angl-oge-ege.jpg', 'Подготовка к ЕГЭ и ОГЭ по английскому языку в «Новой школе»'),
-  programImageDoc('clubAnglVzroslye', 'angl-vzroslye.jpg', 'Английский для взрослых в «Новой школе»'),
+  programImageDoc(
+    'clubAnglDoshkolniki',
+    'angl-doshkolniki.jpg',
+    'Дошкольники на занятии английским изучают алфавит с преподавателями',
+  ),
+  programImageDoc(
+    'clubAnglShkolniki',
+    'angl-shkolniki.jpg',
+    'Преподаватель пишет фразы на английском на доске на занятии со школьниками',
+  ),
+  programImageDoc(
+    'clubAnglOgeEge',
+    'angl-oge-ege.jpg',
+    'Ученик заполняет бланк ЕГЭ ручкой рядом с паспортом',
+  ),
+  programImageDoc(
+    'clubAnglVzroslye',
+    'angl-vzroslye.jpg',
+    'Взрослая ученица занимается английским языком онлайн',
+  ),
+  programImageDoc(
+    'clubAnglIndividualnye',
+    'angl-individualnye.jpg',
+    'Индивидуальное занятие английским: преподаватель и ученица за учебником',
+  ),
+  programImageDoc(
+    'clubAnglShkolaCover',
+    'angl-shkola-cover.jpg',
+    'Ученики пишут работу по английскому языку в классе с британской символикой',
+  ),
   programImageDoc('clubLetnyayaSmenaCover', 'letnyaya-smena-cover.jpg', 'Дети на летних каникулах в английском клубе «Новой школы»'),
   programImageDoc('clubLetnyayaSmenaPreview', 'letnyaya-smena-preview.jpg', 'Стрельба из лука на летней смене в «Новой школе»'),
   programImageDoc(
@@ -107,10 +133,13 @@ const programMediaFiles: SeedMediaInput[] = [
     'gruppa-prodlennogo-dnya.jpg',
     'Дети в группе продлённого дня в «Новой школе»',
   ),
+  programImageDoc('clubNulevoyKlass', 'nulevoy-klass.jpg', 'Дети на занятии в нулевом классе'),
+  programImageDoc('clubNachalnyeKlassy', 'nachalnye-klassy.jpg', 'Ученики начальных классов на уроке'),
+  programImageDoc('clubSrednyayaShkola', 'srednyaya-shkola.jpg', 'Ученики средней школы на уроке'),
   programImageDoc(
-    'programSemejnyeKlassy',
-    'semeynye-klassy.jpg',
-    'Дети на уроке в семейных классах «Новой школы»',
+    'clubStarshieKlassy',
+    'starshie-klassy.jpg',
+    'Учительница беседует со старшеклассниками в классе на уроке',
   ),
 ]
 
@@ -357,6 +386,41 @@ function makeHeroBlock({
   }
 }
 
+function makeHeroMarqueeBlock({
+  tagline,
+  title = 'Школа, где детям интересно учиться',
+  titleEmphasis = 'учиться',
+  description = 'Помогаем детям учиться, раскрывать способности и находить свои сильные стороны через занятия, проекты и живое общение',
+  primaryButtonLabel,
+  primaryButtonLink,
+  secondaryButtonLabel,
+  secondaryButtonLink,
+  images,
+}: {
+  tagline?: string
+  title?: string
+  titleEmphasis?: string
+  description?: string
+  primaryButtonLabel?: string
+  primaryButtonLink?: string
+  secondaryButtonLabel?: string
+  secondaryButtonLink?: string
+  images: number[]
+}) {
+  return {
+    blockType: 'heroMarquee',
+    tagline: tagline ?? null,
+    title,
+    titleEmphasis: titleEmphasis ?? null,
+    description,
+    primaryButtonLabel: primaryButtonLabel ?? null,
+    primaryButtonLink: primaryButtonLink ?? null,
+    secondaryButtonLabel: secondaryButtonLabel ?? null,
+    secondaryButtonLink: secondaryButtonLink ?? null,
+    images,
+  }
+}
+
 function makeTitleDescriptionBlock(title: string, description: string = PLACEHOLDER_TEXT) {
   return {
     blockType: 'titleDescription',
@@ -489,37 +553,52 @@ function makeFeatureCardsBlock(title: string, cardTexts: string[]) {
 function makeWhyUsFeatureCardsBlock() {
   return {
     blockType: 'featureCards',
-    title: 'Почему мы?',
+    title: '«Новая школа» – это',
     description: null,
     cards: [
       {
-        text: 'Опытные учителя с профильным образованием',
+        text: 'Просторные современные классы',
+        iconName: 'building-2',
+        image: null,
+      },
+      {
+        text: 'Профессиональные педагоги по всем предметам',
         iconName: 'graduation-cap',
         image: null,
       },
       {
-        text: 'Все предметы по ФГОС. Высокий уровень знаний',
-        iconName: 'book-open',
+        text: 'Английский язык с преподавателями Школы английского языка SkillSet',
+        iconName: 'languages',
         image: null,
       },
       {
-        text: 'Индивидуальный подход к способностям каждого ребенка',
-        iconName: 'users',
+        text: 'Спортивный зал',
+        iconName: 'dumbbell',
         image: null,
       },
       {
-        text: 'Дополнительный английский и шахматы в расписании',
-        iconName: 'calendar-days',
+        text: 'Компьютерный класс',
+        iconName: 'monitor',
         image: null,
       },
       {
-        text: 'Работа в элементах лучших финских образовательных технологий',
-        iconName: 'lightbulb',
+        text: 'Лаборатория',
+        iconName: 'flask-conical',
         image: null,
       },
       {
-        text: 'Коммуникативная методика при изучении английского языка',
-        iconName: 'heart-handshake',
+        text: 'ИЗО-студия и зал для музыкальных занятий',
+        iconName: 'palette',
+        image: null,
+      },
+      {
+        text: 'Уютная столовая',
+        iconName: 'utensils-crossed',
+        image: null,
+      },
+      {
+        text: 'Пространства для активных игр и отдыха',
+        iconName: 'volleyball',
         image: null,
       },
     ],
@@ -545,15 +624,20 @@ function makeCollectionGridBlock(
   itemLimit: number,
   showViewAllButton = false,
   description: string = PLACEHOLDER_TEXT,
+  options: { categoryFilter?: number; cardDesign?: 'default' | 'category'; hideTitle?: boolean } = {},
 ) {
   return {
     blockType: 'collectionGrid',
     title,
+    hideTitle: options.hideTitle ?? false,
     description,
     collectionType,
     itemLimit,
     showViewAllButton,
     viewAllButtonLabel: 'Смотреть все',
+    ...(collectionType === 'clubs'
+      ? { categoryFilter: options.categoryFilter, cardDesign: options.cardDesign ?? 'default' }
+      : {}),
   }
 }
 
@@ -780,44 +864,37 @@ async function upsertUpload(
   payload: Awaited<ReturnType<typeof getPayload>>,
   { filename, alt, filePath }: SeedMediaInput,
 ) {
+  // Seed images are static repo assets that don't change between runs. Once a
+  // media doc exists for a given filename/alt we only sync its metadata — we
+  // deliberately skip re-sending `filePath`/`overwriteExistingFiles`, since that
+  // would make Payload reprocess (resize + reformat) and re-upload every size to
+  // R2 on every single seed run, burning through the free-tier operation limits.
   const existingByFilename = await findOneByField(payload, 'media', 'filename', filename)
 
   if (existingByFilename) {
-    const updated = await payload.update({
+    return payload.update({
       collection: 'media',
       context: SEED_CONTEXT,
       data: {
         alt,
       },
-      filePath,
       id: existingByFilename.id,
       overrideAccess: true,
-      overwriteExistingFiles: true,
     })
-
-    await ensureBlobObjectForSeedMedia(updated as Media, filePath)
-
-    return updated
   }
 
   const existingByAlt = await findOneByField(payload, 'media', 'alt', alt)
 
   if (existingByAlt) {
-    const updated = await payload.update({
+    return payload.update({
       collection: 'media',
       context: SEED_CONTEXT,
       data: {
         alt,
       },
-      filePath,
       id: existingByAlt.id,
       overrideAccess: true,
-      overwriteExistingFiles: true,
     })
-
-    await ensureBlobObjectForSeedMedia(updated as Media, filePath)
-
-    return updated
   }
 
   const created = await payload.create({
@@ -831,17 +908,43 @@ async function upsertUpload(
     overwriteExistingFiles: true,
   })
 
-  await ensureBlobObjectForSeedMedia(created as Media, filePath)
+  await ensureStorageObjectForSeedMedia(created as Media, filePath)
 
   return created
 }
 
-async function ensureBlobObjectForSeedMedia(media: Media, filePath: string) {
-  if (!media.url || !media.filename || !process.env.BLOB_READ_WRITE_TOKEN) {
+let s3Client: S3Client | null = null
+
+function getS3Client() {
+  if (!s3Client) {
+    s3Client = new S3Client({
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
+      },
+      endpoint: process.env.S3_ENDPOINT,
+      forcePathStyle: true,
+      region: 'auto',
+    })
+  }
+
+  return s3Client
+}
+
+async function ensureStorageObjectForSeedMedia(media: Media, filePath: string) {
+  if (
+    !media.url ||
+    !media.filename ||
+    !process.env.S3_BUCKET ||
+    !process.env.S3_PUBLIC_URL ||
+    !process.env.S3_ACCESS_KEY_ID
+  ) {
     return
   }
 
-  const pathnames = [
+  const publicHostname = new URL(process.env.S3_PUBLIC_URL).hostname
+
+  const keys = [
     media.url,
     media.thumbnailURL,
     ...Object.values(media.sizes || {}).map((size) => size?.url),
@@ -850,13 +953,13 @@ async function ensureBlobObjectForSeedMedia(media: Media, filePath: string) {
     .reduce<string[]>((accumulator, url) => {
       try {
         const parsedUrl = new URL(url)
-        if (!parsedUrl.hostname.endsWith('.blob.vercel-storage.com')) {
+        if (parsedUrl.hostname !== publicHostname) {
           return accumulator
         }
 
-        const pathname = decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, ''))
-        if (!accumulator.includes(pathname)) {
-          accumulator.push(pathname)
+        const key = decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, ''))
+        if (!accumulator.includes(key)) {
+          accumulator.push(key)
         }
       } catch {
         return accumulator
@@ -865,27 +968,39 @@ async function ensureBlobObjectForSeedMedia(media: Media, filePath: string) {
       return accumulator
     }, [])
 
-  if (pathnames.length === 0) {
+  if (keys.length === 0) {
     return
   }
 
+  const client = getS3Client()
   let file: Buffer | null = null
 
-  for (const pathname of pathnames) {
-    try {
-      await head(pathname, {
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      })
-    } catch {
-      file = file || (await readFile(filePath))
+  for (const key of keys) {
+    let existingSize: number | null = null
 
-      await put(pathname, file, {
-        access: 'public',
-        addRandomSuffix: false,
-        contentType: media.mimeType || undefined,
-        token: process.env.BLOB_READ_WRITE_TOKEN,
-      })
+    try {
+      const existing = await client.send(
+        new HeadObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key }),
+      )
+      existingSize = existing.ContentLength ?? null
+    } catch {
+      existingSize = null
     }
+
+    file = file || (await readFile(filePath))
+
+    if (existingSize === file.byteLength) {
+      continue
+    }
+
+    await client.send(
+      new PutObjectCommand({
+        Body: file,
+        Bucket: process.env.S3_BUCKET,
+        ContentType: media.mimeType || undefined,
+        Key: key,
+      }),
+    )
   }
 }
 
@@ -938,7 +1053,7 @@ async function seedProgramCategories(
       generateSlug: false,
       title: 'Школа английского языка',
       description: 'Английский для всех возрастов, включая подготовку к ОГЭ и ЕГЭ.',
-      previewImage: media.clubAnglShkolniki.id,
+      previewImage: media.clubAnglShkolaCover.id,
       isActive: true,
       sortOrder: 3,
     },
@@ -962,12 +1077,11 @@ async function seedProgramCategories(
       sortOrder: 5,
     },
     {
-      slug: 'semeynye-klassy',
+      slug: 'shkola',
       generateSlug: false,
-      title: 'Семейные классы',
+      title: 'Школа',
       description:
-        'Семейное обучение с 1 по 11 класс по ФГОС: подготовка к аттестациям, углублённый английский, классы до 15 человек.',
-      previewImage: media.programSemejnyeKlassy.id,
+        'Общеобразовательное обучение с нулевого по одиннадцатый класс по ФГОС через Академическую гимназию.',
       isActive: false,
       sortOrder: 6,
     },
@@ -995,118 +1109,6 @@ async function seedCollections(
   programCategories: Record<string, { id: number }>,
 ) {
   const collectionSeeds = [
-    {
-      slug: 'semeynye-klassy-s-anglijskim',
-      generateSlug: false,
-      title: 'Семейные классы с английским',
-      category: programCategories['semeynye-klassy'].id,
-      shortDescription:
-        'Семейные классы — альтернативная форма обучения с 1 по 11 класс: подготовка к аттестациям и экзаменам по ФГОС, углублённое изучение английского языка по британским программам и классы до 15 человек.',
-      previewImage: media.programSemejnyeKlassy.id,
-      coverImage: media.programSemejnyeKlassy.id,
-      coverImagePosition: 'top',
-      tabs: [
-        {
-          title: 'Описание',
-          icon: 'book-open',
-          content: makeRichTextMixed([
-            {
-              type: 'paragraph',
-              text: 'Набор ведётся в 1–11 классы, а с 2026 года — с нулевого до одиннадцатого класса. Перед зачислением мы знакомимся с ребёнком и родителями, чтобы подобрать подходящий формат обучения.',
-            },
-            {
-              type: 'list',
-              items: [
-                'Классы до 15 человек',
-                'Заочная форма обучения в частной школе «Академическая гимназия» с аттестацией по ФГОС',
-                'Занятия в «Новой школе»: все предметы + углублённый английский, подготовка к экзаменам',
-                'Есть опция «школа полного дня» с 8:30 до 19:00, с питанием и прогулками',
-              ],
-            },
-          ]),
-          layout: [
-            {
-              blockType: 'audience',
-              title: 'Для кого подходят семейные классы',
-              text: 'Формат подходит семьям, которые хотят альтернативу традиционной школе, но с сохранением государственной аттестации и структурированной программы.',
-              hideHeader: false,
-              items: [
-                {
-                  title: 'Для детей с 1 по 11 класс',
-                  text: 'Дети находятся на заочной форме обучения в частной школе «Академическая гимназия», а в «Новой школе» занимаются по ФГОС с углублённым английским.',
-                },
-                {
-                  title: 'Для работающих родителей',
-                  text: 'Доступна опция «школа полного дня» с 8:30 до 19:00 — с питанием и прогулками.',
-                },
-                {
-                  title: 'Для тех, кому важен маленький коллектив',
-                  text: 'Классы до 15 человек и индивидуальный подход к каждому ребёнку.',
-                },
-              ],
-            },
-            {
-              blockType: 'program',
-              title: 'Что входит в программу',
-              description:
-                'Мы совмещаем государственные стандарты ФГОС с современными образовательными методиками и углублённым английским.',
-              items: [
-                {
-                  title: 'Все предметы по ФГОС',
-                  text: 'Полная общеобразовательная программа с профессиональными педагогами по каждому предмету.',
-                },
-                {
-                  title: 'Углублённый английский',
-                  text: 'Занятия по британским программам с преподавателями школы английского языка SkillSet.',
-                },
-                {
-                  title: 'Подготовка к экзаменам',
-                  text: 'Системная подготовка к государственной аттестации, ОГЭ и ЕГЭ по выбранным профилям.',
-                },
-                {
-                  title: 'Проектная деятельность',
-                  text: 'Ребята готовят проекты и участвуют во внеклассных мероприятиях — от литературных гостиных до театральных постановок.',
-                },
-              ],
-            },
-          ],
-        },
-        {
-          title: 'Расписание',
-          icon: 'calendar-days',
-          layout: [
-            {
-              blockType: 'schedule',
-              title: 'Расписание и режим дня',
-              description: 'Основные занятия дополняет опция «школа полного дня» для работающих родителей.',
-              scheduleItems: [
-                { label: 'Набор', value: '1–11 классы (с 2026 года — с 0 класса)' },
-                { label: 'Размер класса', value: 'До 15 человек' },
-                { label: 'Школа полного дня', value: '8:30–19:00, с питанием и прогулками' },
-                { label: 'Экскурсии', value: 'Ежемесячно' },
-                { label: 'Аттестация', value: 'Ежегодно, по всем предметам' },
-              ],
-            },
-          ],
-        },
-        {
-          title: 'Стоимость',
-          icon: 'wallet',
-          content: makeRichTextMixed([
-            {
-              type: 'paragraph',
-              text: 'Стоимость семейных классов зависит от выбранного формата обучения — базовая программа или опция «школа полного дня» с питанием и прогулками с 8:30 до 19:00.',
-            },
-            {
-              type: 'paragraph',
-              text: 'О наличии свободных мест и точной стоимости обучения уточняйте у администратора по телефону школы.',
-            },
-          ]),
-        },
-      ],
-      isActive: true,
-      sortOrder: 0,
-    },
     {
       slug: 'gruppa-prodlennogo-dnya',
       generateSlug: false,
@@ -1170,6 +1172,7 @@ async function seedCollections(
             {
               blockType: 'schedule',
               title: 'Распорядок дня',
+              hideTitle: true,
               description: 'Пн–Пт, с 12:00 до 19:00.',
               scheduleItems: [
                 { label: '12:00–13:00', value: 'Забираем детей из школы (привести ребёнка родители могут самостоятельно с 13:00)' },
@@ -1264,7 +1267,6 @@ async function seedCollections(
           ]),
         },
       ],
-      scheduleDays: ['tuesday', 'thursday'],
       isActive: true,
       sortOrder: 4,
     },
@@ -1323,7 +1325,6 @@ async function seedCollections(
           ]),
         },
       ],
-      scheduleDays: ['monday', 'wednesday'],
       isActive: true,
       sortOrder: 5,
     },
@@ -1387,7 +1388,6 @@ async function seedCollections(
           ]),
         },
       ],
-      scheduleDays: ['friday', 'saturday'],
       isActive: true,
       sortOrder: 2,
     },
@@ -1448,7 +1448,6 @@ async function seedCollections(
           ]),
         },
       ],
-      scheduleDays: ['monday', 'thursday'],
       isActive: true,
       sortOrder: 3,
     },
@@ -1524,7 +1523,6 @@ async function seedCollections(
           ]),
         },
       ],
-      scheduleDays: ['tuesday', 'sunday'],
       isActive: true,
       sortOrder: 1,
     },
@@ -1601,7 +1599,6 @@ async function seedCollections(
           ]),
         },
       ],
-      scheduleDays: ['wednesday', 'sunday'],
       isActive: true,
       sortOrder: 6,
     },
@@ -1626,6 +1623,7 @@ async function seedCollections(
       category: programCategories.anglijskij.id,
       previewImage: media.clubAnglDoshkolniki.id,
       coverImage: media.clubAnglDoshkolniki.id,
+      coverImagePosition: 'center',
       tabs: [
         {
           title: 'Описание',
@@ -1684,6 +1682,7 @@ async function seedCollections(
       category: programCategories.anglijskij.id,
       previewImage: media.clubAnglShkolniki.id,
       coverImage: media.clubAnglShkolniki.id,
+      coverImagePosition: 'top',
       tabs: [
         {
           title: 'Описание',
@@ -1742,6 +1741,7 @@ async function seedCollections(
       category: programCategories.anglijskij.id,
       previewImage: media.clubAnglOgeEge.id,
       coverImage: media.clubAnglOgeEge.id,
+      coverImagePosition: 'bottom',
       tabs: [
         {
           title: 'Описание',
@@ -1856,8 +1856,9 @@ async function seedCollections(
       title: 'Индивидуальные занятия',
       shortDescription: 'Индивидуальные занятия английским: личная программа и гибкий график.',
       category: programCategories.anglijskij.id,
-      previewImage: media.banner1.id,
-      coverImage: media.banner1.id,
+      previewImage: media.clubAnglIndividualnye.id,
+      coverImage: media.clubAnglIndividualnye.id,
+      coverImagePosition: 'bottom',
       tabs: [
         {
           title: 'Описание',
@@ -2048,7 +2049,7 @@ async function seedCollections(
       shortDescription: 'Клуб полного дня на каникулах для детей 7–12 лет: творчество и английский язык.',
       category: programCategories['aktivnye-kanikuly'].id,
       previewImage: media.clubPromezhutochnyeKanikulyPreview.id,
-      coverImage: media.clubPromezhutochnyeKanikulyCover.id,
+      coverImage: null,
       tabs: [
         {
           title: 'Описание',
@@ -2299,6 +2300,599 @@ async function seedCollections(
       ],
       isActive: true,
       sortOrder: 13,
+    },
+    {
+      slug: 'nulevoy-klass',
+      generateSlug: false,
+      title: 'Нулевой класс',
+      category: programCategories['shkola'].id,
+      shortDescription:
+        'Игра «в школу» не понарошку: адаптация к школе, английский язык, математика, чтение и творчество — для тех, кому ещё рано в 1-й класс.',
+      previewImage: media.clubNulevoyKlass.id,
+      coverImage: media.clubNulevoyKlass.id,
+      coverImagePosition: 'top',
+      tabs: [
+        {
+          title: 'Описание',
+          icon: 'book-open',
+          content: makeRichText([
+            'Нулевой класс в «Новой школе» — игра «в школу» не понарошку: качественная подготовка и адаптация к школе для тех, кому уже не интересно в саду, а в школу раньше точно не хочется.',
+          ]),
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит нулевой класс',
+              text: 'Мягкий переход от сада к школе — с сохранением игры и большим вниманием к каждому ребёнку.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Для тех, кому скучно в саду',
+                  text: 'Качественная подготовка и адаптация к школе для тех, кому не интересно в саду, а в школу раньше точно не хочется.',
+                  icon: 'baby',
+                },
+                {
+                  title: 'Для непосед',
+                  text: 'Можно не спать: привыкаем сидеть за партами, не забывая поиграть на ковре.',
+                  icon: 'sparkles',
+                },
+                {
+                  title: 'Для занятых родителей',
+                  text: 'По будням с 8:30 до 17:00, а до 19:00 можно оставить ребёнка в группе продлённого дня.',
+                  icon: 'clock',
+                },
+              ],
+            },
+            {
+              blockType: 'program',
+              title: 'Что входит в нулевой класс',
+              description: 'Каждый день — уроки и переменки, как в школе, а вокруг основных предметов — творчество, музыка, спорт и вкусное питание.',
+              items: [
+                {
+                  title: 'Английский язык',
+                  text: 'С лучшими преподавателями Школы английского языка SkillSet.',
+                  icon: 'languages',
+                },
+                {
+                  title: 'Математика, чтение и письмо',
+                  text: 'Развитие речи и подготовка руки к письму в игровой форме.',
+                  icon: 'pen-tool',
+                },
+                {
+                  title: 'Творчество и игровая деятельность',
+                  text: 'Много творчества и развивающей игровой деятельности между занятиями.',
+                  icon: 'palette',
+                },
+                {
+                  title: 'Музыка, ИЗО, физкультура, шахматы',
+                  text: 'Дополнительные занятия по всем направлениям.',
+                  icon: 'music',
+                },
+                {
+                  title: 'Питание',
+                  text: 'Вкусное и здоровое свежеприготовленное питание, соответствующее нормам СанПиНа.',
+                  icon: 'utensils',
+                },
+                {
+                  title: 'Небольшой класс',
+                  text: 'До 12 детей — внимание к каждому ребёнку.',
+                  icon: 'users',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          icon: 'calendar-days',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Основные занятия',
+              description: 'Пн–Пт, с 8:30 до 17:00.',
+              scheduleItems: [
+                {
+                  label: '9:00–14:10',
+                  value:
+                    'Занятия по школьному расписанию с переменами и перерывами на завтрак (9:40), перекус (10:35), обед (12:15)',
+                },
+                {
+                  label: '14:10–15:30',
+                  value:
+                    'Перекус и свободные игры с воспитателями (2 раза в неделю в это время — занятия по обучению игре в шахматы)',
+                },
+                { label: '15:30–16:30', value: 'Прогулка' },
+                { label: '16:30', value: 'Ужин' },
+                { label: '16:45–17:00', value: 'Время чтения' },
+              ],
+            },
+            {
+              blockType: 'schedule',
+              title: 'В группе продлённого дня',
+              description: 'С 17:00 до 19:00 работает группа продлённого дня.',
+              scheduleItems: [
+                { label: '17:00–18:00', value: 'Творческое занятие' },
+                {
+                  label: '18:00–19:00',
+                  value:
+                    'Самостоятельное творчество и игры по интересам (термо- и алмазная мозаика, рисование, сборка Лего, Бабашки (деревянный конструктор), настольные игры и т. п.)',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Стоимость',
+          icon: 'wallet',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Стоимость одного месяца обучения и сопровождения ребёнка составляет 53 000 рублей (включая питание и все занятия по расписанию до 17:00).',
+            },
+            {
+              type: 'paragraph',
+              text: 'Также в «Новой школе» есть ежегодный организационный взнос в размере 53 000 рублей, который идёт на приобретение всех учебных пособий и материалов для занятий, проведение праздников, организацию экскурсий (8–9 в год).',
+            },
+            {
+              type: 'paragraph',
+              text: 'Возможна оплата образовательной части договора материнским капиталом, а также получение вычета по НДФЛ.',
+            },
+          ]),
+        },
+        {
+          title: 'Условия приёма',
+          icon: 'heart-handshake',
+          layout: [
+            {
+              blockType: 'program',
+              title: 'Как поступить',
+              description: 'Два простых шага, чтобы ребёнок стал учеником «Новой школы».',
+              items: [
+                {
+                  title: 'Встреча с директором',
+                  text: 'Встреча родителей с директором и экскурсия по школе. Записаться можно через заявку на сайте, по телефону +7 925 292-40-96 или сообщением на этот номер в любом мессенджере.',
+                },
+                {
+                  title: 'Пробные дни',
+                  text: 'Бесплатные пробные дни (2–3 дня) — чтобы ребёнок познакомился со школой, а школа с ребёнком. На пробных днях мы проводим тестирование детей в учебной обстановке, а по его результатам заключаем договор.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 0,
+    },
+    {
+      slug: 'nachalnye-klassy',
+      generateSlug: false,
+      title: 'Начальные классы',
+      category: programCategories['shkola'].id,
+      shortDescription:
+        'Классы с 1 по 4: математика, чтение, английский по аутентичным учебникам, творчество и аттестация через Академическую гимназию.',
+      previewImage: media.clubNachalnyeKlassy.id,
+      coverImage: media.clubNachalnyeKlassy.id,
+      coverImagePosition: 'top',
+      tabs: [
+        {
+          title: 'Описание',
+          icon: 'book-open',
+          content: makeRichText([
+            'Начальные классы — один из важнейших этапов образования ребёнка: не только знания и базовые навыки (чтение, счёт, письмо), но и личность, самостоятельность, социальные навыки и умение учиться.',
+          ]),
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходят начальные классы',
+              text: 'Разностороннее развитие и структурированная программа с государственной аттестацией.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Для учеников 1–4 классов',
+                  text: 'Полная общеобразовательная программа с аттестацией через Академическую гимназию, которая ведёт личные дела детей и переводит в следующий класс.',
+                  icon: 'graduation-cap',
+                },
+                {
+                  title: 'Для разностороннего развития',
+                  text: 'Качественное умственное, творческое и физическое развитие, определение сферы интересов и выявление сильных сторон ребёнка.',
+                  icon: 'sparkles',
+                },
+                {
+                  title: 'Для насыщенной школьной жизни',
+                  text: 'Тематические недели, фестивали, праздники, экскурсии и ярмарки — интересное время без гаджетов.',
+                  icon: 'party-popper',
+                },
+              ],
+            },
+            {
+              blockType: 'program',
+              title: 'Что входит в программу начальной школы',
+              description: 'Крепкая база по основным предметам и разностороннее развитие в расписании занятий.',
+              items: [
+                {
+                  title: 'Математика и русский язык',
+                  text: 'С чистописанием — крепкая база по основным предметам.',
+                  icon: 'calculator',
+                },
+                {
+                  title: 'Английский язык и чтение',
+                  text: 'По аутентичным учебникам, а также чтение хорошей литературы.',
+                  icon: 'languages',
+                },
+                {
+                  title: 'Музыка и театр',
+                  text: 'Шумовой оркестр и театральные постановки.',
+                  icon: 'music',
+                },
+                {
+                  title: 'Рисование',
+                  text: 'С изучением основ мировой художественной культуры.',
+                  icon: 'palette',
+                },
+                {
+                  title: 'Физкультура и прогулки',
+                  text: 'ОФП и активные прогулки в расписании занятий.',
+                  icon: 'compass',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          icon: 'calendar-days',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Основные занятия',
+              description:
+                'Пн–Пт, с 8:30 до 15:30 (1-й класс — до 17:00), далее до 19:00 можно оставить ребёнка в группе продлённого дня.',
+              scheduleItems: [
+                {
+                  label: '9:00–14:10',
+                  value:
+                    'Занятия по школьному расписанию с переменами и перерывами на завтрак (9:40), перекус (10:35), обед (12:15)',
+                },
+                {
+                  label: '14:10–15:30',
+                  value:
+                    'Перекус, затем шахматы и самоподготовка (организация выполнения домашнего задания), далее свободные игры',
+                },
+              ],
+            },
+            {
+              blockType: 'schedule',
+              title: 'В группе продлённого дня',
+              description: 'С 15:30 до 19:00 работает группа продлённого дня.',
+              scheduleItems: [
+                { label: '15:30–16:30', value: 'Прогулка' },
+                { label: '16:30', value: 'Ужин' },
+                { label: '16:45–17:00', value: 'Время чтения' },
+                { label: '17:00–18:00', value: 'Творческое занятие' },
+                {
+                  label: '18:00–19:00',
+                  value:
+                    'Самостоятельное творчество и игры по интересам (термо- и алмазная мозаика, рисование, сборка Лего, Бабашки (деревянный конструктор), настольные игры и т. п.)',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Стоимость',
+          icon: 'wallet',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Стоимость одного месяца обучения и сопровождения ребёнка составляет 53 000 рублей (включая питание и все занятия по расписанию до 15:30). После 15:30 (17:00 для первоклассников) для наших учеников 1 час пребывания в ГПД стоит 250 рублей.',
+            },
+            {
+              type: 'paragraph',
+              text: 'Также в «Новой школе» есть ежегодный организационный взнос в размере 53 000 рублей, который идёт на приобретение всех учебных пособий и материалов для занятий, проведение праздников, организацию экскурсий (8–9 в год).',
+            },
+            {
+              type: 'paragraph',
+              text: 'Возможна оплата образовательной части договора материнским капиталом, а также получение вычета по НДФЛ.',
+            },
+          ]),
+        },
+        {
+          title: 'Условия приёма',
+          icon: 'heart-handshake',
+          layout: [
+            {
+              blockType: 'program',
+              title: 'Как поступить',
+              description: 'Два простых шага, чтобы ребёнок стал учеником «Новой школы».',
+              items: [
+                {
+                  title: 'Встреча с директором',
+                  text: 'Встреча родителей с директором и экскурсия по школе. Записаться можно через заявку на сайте, по телефону +7 925 292-40-96 или сообщением на этот номер в любом мессенджере.',
+                },
+                {
+                  title: 'Пробные дни',
+                  text: 'Бесплатные пробные дни (2–3 дня) — чтобы ребёнок познакомился со школой, а школа с ребёнком. На пробных днях мы проводим тестирование детей в учебной обстановке, а по его результатам заключаем договор.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 1,
+    },
+    {
+      slug: 'srednyaya-shkola',
+      generateSlug: false,
+      title: 'Средняя школа',
+      category: programCategories['shkola'].id,
+      shortDescription:
+        'Классы с 5 по 8: естественно-научные и гуманитарные направления, углублённая подготовка по базовым предметам.',
+      previewImage: media.clubSrednyayaShkola.id,
+      coverImage: media.clubSrednyayaShkola.id,
+      coverImagePosition: 'center',
+      tabs: [
+        {
+          title: 'Описание',
+          icon: 'book-open',
+          content: makeRichText([
+            'В средней школе с 5-го по 8-й классы главной задачей мы считаем показать детям многообразие естественно-научных и гуманитарных направлений — постепенно добавляются история, география, биология, физика и химия.',
+          ]),
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Для кого подходит средняя школа',
+              text: 'Многообразие направлений и постепенный переход к углублённой подготовке по интересам.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Для учеников 5–8 классов',
+                  text: 'Добавляются занятия по истории, географии, биологии, затем физике и химии — многообразие направлений.',
+                  icon: 'graduation-cap',
+                },
+                {
+                  title: 'Для тех, кто определяется с интересами',
+                  text: 'Творческие занятия постепенно переходят в индивидуальные увлечения в послешкольное время.',
+                  icon: 'compass',
+                },
+                {
+                  title: 'Для углублённой подготовки',
+                  text: 'Больше времени на качественную подготовку по русскому языку, математике и английскому.',
+                  icon: 'book-open',
+                },
+              ],
+            },
+            {
+              blockType: 'program',
+              title: 'Что входит в программу средней школы',
+              description: 'Базовые предметы и постепенное погружение в профильные направления.',
+              items: [
+                {
+                  title: 'Базовые предметы',
+                  text: 'Углублённая подготовка по русскому языку, математике и английскому языку.',
+                  icon: 'book-open',
+                },
+                {
+                  title: 'Профильные предметы',
+                  text: 'Погружение в профильные предметы в зависимости от личных интересов ребёнка.',
+                  icon: 'flask-conical',
+                },
+                {
+                  title: 'Аттестация',
+                  text: 'Все аттестационные мероприятия — через Академическую гимназию, которая ведёт личные дела детей и переводит в следующий класс.',
+                  icon: 'award',
+                },
+                {
+                  title: 'Школьные мероприятия',
+                  text: 'Дни самоуправления, тематические недели, фестивали, праздники, экскурсии и ярмарки.',
+                  icon: 'party-popper',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          icon: 'calendar-days',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Расписание дня',
+              hideTitle: true,
+              description:
+                'Пн–Пт, с 8:30 до 15:30, далее ребята могут оставаться в холле школы, соблюдая правила и не мешая дополнительным занятиям, проходящим в учебных классах после 15:30.',
+              scheduleItems: [
+                {
+                  label: '9:00–14:10',
+                  value:
+                    'Занятия по школьному расписанию с переменами и перерывами на завтрак (9:40), перекус (10:35), обед (12:15). В 8 классе могут быть занятия 1–2 раза в неделю до 15:00',
+                },
+                {
+                  label: '14:10–15:30',
+                  value: 'Перекус, затем шахматы, консультации и самоподготовка (организация выполнения домашнего задания)',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Стоимость',
+          icon: 'wallet',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Стоимость одного месяца обучения и сопровождения ребёнка составляет 53 000 рублей (включая питание и все занятия по расписанию до 15:30).',
+            },
+            {
+              type: 'paragraph',
+              text: 'Также в «Новой школе» есть ежегодный организационный взнос в размере 53 000 рублей, который идёт на приобретение всех учебных пособий и материалов для занятий, проведение праздников, организацию экскурсий (8–9 в год).',
+            },
+            {
+              type: 'paragraph',
+              text: 'Возможна оплата образовательной части договора материнским капиталом, а также получение вычета по НДФЛ.',
+            },
+          ]),
+        },
+        {
+          title: 'Условия приёма',
+          icon: 'heart-handshake',
+          layout: [
+            {
+              blockType: 'program',
+              title: 'Как поступить',
+              description: 'Два простых шага, чтобы ребёнок стал учеником «Новой школы».',
+              items: [
+                {
+                  title: 'Встреча с директором',
+                  text: 'Встреча родителей с директором и экскурсия по школе. Записаться можно через заявку на сайте, по телефону +7 925 292-40-96 или сообщением на этот номер в любом мессенджере.',
+                },
+                {
+                  title: 'Пробные дни',
+                  text: 'Бесплатные пробные дни (2–3 дня) — чтобы ребёнок познакомился со школой, а школа с ребёнком. На пробных днях мы проводим тестирование детей в учебной обстановке, а по его результатам заключаем договор.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 2,
+    },
+    {
+      slug: 'starshie-klassy',
+      generateSlug: false,
+      title: 'Старшие классы',
+      category: programCategories['shkola'].id,
+      shortDescription:
+        'Классы с 9 по 11: профильная подготовка к экзаменам, естественно-научное или гуманитарное направление.',
+      previewImage: media.clubStarshieKlassy.id,
+      coverImage: media.clubStarshieKlassy.id,
+      coverImagePosition: 'center',
+      tabs: [
+        {
+          title: 'Описание',
+          icon: 'book-open',
+          content: makeRichText([
+            'В старшей школе с 9-го по 11-й классы становится значимой профильность подготовки для наилучших результатов государственных экзаменов, при этом мы продолжаем развивать общеобразовательный кругозор по всем предметам.',
+          ]),
+          layout: [
+            {
+              blockType: 'audience',
+              title: 'Два варианта профильной подготовки',
+              text: 'В «Новой школе» есть два варианта развития профильных направлений — в зависимости от того, сколько классов учится в параллели.',
+              hideHeader: false,
+              items: [
+                {
+                  title: 'Один класс в параллели',
+                  text: 'Ребята добирают знания и навыки по профилям на консультациях по подготовке к выбранным экзаменам, встроенных в учебное расписание.',
+                  icon: 'target',
+                },
+                {
+                  title: 'Два класса в параллели',
+                  text: 'Дети и родители сразу выбирают направление — естественно-научное или гуманитарное, и мы учитываем углублённое изучение соответствующих предметов.',
+                  icon: 'compass',
+                },
+              ],
+            },
+            {
+              blockType: 'program',
+              title: 'Что входит в подготовку старшеклассников',
+              description: 'Системная подготовка к экзаменам и взрослая, но насыщенная школьная жизнь.',
+              items: [
+                {
+                  title: 'Государственные экзамены',
+                  text: 'Помощь в подготовке встроена в расписание: самостоятельное выполнение заданий, проверка, разбор ошибок, объяснение сложных тем.',
+                  icon: 'award',
+                },
+                {
+                  title: 'Аттестация',
+                  text: 'Все аттестационные мероприятия — через Академическую гимназию. Государственные экзамены наши дети сдают в Москве.',
+                  icon: 'check-circle',
+                },
+                {
+                  title: 'Школьные мероприятия',
+                  text: 'Дискотеки, дни самоуправления, фестивали, праздники, экскурсии, ярмарки.',
+                  icon: 'party-popper',
+                },
+                {
+                  title: 'Самостоятельность',
+                  text: 'Умение решать возникающие вопросы самим — то, на чём мы акцентируем внимание в воспитательной части образовательного процесса.',
+                  icon: 'star',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Расписание',
+          icon: 'calendar-days',
+          layout: [
+            {
+              blockType: 'schedule',
+              title: 'Расписание дня',
+              hideTitle: true,
+              description:
+                'Пн–Пт, с 8:30 до 15:30, далее ребята могут оставаться в классах школы, консультироваться у преподавателей, общаться, соблюдая правила и не мешая дополнительным занятиям, проходящим в учебных классах после 15:30.',
+              scheduleItems: [
+                {
+                  label: '9:00–15:00',
+                  value:
+                    'Занятия по школьному расписанию с переменами и перерывами на завтрак (9:40), перекус (10:35), обед (12:15)',
+                },
+                {
+                  label: '14:10–15:30',
+                  value: 'Перекус, консультации и самоподготовка (организация выполнения домашнего задания)',
+                },
+              ],
+            },
+          ],
+        },
+        {
+          title: 'Стоимость',
+          icon: 'wallet',
+          content: makeRichTextMixed([
+            {
+              type: 'paragraph',
+              text: 'Стоимость одного месяца обучения и сопровождения ребёнка составляет 53 000 рублей (включая питание и все занятия по расписанию до 15:30).',
+            },
+            {
+              type: 'paragraph',
+              text: 'Также в «Новой школе» есть ежегодный организационный взнос в размере 53 000 рублей, который идёт на приобретение всех учебных пособий и материалов для занятий, проведение праздников, организацию экскурсий (8–9 в год).',
+            },
+            {
+              type: 'paragraph',
+              text: 'Возможна оплата образовательной части договора материнским капиталом, а также получение вычета по НДФЛ.',
+            },
+          ]),
+        },
+        {
+          title: 'Условия приёма',
+          icon: 'heart-handshake',
+          layout: [
+            {
+              blockType: 'program',
+              title: 'Как поступить',
+              description: 'Три шага, чтобы ребёнок стал учеником «Новой школы».',
+              items: [
+                {
+                  title: 'Встреча с директором',
+                  text: 'Встреча родителей с директором и экскурсия по школе. Записаться можно через заявку на сайте, по телефону +7 925 292-40-96 или сообщением на этот номер в любом мессенджере.',
+                },
+                {
+                  title: 'Онлайн-тестирование',
+                  text: 'Для поступающих в 9-й и 11-й класс — тестирование по русскому языку и математике в Академической гимназии. Всю информацию и демонстрационные варианты вышлет администратор «Новой школы».',
+                },
+                {
+                  title: 'Пробные дни',
+                  text: 'Бесплатные пробные дни (2–3 дня) — чтобы ребёнок познакомился со школой, а школа с ребёнком. На пробных днях мы проводим тестирование детей в учебной обстановке, а по его результатам заключаем договор.',
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      isActive: true,
+      sortOrder: 3,
     },
   ] as const
 
@@ -2977,29 +3571,102 @@ async function seedOrgInfoSections(
 async function seedPages(
   payload: Awaited<ReturnType<typeof getPayload>>,
   media: Record<string, { id: number }>,
+  programCategories: Record<string, { id: number }>,
 ) {
   const pages = [
     {
       slug: 'home',
-      title: 'Новая школа',
-      pageTitle: 'Новая школа',
+      title: 'О новой школе',
+      pageTitle: 'О новой школе',
+      layout: [
+        makeHeroMarqueeBlock({
+          tagline: 'Миссия Новой школы',
+          title: 'Качественное образование в дружелюбной обстановке',
+          titleEmphasis: 'дружелюбной обстановке',
+          description:
+            'Классы до 15 человек, все предметы по ФГОС, углублённое изучение английского по британским программам и подготовка к экзаменам с профессиональными педагогами.',
+          primaryButtonLabel: 'Школа',
+          primaryButtonLink: '/shkola',
+          secondaryButtonLabel: 'Дополнительные программы',
+          secondaryButtonLink: '/programs',
+          images: [
+            media.gallery1.id,
+            media.gallery2.id,
+            media.gallery3.id,
+            media.gallery4.id,
+            media.gallery5.id,
+            media.gallery6.id,
+            media.gallery7.id,
+            media.gallery8.id,
+            media.gallery9.id,
+            media.gallery10.id,
+            media.gallery11.id,
+          ],
+        }),
+      ],
+      meta: {
+        title: 'О новой школе',
+        description: PLACEHOLDER_TEXT,
+      },
+    },
+    {
+      slug: 'shkola',
+      title: 'Школа',
+      pageTitle: 'Школа',
       layout: [
         makeHeroBlock({
+          title: 'Миссия «Новой школы» в г. Королёве',
+          description:
+            'Качественное образование в дружелюбной обстановке — мы соединили лучшее из современных образовательных технологий, чтобы в школу хотелось возвращаться.',
           primaryButtonLink: '/contacts',
-          secondaryButtonLabel: 'Кружки',
+          secondaryButtonLabel: 'Дополнительные программы',
           secondaryButtonLink: '/programs',
           image: media.hero.id,
         }),
-        makeMarqueeBlock(),
-        makeProgramCategoriesBlock('', '', true),
+        makeMarqueeBlock([
+          'Классы до 15 человек',
+          'Все предметы по ФГОС',
+          'Английский по британским программам',
+          'Подготовка к экзаменам',
+          'Шахматы',
+          'Ежегодная аттестация',
+          'Ежемесячные экскурсии',
+          '«Школа полного дня» до 19:00',
+        ]),
+        makeCollectionGridBlock('Общеобразовательные программы', 'clubs', 4, false, '', {
+          categoryFilter: programCategories['shkola'].id,
+          cardDesign: 'category',
+          hideTitle: false,
+        }),
         makeWhyUsFeatureCardsBlock(),
+        {
+          blockType: 'textImage',
+          title: 'Педагоги Новой школы',
+          text: 'Педагоги Новой школы совмещают высокий уровень преподавания с индивидуальным подходом к возможностям каждого ребёнка:',
+          items: [
+            {
+              text: 'Посильные домашние задания, направленные на закрепление изученного и обратную связь ученика с учителем',
+            },
+            {
+              text: 'Оценивание процента правильного выполнения контрольных и самостоятельных работ с последующей проработкой пробелов',
+            },
+            {
+              text: 'Подготовка к экзаменам, участие в олимпиадах, проектная деятельность',
+            },
+          ],
+          closingText:
+            'Дети, обучающиеся в Новой школе, проходят аттестации в аккредитованной образовательной организации, а мы проводим для них занятия по подготовке к аттестациям и экзаменам в соответствии с ФГОС, совмещая государственные стандарты с альтернативными современными методиками.',
+          image: media.teacherJulia.id,
+          buttonLabel: 'Все преподаватели',
+          buttonLink: '/teachers',
+          imagePosition: 'right',
+        },
+        makeCollectionGridBlock('', 'galleryAlbums', 6, false, ''),
         makeCollectionGridBlock('О нас говорят', 'reviews', 3, false, ''),
-        makeCollectionGridBlock('Наши преподаватели', 'teachers', 3, false, ''),
-        makeCollectionGridBlock('Галерея', 'galleryAlbums', 6, false, ''),
         makeCollectionGridBlock('Новости', 'news', 3, true, ''),
       ],
       meta: {
-        title: 'Новая школа',
+        title: 'Школа',
         description: PLACEHOLDER_TEXT,
         image: media.hero.id,
       },
@@ -3090,34 +3757,58 @@ async function seedPages(
           description: 'Ответы на вопросы, которые чаще всего задают родители.',
           items: [
             {
+              category: 'Поступление',
               question: 'С какого возраста можно записать ребёнка в «Новую школу»?',
               answer:
                 'Мы принимаем детей дошкольного возраста в группу подготовки к школе, а также на программу семейных классов. Точные возрастные группы уточняйте у администратора при подаче заявки.',
             },
             {
+              category: 'Поступление',
               question: 'Как записаться на занятия и есть ли пробный урок?',
               answer:
                 'Оставьте заявку через форму на сайте — мы свяжемся с вами, расскажем о программе и подберём удобное время для пробного занятия.',
             },
             {
+              category: 'Поступление',
+              question: 'Можно ли посетить школу перед зачислением?',
+              answer:
+                'Да, мы регулярно проводим дни открытых дверей и всегда рады показать школу и познакомить с педагогами по предварительной договорённости.',
+            },
+            {
+              category: 'Оплата',
               question: 'Сколько стоит обучение и как оформляется оплата?',
               answer:
                 'Стоимость зависит от выбранной программы: семейные классы, продлёнка, программы дополнительного образования. Актуальный прайс-лист и условия оплаты можно посмотреть в разделе документов школы или уточнить у администратора.',
             },
             {
+              category: 'Оплата',
+              question: 'Можно ли оплатить обучение частями или получить рассрочку?',
+              answer:
+                'Да, по большинству программ доступна помесячная оплата. Условия рассрочки уточняйте у администратора при оформлении.',
+            },
+            {
+              category: 'Обучение',
               question: 'Есть ли группа продлённого дня?',
               answer:
                 'Да, после основных занятий дети могут остаться в группе продлённого дня — под присмотром педагогов, с прогулками, отдыхом и выполнением домашних заданий.',
             },
             {
+              category: 'Обучение',
+              question: 'Сколько детей в группе и кто ведёт занятия?',
+              answer:
+                'Группы небольшие, что позволяет педагогам уделять внимание каждому ребёнку. Занятия ведут опытные преподаватели с профильным образованием.',
+            },
+            {
+              category: 'Программы',
               question: 'Какие программы и дополнительные занятия доступны?',
               answer:
                 'Кулинария, рукоделие, художественная студия, музыкально-театральная студия, красивое письмо и школа английского языка — можно выбрать одну или несколько программ в дополнение к основным занятиям.',
             },
             {
-              question: 'Можно ли посетить школу перед зачислением?',
+              category: 'Программы',
+              question: 'Можно ли совмещать несколько программ дополнительного образования?',
               answer:
-                'Да, мы регулярно проводим дни открытых дверей и всегда рады показать школу и познакомить с педагогами по предварительной договорённости.',
+                'Да, дети могут посещать несколько кружков одновременно — расписание составляется так, чтобы занятия не пересекались.',
             },
           ],
         },
@@ -3297,23 +3988,27 @@ async function seedHeader(
 ) {
   const navigationLinks: NavigationLink[] = [
     {
-      ...makeUrlNavigationLink('О школе', '/'),
+      ...makeUrlNavigationLink('О нас', '/'),
       subLinks: [
         pages.home ? makePageNavigationSubLink('Главная', pages.home.id) : makeUrlNavigationSubLink('Главная', '/'),
+        makeUrlNavigationSubLink('Преподаватели', '/teachers'),
         makeUrlNavigationSubLink('Вакансии', '/vacancies'),
         makeUrlNavigationSubLink('Новости', '/news'),
+        pages.faq
+          ? makePageNavigationSubLink('Вопросы и ответы', pages.faq.id)
+          : makeUrlNavigationSubLink('Вопросы и ответы', '/faq'),
         pages.contacts
           ? makePageNavigationSubLink('Контакты', pages.contacts.id)
           : makeUrlNavigationSubLink('Контакты', '/contacts'),
       ],
     },
-    makeUrlNavigationLink('Сведения об образовательной организации', '/organization-info'),
+    pages.shkola
+      ? makePageNavigationLink('Школа', pages.shkola.id)
+      : makeUrlNavigationLink('Школа', '/shkola'),
     pages.programs
       ? makePageNavigationLink('Дополнительные программы', pages.programs.id)
       : makeUrlNavigationLink('Дополнительные программы', '/programs'),
-    pages.faq
-      ? makePageNavigationLink('Вопросы и ответы', pages.faq.id)
-      : makeUrlNavigationLink('Вопросы и ответы', '/faq'),
+    makeUrlNavigationLink('Сведения об образовательной организации', '/organization-info'),
   ]
 
   const secondaryHeaderLinks: NavigationLink[] = [
@@ -3359,7 +4054,7 @@ async function seedSiteSettings(
       maxUrl: 'https://vk.me/79252924096',
       telegramUrl: 'https://t.me/New_School_Korolev',
       whatsappUrl: 'https://web.whatsapp.com/send?phone=79252924096',
-      defaultApplicationCtaText: 'Оставить заявку',
+      defaultApplicationCtaText: 'Связаться',
     },
     slug: 'site-settings',
   })
@@ -3373,7 +4068,7 @@ async function main() {
     const programCategories = await seedProgramCategories(payload, media)
     await seedCollections(payload, media, programCategories)
     await seedOrgInfoSections(payload, media)
-    const pages = await seedPages(payload, media)
+    const pages = await seedPages(payload, media, programCategories)
     await seedHeader(payload, pages)
     await seedFooter(payload)
     await seedSiteSettings(payload, media)

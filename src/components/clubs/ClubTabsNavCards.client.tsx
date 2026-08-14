@@ -85,7 +85,7 @@ export function ClubTabsNavCards({ tabs }: { tabs?: Club['tabs'] }) {
 
         return (
           <MotionReveal
-            amount={0.35}
+            amount={0.12}
             className="w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(25%-0.75rem)]"
             delay={index * 0.08}
             duration={0.42}

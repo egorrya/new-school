@@ -14,7 +14,7 @@ type GalleryPhotoSliderProps = {
 export function GalleryPhotoSlider({ slides, className }: GalleryPhotoSliderProps) {
   return (
     <MotionReveal
-      amount={0.35}
+      amount={0.12}
 
       className={cn('will-change-[transform,opacity]', className)}
       duration={0.63}

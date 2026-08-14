@@ -100,7 +100,7 @@ export function PageBlockHeader({
             </div>
           ) : null}
           <MotionReveal
-            amount={0.35}
+            amount={0.12}
             className={leading ? 'lg:col-start-2 lg:row-start-1' : undefined}
             delay={titleDelay}
             duration={titleDuration}
@@ -121,7 +121,7 @@ export function PageBlockHeader({
       ) : null}
       {description ? (
         <MotionReveal
-          amount={0.35}
+          amount={0.12}
           delay={descriptionDelay}
           duration={0.47}
           margin="0px 0px -25% 0px"

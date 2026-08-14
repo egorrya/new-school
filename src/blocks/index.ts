@@ -7,6 +7,7 @@ import { ContactsBlock } from './ContactsBlock/config'
 import { FaqBlock } from './FaqBlock/config'
 import { FeatureCardsBlock } from './FeatureCardsBlock/config'
 import { HeroBlock } from './HeroBlock/config'
+import { HeroMarqueeBlock } from './HeroMarqueeBlock/config'
 import { MarqueeBlock } from './MarqueeBlock/config'
 import { ProgramBlock } from './ProgramBlock/config'
 import { ProgramCategoriesBlock } from './ProgramCategoriesBlock/config'
@@ -25,6 +26,7 @@ export {
   FaqBlock,
   FeatureCardsBlock,
   HeroBlock,
+  HeroMarqueeBlock,
   MarqueeBlock,
   ProgramBlock,
   ProgramCategoriesBlock,
@@ -38,6 +40,7 @@ export {
 
 export const pageBlocks: Block[] = [
   HeroBlock,
+  HeroMarqueeBlock,
   TitleDescriptionBlock,
   MarqueeBlock,
   TextImageBlock,

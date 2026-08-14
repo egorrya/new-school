@@ -79,5 +79,22 @@ export const HeroBlock: Block = {
         description: 'Адрес для первой кнопки.',
       },
     },
+    {
+      name: 'secondaryButtonLabel',
+      type: 'text',
+      label: 'Текст второй кнопки',
+      admin: {
+        description: 'Необязательно. Показывается только если заполнены оба поля.',
+      },
+    },
+    {
+      name: 'secondaryButtonLink',
+      type: 'text',
+      label: 'Ссылка второй кнопки',
+      admin: {
+        description: 'Адрес для второй кнопки.',
+        condition: (_, siblingData) => Boolean(siblingData?.secondaryButtonLabel),
+      },
+    },
   ],
 }

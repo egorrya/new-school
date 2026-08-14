@@ -8,7 +8,6 @@ import { nestedTabBlocks } from '@/blocks/TabsBlock/config'
 import { defaultLexical } from '@/fields/defaultLexical'
 
 import { clubInfoCardIconOptions } from './clubInfoCardIcons'
-import { weekdayOptions } from './scheduleDays'
 
 export const Clubs: CollectionConfig<'clubs'> = {
   slug: 'clubs',
@@ -154,18 +153,6 @@ export const Clubs: CollectionConfig<'clubs'> = {
       ],
     },
     {
-      name: 'scheduleDays',
-      type: 'select',
-      hasMany: true,
-      label: 'Дни занятий',
-      options: weekdayOptions,
-      admin: {
-        position: 'sidebar',
-        description:
-          'Дни недели, в которые проходят занятия. Кружок автоматически появится в соответствующий день на странице «Расписание».',
-      },
-    },
-    {
       name: 'isActive',
       type: 'checkbox',
       label: 'Показывать на сайте',
@@ -190,6 +177,35 @@ export const Clubs: CollectionConfig<'clubs'> = {
         description:
           'Если выбрано, карточка программы и переход по прямой ссылке будут вести на страницу этой категории, а не на страницу программы. Собственное содержание программы (вкладки) при этом не нужно — карточка работает как ссылка.',
       },
+    },
+    {
+      name: 'customBackLink',
+      type: 'group',
+      label: 'Кастомная кнопка «Назад»',
+      admin: {
+        position: 'sidebar',
+        description:
+          'Если заполнена ссылка, кнопка «Назад» на странице программы будет вести по ней вместо категории или списка программ.',
+      },
+      fields: [
+        {
+          name: 'href',
+          type: 'text',
+          label: 'Ссылка',
+          admin: {
+            description: 'Например, /programs, /programs/category/shkola или /.',
+          },
+        },
+        {
+          name: 'label',
+          type: 'text',
+          label: 'Текст кнопки',
+          admin: {
+            description: 'Если не заполнено, используется «На главную».',
+            condition: (_data, siblingData) => Boolean(siblingData?.href),
+          },
+        },
+      ],
     },
   ],
 }

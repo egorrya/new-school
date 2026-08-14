@@ -311,7 +311,7 @@
   --accent-sun: oklch(90.5% 0.14 92deg);
   --school-grid-line: rgb(18 14 10 / 0.045);
   --site-header-height: 3.6rem;
-  --site-header-logo-height: 2.6rem;
+  --site-header-logo-height: 2.3rem;
   --site-header-logo-height-expanded: 2.6rem;
   --site-header-top-offset: 0.25rem;
   --site-header-fixed-bottom: var(--site-header-height);
@@ -323,12 +323,18 @@
 @variant sm {
   :root {
     --site-header-height: 10.5rem;
-    --site-header-logo-height: 3.5rem;
+    --site-header-logo-height: 2.7rem;
     --site-header-logo-height-expanded: 7.5rem;
     --site-header-top-offset: 0.5rem;
     --site-header-fixed-bottom: var(--site-header-height);
     --site-tabs-nav-height: 0px;
     --site-tabs-nav-top-gap: 0.25rem;
+  }
+}
+
+@variant lg {
+  :root {
+    --site-header-logo-height: 3.1rem;
   }
 }
 

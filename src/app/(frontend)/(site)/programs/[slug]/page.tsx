@@ -113,7 +113,14 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
   const categoryClubCount = category ? await queryCategoryClubCount(category.id, draft) : 0
   const showTabsNav = Boolean(club.useTabsNavigation)
 
-  const categoryBadge = category ? (
+  const customBackLinkHref = club.customBackLink?.href
+  const isSchoolCategory = category?.slug === 'shkola'
+
+  const categoryBadge = customBackLinkHref ? (
+    <BackLink href={customBackLinkHref} label={club.customBackLink?.label || 'На главную'} />
+  ) : isSchoolCategory ? (
+    <BackLink href="/" label="На главную" />
+  ) : category ? (
     categoryClubCount > 1 ? (
       <BackLink href={getDocumentHref('programCategories', category.slug)} label={category.title} />
     ) : (
@@ -127,7 +134,7 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
         <PageBlockContainer>
           <div className="space-y-8">
             <PageBlockHeader
-              className="mx-auto max-w-4xl text-center"
+              className="mx-auto max-w-4xl space-y-8 text-center"
               description={club.shortDescription}
               descriptionClassName="mx-auto max-w-2xl text-center"
               headingLevel={1}
@@ -139,7 +146,7 @@ export default async function ClubPage({ params: paramsPromise }: Args) {
             {showTabsNav ? null : <ClubTabsNavCards tabs={club.tabs} />}
 
             {hasCoverImage ? (
-              <MotionReveal amount={0.35} duration={0.47} y={18}>
+              <MotionReveal amount={0.12} duration={0.47} y={18}>
                 <ClubCoverImage
                   alt={club.title}
                   position={club.coverImagePosition}

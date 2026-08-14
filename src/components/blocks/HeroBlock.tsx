@@ -81,10 +81,13 @@ export function HeroBlock({
   kidsImage,
   primaryButtonLabel,
   primaryButtonLink,
+  secondaryButtonLabel,
+  secondaryButtonLink,
   fullScreen = false,
 }: HeroBlockProps) {
   const hasPrimaryAction = Boolean(primaryButtonLabel && primaryButtonLink)
   const primaryHref = primaryButtonLink || '/'
+  const hasSecondaryAction = Boolean(secondaryButtonLabel && secondaryButtonLink)
   const stableMobileHeroHeight = useStableMobileHeroHeight(fullScreen)
   const fullScreenStyle = fullScreen
     ? {
@@ -114,22 +117,31 @@ export function HeroBlock({
           >
             <div className={cn('space-y-4 sm:space-y-6', fullScreen && 'max-w-3xl')}>
               <div className="space-y-4 sm:space-y-6">
-                <MotionReveal allowMobileMotion amount={0.2} duration={0.7} y={18}>
+                <MotionReveal allowMobileMotion amount={0.12} duration={0.7} y={18}>
                   <h2 className="font-heading text-3xl leading-[1.1] sm:text-4xl lg:text-5xl">
                     {title}
                   </h2>
                 </MotionReveal>
-                <MotionReveal allowMobileMotion amount={0.2} delay={0.14} duration={0.6} y={18}>
+                <MotionReveal allowMobileMotion amount={0.12} delay={0.14} duration={0.6} y={18}>
                   <p className="max-w-2xl text-base leading-relaxed text-black sm:text-lg">
                     {description || 'Описание этого экрана пока не заполнено.'}
                   </p>
                 </MotionReveal>
               </div>
-              <MotionReveal allowMobileMotion amount={0.2} delay={0.3} duration={0.55} y={18}>
-                <div className="flex flex-wrap gap-3">
+              <MotionReveal allowMobileMotion amount={0.12} delay={0.3} duration={0.55} y={18}>
+                <div className="flex flex-wrap items-center gap-5">
                   {hasPrimaryAction ? (
                     <Button asChild>
                       <Link href={primaryHref}>{primaryButtonLabel}</Link>
+                    </Button>
+                  ) : null}
+                  {hasSecondaryAction ? (
+                    <Button
+                      asChild
+                      className="h-auto px-0 py-1 sm:h-auto sm:px-0"
+                      variant="link"
+                    >
+                      <Link href={secondaryButtonLink || '/'}>{secondaryButtonLabel}</Link>
                     </Button>
                   ) : null}
                 </div>

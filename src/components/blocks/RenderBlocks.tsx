@@ -9,6 +9,7 @@ import { ContactsBlock } from './ContactsBlock'
 import { FaqBlock } from './FaqBlock'
 import { FeatureCardsBlock } from './FeatureCardsBlock'
 import { HeroBlock } from './HeroBlock'
+import { HeroMarqueeBlock } from './HeroMarqueeBlock'
 import { MarqueeBlock } from './MarqueeBlock'
 import { ProgramBlock } from './ProgramBlock'
 import { ProgramCategoriesBlock } from './ProgramCategoriesBlock'
@@ -45,6 +46,8 @@ function renderBlock(
   switch (block.blockType) {
     case 'hero':
       return <HeroBlock {...block} fullScreen={isFirstBlock} />
+    case 'heroMarquee':
+      return <HeroMarqueeBlock {...block} fullScreen={isFirstBlock} />
     case 'titleDescription':
       return (
         <TitleDescriptionBlock

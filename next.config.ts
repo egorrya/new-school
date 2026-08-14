@@ -35,7 +35,7 @@ const nextConfig: NextConfig = {
         pathname: '/api/media/file/**',
       },
     ],
-    qualities: [100],
+    qualities: [75, 100],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
         const url = new URL(item)
@@ -45,10 +45,16 @@ const nextConfig: NextConfig = {
           protocol: url.protocol.replace(':', '') as 'http' | 'https',
         }
       }),
-      {
-        hostname: '*.public.blob.vercel-storage.com',
-        protocol: 'https',
-      },
+      ...(process.env.S3_PUBLIC_URL
+        ? [
+            {
+              hostname: new URL(process.env.S3_PUBLIC_URL).hostname,
+              protocol: new URL(process.env.S3_PUBLIC_URL).protocol.replace(':', '') as
+                | 'http'
+                | 'https',
+            },
+          ]
+        : []),
     ],
   },
   webpack: (webpackConfig) => {

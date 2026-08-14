@@ -15,14 +15,14 @@ export async function SiteContactsSection() {
   }
 
   const headersList = await headers()
-  const pathname = headersList.get('x-pathname') || '/'
-  const normalizedPathname = pathname.replace(/\/$/, '') || '/'
+  const pathname = headersList.get('x-pathname')
+  const normalizedPathname = pathname ? pathname.replace(/\/$/, '') || '/' : null
 
-  if (normalizedPathname === '/contacts') {
+  if (normalizedPathname === '/contacts' || normalizedPathname === '/') {
     return null
   }
 
-  const pageUrl = new URL(pathname, getServerSideURL()).toString()
+  const pageUrl = new URL(pathname || '/', getServerSideURL()).toString()
 
   return (
     <>

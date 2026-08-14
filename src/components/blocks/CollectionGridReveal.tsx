@@ -12,7 +12,7 @@ type CollectionGridRevealProps = {
 
 export function CollectionGridReveal({ children, className }: CollectionGridRevealProps) {
   return (
-    <MotionReveal amount={0.35} className={cn(className)} duration={0.47} y={18}>
+    <MotionReveal amount={0.12} className={cn(className)} duration={0.47} y={18}>
       {children}
     </MotionReveal>
   )

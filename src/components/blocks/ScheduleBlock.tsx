@@ -28,6 +28,7 @@ function getClubHref(club: Club) {
 
 export function ScheduleBlock({
   hideHeader,
+  hideTitle,
   title,
   description,
   scheduleItems,
@@ -46,13 +47,18 @@ export function ScheduleBlock({
               className={insideTabs ? undefined : 'mx-auto max-w-4xl text-center'}
               description={description || 'Расписание этого блока пока не заполнено.'}
               descriptionClassName={insideTabs ? 'max-w-3xl' : 'mx-auto max-w-3xl text-center'}
-              title={insideTabs ? null : title}
-              titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
+              headingLevel={insideTabs ? 4 : 2}
+              title={insideTabs || hideTitle ? null : title}
+              titleClassName={
+                insideTabs
+                  ? 'w-full text-sm font-medium text-foreground/70 sm:text-base'
+                  : 'w-full text-2xl sm:text-3xl lg:text-4xl'
+              }
             />
           )}
 
           {items.length > 0 ? (
-            <MotionReveal amount={0.35} duration={0.47} y={18}>
+            <MotionReveal amount={0.12} duration={0.47} y={18}>
               <Card className="overflow-hidden">
                 <CardContent className="p-0">
                   <ul>

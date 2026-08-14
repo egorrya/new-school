@@ -4,7 +4,7 @@ import type { StaticImageData } from 'next/image'
 
 import { cn } from '@/utilities/ui'
 import NextImage from 'next/image'
-import React, { useState } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 
 import type { Props as MediaProps } from '../types'
 
@@ -48,11 +48,13 @@ const placeholderBlur =
 export const ImageMedia: React.FC<MediaProps> = (props) => {
   const {
     alt: altFromProps,
+    disableFadeIn,
     fill,
     pictureClassName,
     imgClassName,
     imgStyle,
     priority,
+    quality = 100,
     resource,
     size: sizeFromProps,
     src: srcFromProps,
@@ -60,7 +62,21 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     onLoad,
   } = props
 
+  const imgRef = useRef<HTMLImageElement>(null)
   const [isLoaded, setIsLoaded] = useState(false)
+  const [skipTransition, setSkipTransition] = useState(false)
+
+  // If a fresh <img> mounts (e.g. a shared layoutId photo that morphs from a
+  // grid card into a modal) but the browser already has this exact image
+  // cached, skip the fade-in — otherwise it visibly flashes to transparent
+  // and back even though nothing actually needs to load.
+  useLayoutEffect(() => {
+    const img = imgRef.current
+    if (img?.complete && img.naturalWidth > 0) {
+      setSkipTransition(true)
+      setIsLoaded(true)
+    }
+  }, [])
 
   let width: number | undefined
   let height: number | undefined
@@ -92,11 +108,14 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     <picture
       className={cn(
         pictureClassName,
-        'motion-safe:transition-opacity motion-safe:duration-700 motion-safe:ease-out',
-        isLoaded ? 'opacity-100' : 'opacity-0',
+        !disableFadeIn &&
+          !skipTransition &&
+          'motion-safe:transition-opacity motion-safe:duration-700 motion-safe:ease-out',
+        disableFadeIn || isLoaded ? 'opacity-100' : 'opacity-0',
       )}
     >
       <NextImage
+        ref={imgRef}
         alt={alt || ''}
         className={cn(imgClassName)}
         fill={fill}
@@ -105,7 +124,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         placeholder="blur"
         blurDataURL={placeholderBlur}
         priority={priority}
-        quality={100}
+        quality={quality}
         loading={loading}
         onLoad={(event) => {
           const markLoaded = () => {

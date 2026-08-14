@@ -1,6 +1,6 @@
 import { redirectsPlugin } from '@payloadcms/plugin-redirects'
 import { seoPlugin } from '@payloadcms/plugin-seo'
-import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
+import { s3Storage } from '@payloadcms/storage-s3'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
 import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
@@ -60,13 +60,26 @@ export const plugins: Plugin[] = [
     generateTitle,
     generateURL,
   }),
-  vercelBlobStorage({
-    addRandomSuffix: true,
+  s3Storage({
     collections: {
       media: {
         disablePayloadAccessControl: true,
+        generateFileURL: ({ filename, prefix }) => {
+          const key = prefix ? `${prefix}/${filename}` : filename
+
+          return `${process.env.S3_PUBLIC_URL}/${key}`
+        },
       },
     },
-    token: process.env.BLOB_READ_WRITE_TOKEN,
+    bucket: process.env.S3_BUCKET as string,
+    config: {
+      credentials: {
+        accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
+        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
+      },
+      region: 'auto',
+      endpoint: process.env.S3_ENDPOINT,
+      forcePathStyle: true,
+    },
   }),
 ]

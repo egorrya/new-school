@@ -58,7 +58,7 @@ export function FooterReveal({ className, brand, navigation, legal }: FooterReve
   // `wrapperRef` is the in-flow placeholder that actually scrolls, so it's
   // what tells us whether the curtain has scrolled away enough to reveal it.
   // `once: false` so scrolling away and back replays the letter reveal.
-  const markInView = useInView(wrapperRef, { amount: 0.4, once: false })
+  const markInView = useInView(wrapperRef, { amount: 0.15, once: false })
 
   return (
     <div className="relative" ref={wrapperRef} style={{ height: footerHeight || undefined }}>

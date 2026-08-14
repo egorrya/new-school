@@ -178,6 +178,7 @@ export interface Page {
   layout?:
     | (
         | HeroBlock
+        | HeroMarqueeBlock
         | TitleDescriptionBlock
         | MarqueeBlock
         | TextImageBlock
@@ -243,6 +244,14 @@ export interface HeroBlock {
    * Адрес для первой кнопки.
    */
   primaryButtonLink: string;
+  /**
+   * Необязательно. Показывается только если заполнены оба поля.
+   */
+  secondaryButtonLabel?: string | null;
+  /**
+   * Адрес для второй кнопки.
+   */
+  secondaryButtonLink?: string | null;
   id?: string | null;
   blockName?: string | null;
   blockType: 'hero';
@@ -301,38 +310,6 @@ export interface Media {
       filesize?: number | null;
       filename?: string | null;
     };
-    small?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    medium?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    large?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
-    xlarge?: {
-      url?: string | null;
-      width?: number | null;
-      height?: number | null;
-      mimeType?: string | null;
-      filesize?: number | null;
-      filename?: string | null;
-    };
     og?: {
       url?: string | null;
       width?: number | null;
@@ -368,6 +345,45 @@ export interface FolderInterface {
   folderType?: 'media'[] | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroMarqueeBlock".
+ */
+export interface HeroMarqueeBlock {
+  /**
+   * Короткая фраза-бейдж над заголовком. Необязательно.
+   */
+  tagline?: string | null;
+  title: string;
+  /**
+   * Точное слово или фраза из заголовка, которую нужно выделить анимированным подчёркиванием. Необязательно.
+   */
+  titleEmphasis?: string | null;
+  /**
+   * Краткий текст под заголовком.
+   */
+  description?: string | null;
+  primaryButtonLabel?: string | null;
+  /**
+   * Адрес для кнопки. Показывается только если заполнены оба поля.
+   */
+  primaryButtonLink?: string | null;
+  /**
+   * Необязательно. Показывается только если заполнены оба поля.
+   */
+  secondaryButtonLabel?: string | null;
+  /**
+   * Адрес для второй кнопки.
+   */
+  secondaryButtonLink?: string | null;
+  /**
+   * Изображения для бегущей строки внизу экрана. Обычно берутся из галереи «Новой школы».
+   */
+  images?: (number | Media)[] | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'heroMarquee';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -416,9 +432,30 @@ export interface TextImageBlock {
    */
   text?: string | null;
   /**
+   * Необязательно. Список с галочками под основным текстом.
+   */
+  items?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Необязательно. Абзац, который идёт после списка пунктов.
+   */
+  closingText?: string | null;
+  /**
    * Иллюстрация рядом с текстом.
    */
   image?: (number | null) | Media;
+  /**
+   * Необязательно. Показывается только если заполнены оба поля.
+   */
+  buttonLabel?: string | null;
+  /**
+   * Адрес для кнопки.
+   */
+  buttonLink?: string | null;
   /**
    * С какой стороны показывать изображение.
    */
@@ -486,6 +523,39 @@ export interface AudienceBlock {
          * Короткое пояснение к пункту.
          */
         text?: string | null;
+        /**
+         * Необязательно. Если не выбрана, показывается порядковый номер.
+         */
+        icon?:
+          | (
+              | 'baby'
+              | 'users'
+              | 'star'
+              | 'calendar-days'
+              | 'clock'
+              | 'graduation-cap'
+              | 'book-open'
+              | 'heart-handshake'
+              | 'sparkles'
+              | 'palette'
+              | 'music'
+              | 'mic'
+              | 'utensils'
+              | 'pen-tool'
+              | 'trophy'
+              | 'award'
+              | 'wallet'
+              | 'flask-conical'
+              | 'languages'
+              | 'calculator'
+              | 'compass'
+              | 'globe'
+              | 'party-popper'
+              | 'lightbulb'
+              | 'check-circle'
+              | 'target'
+            )
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -517,6 +587,39 @@ export interface ProgramBlock {
          * Краткое описание этапа или темы.
          */
         text?: string | null;
+        /**
+         * Необязательно. Если не выбрана, показывается порядковый номер.
+         */
+        icon?:
+          | (
+              | 'baby'
+              | 'users'
+              | 'star'
+              | 'calendar-days'
+              | 'clock'
+              | 'graduation-cap'
+              | 'book-open'
+              | 'heart-handshake'
+              | 'sparkles'
+              | 'palette'
+              | 'music'
+              | 'mic'
+              | 'utensils'
+              | 'pen-tool'
+              | 'trophy'
+              | 'award'
+              | 'wallet'
+              | 'flask-conical'
+              | 'languages'
+              | 'calculator'
+              | 'compass'
+              | 'globe'
+              | 'party-popper'
+              | 'lightbulb'
+              | 'check-circle'
+              | 'target'
+            )
+          | null;
         id?: string | null;
       }[]
     | null;
@@ -556,6 +659,10 @@ export interface ScheduleBlock {
    * Показать только расписание, без заголовка и текста над ним.
    */
   hideHeader?: boolean | null;
+  /**
+   * Показать описание без заголовка — например, если это расписание единственное во вкладке и заголовок вкладки уже всё говорит.
+   */
+  hideTitle?: boolean | null;
   /**
    * Добавьте строки с расписанием.
    */
@@ -686,16 +793,25 @@ export interface Club {
         id?: string | null;
       }[]
     | null;
-  /**
-   * Дни недели, в которые проходят занятия. Кружок автоматически появится в соответствующий день на странице «Расписание».
-   */
-  scheduleDays?: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday')[] | null;
   isActive?: boolean | null;
   sortOrder?: number | null;
   /**
    * Если выбрано, карточка программы и переход по прямой ссылке будут вести на страницу этой категории, а не на страницу программы. Собственное содержание программы (вкладки) при этом не нужно — карточка работает как ссылка.
    */
   linkToCategory?: (number | null) | ProgramCategory;
+  /**
+   * Если заполнена ссылка, кнопка «Назад» на странице программы будет вести по ней вместо категории или списка программ.
+   */
+  customBackLink?: {
+    /**
+     * Например, /programs, /programs/category/shkola или /.
+     */
+    href?: string | null;
+    /**
+     * Если не заполнено, используется «На главную».
+     */
+    label?: string | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -875,9 +991,9 @@ export interface CollectionGridBlock {
    */
   categoryFilter?: (number | null) | ProgramCategory;
   /**
-   * Показать только программы, у которых в поле «Дни занятий» отмечен этот день. Используется, например, для вкладок «Расписание» по дням недели.
+   * Крупные карточки — тот же стиль, что и у категорий программ на странице «Программы».
    */
-  weekday?: ('monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday' | 'sunday') | null;
+  cardDesign?: ('default' | 'category') | null;
   /**
    * Выберите конкретный альбом или оставьте пустым, чтобы показать фото из всех альбомов.
    */
@@ -923,6 +1039,10 @@ export interface FaqBlock {
    */
   items?:
     | {
+        /**
+         * Опционально. Вопросы с одинаковой категорией группируются под общей кнопкой-фильтром над списком. Если категории не заполнены, фильтр не показывается.
+         */
+        category?: string | null;
         question: string;
         answer: string;
         id?: string | null;
@@ -1456,6 +1576,7 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         hero?: T | HeroBlockSelect<T>;
+        heroMarquee?: T | HeroMarqueeBlockSelect<T>;
         titleDescription?: T | TitleDescriptionBlockSelect<T>;
         marquee?: T | MarqueeBlockSelect<T>;
         textImage?: T | TextImageBlockSelect<T>;
@@ -1498,6 +1619,25 @@ export interface HeroBlockSelect<T extends boolean = true> {
   kidsImage?: T;
   primaryButtonLabel?: T;
   primaryButtonLink?: T;
+  secondaryButtonLabel?: T;
+  secondaryButtonLink?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HeroMarqueeBlock_select".
+ */
+export interface HeroMarqueeBlockSelect<T extends boolean = true> {
+  tagline?: T;
+  title?: T;
+  titleEmphasis?: T;
+  description?: T;
+  primaryButtonLabel?: T;
+  primaryButtonLink?: T;
+  secondaryButtonLabel?: T;
+  secondaryButtonLink?: T;
+  images?: T;
   id?: T;
   blockName?: T;
 }
@@ -1533,7 +1673,16 @@ export interface TextImageBlockSelect<T extends boolean = true> {
   eyebrow?: T;
   title?: T;
   text?: T;
+  items?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  closingText?: T;
   image?: T;
+  buttonLabel?: T;
+  buttonLink?: T;
   imagePosition?: T;
   id?: T;
   blockName?: T;
@@ -1570,6 +1719,7 @@ export interface AudienceBlockSelect<T extends boolean = true> {
     | {
         title?: T;
         text?: T;
+        icon?: T;
         id?: T;
       };
   id?: T;
@@ -1588,6 +1738,7 @@ export interface ProgramBlockSelect<T extends boolean = true> {
     | {
         title?: T;
         text?: T;
+        icon?: T;
         id?: T;
       };
   id?: T;
@@ -1612,6 +1763,7 @@ export interface ScheduleBlockSelect<T extends boolean = true> {
   title?: T;
   description?: T;
   hideHeader?: T;
+  hideTitle?: T;
   scheduleItems?:
     | T
     | {
@@ -1694,7 +1846,7 @@ export interface CollectionGridBlockSelect<T extends boolean = true> {
   manualSelection?: T;
   items?: T;
   categoryFilter?: T;
-  weekday?: T;
+  cardDesign?: T;
   galleryAlbum?: T;
   showViewAllButton?: T;
   viewAllButtonLabel?: T;
@@ -1712,6 +1864,7 @@ export interface FaqBlockSelect<T extends boolean = true> {
   items?:
     | T
     | {
+        category?: T;
         question?: T;
         answer?: T;
         id?: T;
@@ -1777,10 +1930,15 @@ export interface ClubsSelect<T extends boolean = true> {
             };
         id?: T;
       };
-  scheduleDays?: T;
   isActive?: T;
   sortOrder?: T;
   linkToCategory?: T;
+  customBackLink?:
+    | T
+    | {
+        href?: T;
+        label?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1941,46 +2099,6 @@ export interface MediaSelect<T extends boolean = true> {
               filename?: T;
             };
         square?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        small?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        medium?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        large?:
-          | T
-          | {
-              url?: T;
-              width?: T;
-              height?: T;
-              mimeType?: T;
-              filesize?: T;
-              filename?: T;
-            };
-        xlarge?:
           | T
           | {
               url?: T;

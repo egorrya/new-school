@@ -32,6 +32,17 @@ export const ScheduleBlock: Block = {
       },
     },
     {
+      name: 'hideTitle',
+      type: 'checkbox',
+      label: 'Скрыть только заголовок',
+      defaultValue: false,
+      admin: {
+        condition: (_data, siblingData) => !siblingData?.hideHeader,
+        description:
+          'Показать описание без заголовка — например, если это расписание единственное во вкладке и заголовок вкладки уже всё говорит.',
+      },
+    },
+    {
       name: 'scheduleItems',
       type: 'array',
       label: 'Строки расписания',

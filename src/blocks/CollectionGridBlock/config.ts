@@ -1,7 +1,5 @@
 import type { Block } from 'payload'
 
-import { weekdayOptions } from '@/collections/Clubs/scheduleDays'
-
 import { collectionListingPaths } from './collectionListingPaths'
 
 export const CollectionGridBlock: Block = {
@@ -109,15 +107,18 @@ export const CollectionGridBlock: Block = {
       },
     },
     {
-      name: 'weekday',
+      name: 'cardDesign',
       type: 'select',
-      label: 'День недели (фильтр)',
-      options: weekdayOptions,
+      label: 'Дизайн карточек',
+      defaultValue: 'default',
+      options: [
+        { label: 'Карточки программ', value: 'default' },
+        { label: 'Крупные карточки (как у категорий)', value: 'category' },
+      ],
       admin: {
-        condition: (_data, siblingData) =>
-          siblingData?.collectionType === 'clubs' && !siblingData?.manualSelection,
+        condition: (_data, siblingData) => siblingData?.collectionType === 'clubs',
         description:
-          'Показать только программы, у которых в поле «Дни занятий» отмечен этот день. Используется, например, для вкладок «Расписание» по дням недели.',
+          'Крупные карточки — тот же стиль, что и у категорий программ на странице «Программы».',
       },
     },
     {

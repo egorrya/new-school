@@ -6,6 +6,7 @@ import {
   PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
+import { ItemIconBadge } from '@/components/shared/ItemIconBadge'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 
 export function AudienceBlock({
@@ -32,7 +33,7 @@ export function AudienceBlock({
           )}
 
           {audienceItems.length === 1 ? (
-            <MotionReveal amount={0.35} duration={0.47} y={18}>
+            <MotionReveal amount={0.12} duration={0.47} y={18}>
               <div className="mx-auto max-w-3xl space-y-2">
                 <h3 className="font-heading text-xl leading-[1.1]">{audienceItems[0].title}</h3>
                 <p className="text-sm leading-relaxed text-foreground/80">
@@ -41,43 +42,43 @@ export function AudienceBlock({
               </div>
             </MotionReveal>
           ) : audienceItems.length > 0 ? (
-            <MotionReveal amount={0.35} duration={0.47} y={18}>
-              <div className="flex flex-wrap justify-center gap-6">
-                {audienceItems.map((item, index) => {
-                  const stackSingleColumn = insideTabs && audienceItems.length === 3
-                  const isLastOfOddPair =
-                    insideTabs &&
-                    !stackSingleColumn &&
-                    audienceItems.length % 2 === 1 &&
-                    index === audienceItems.length - 1
+            <div className="flex flex-wrap justify-center gap-6">
+              {audienceItems.map((item, index) => {
+                const stackSingleColumn = insideTabs && audienceItems.length === 3
+                const isLastOfOddPair =
+                  insideTabs &&
+                  !stackSingleColumn &&
+                  audienceItems.length % 2 === 1 &&
+                  index === audienceItems.length - 1
 
-                  return (
-                    <div
-                      className={
-                        insideTabs
-                          ? stackSingleColumn
-                            ? 'flex w-full gap-4'
-                            : isLastOfOddPair
-                              ? 'mx-auto flex w-full gap-4 sm:max-w-[calc(50%-0.75rem)]'
-                              : 'flex w-full gap-4 sm:w-[calc(50%-0.75rem)]'
-                          : 'flex w-full gap-4 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)]'
-                      }
-                      key={item.id || `${item.title}-${index}`}
-                    >
-                      <div className="flex size-12 shrink-0 items-center justify-center rounded-base border border-border bg-main text-lg font-heading text-main-foreground shadow-shadow">
-                        {String(index + 1).padStart(2, '0')}
-                      </div>
-                      <div className="space-y-2">
-                        <h3 className="font-heading text-xl leading-[1.1]">{item.title}</h3>
-                        <p className="text-sm leading-relaxed text-foreground/80">
-                          {item.text || 'Пояснение к этому пункту пока не добавлено.'}
-                        </p>
-                      </div>
+                return (
+                  <MotionReveal
+                    amount={0.12}
+                    className={
+                      insideTabs
+                        ? stackSingleColumn
+                          ? 'flex w-full gap-4'
+                          : isLastOfOddPair
+                            ? 'mx-auto flex w-full gap-4 sm:max-w-[calc(50%-0.75rem)]'
+                            : 'flex w-full gap-4 sm:w-[calc(50%-0.75rem)]'
+                        : 'flex w-full gap-4 md:w-[calc(50%-0.75rem)] xl:w-[calc(33.333%-1rem)]'
+                    }
+                    delay={index * 0.1}
+                    duration={0.47}
+                    key={item.id || `${item.title}-${index}`}
+                    y={18}
+                  >
+                    <ItemIconBadge icon={item.icon} index={index} />
+                    <div className="space-y-2">
+                      <h3 className="font-heading text-xl leading-[1.1]">{item.title}</h3>
+                      <p className="text-sm leading-relaxed text-foreground/80">
+                        {item.text || 'Пояснение к этому пункту пока не добавлено.'}
+                      </p>
                     </div>
-                  )
-                })}
-              </div>
-            </MotionReveal>
+                  </MotionReveal>
+                )
+              })}
+            </div>
           ) : (
             <PageBlockEmptyState
               description="Добавьте пункты аудитории, чтобы показать, для кого создана эта программа."

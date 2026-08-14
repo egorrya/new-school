@@ -19,6 +19,8 @@ import {
 import { buildGalleryPhotoSlides } from '@/components/collections/galleryPhotoSlides'
 import { CollectionGridHeader } from '@/components/blocks/CollectionGridHeader'
 import { CollectionGridReveal } from '@/components/blocks/CollectionGridReveal'
+import { categoryColors } from '@/components/blocks/ProgramCategoriesBlock'
+import { ProgramCategoryCard } from '@/components/blocks/ProgramCategoryCard.client'
 import { TeacherListGrid } from '@/components/blocks/TeacherListBlock.client'
 import { TestimonialsCarousel } from '@/components/blocks/TestimonialsCarousel.client'
 import { toTestimonialItems } from '@/components/blocks/testimonials'
@@ -66,7 +68,6 @@ async function getCollectionDocuments<T extends CollectionType>(
   manualSelection?: boolean | null,
   items?: CollectionGridBlockType['items'],
   categoryFilter?: CollectionGridBlockType['categoryFilter'],
-  weekday?: CollectionGridBlockType['weekday'],
 ): Promise<CollectionDocuments[T][]> {
   const payload = await getPayload({ config: configPromise })
   const now = new Date().toISOString()
@@ -120,7 +121,6 @@ async function getCollectionDocuments<T extends CollectionType>(
               },
             },
             ...(categoryFilterId ? [{ category: { equals: categoryFilterId } }] : []),
-            ...(weekday ? [{ scheduleDays: { contains: weekday } }] : []),
           ],
         },
       })
@@ -223,7 +223,7 @@ export async function CollectionGridBlock({
   manualSelection,
   items: manualItems,
   categoryFilter,
-  weekday,
+  cardDesign,
   showViewAllButton,
   title,
   viewAllButtonLabel,
@@ -238,7 +238,6 @@ export async function CollectionGridBlock({
     manualSelection,
     manualItems,
     categoryFilter,
-    weekday,
   )
   const gallerySlides =
     collectionType === 'galleryAlbums'
@@ -277,11 +276,43 @@ export async function CollectionGridBlock({
             ) : items.length > 0 ? (
               <div
                 className={cn(
-                  'grid md:grid-cols-2 xl:grid-cols-3',
+                  collectionType === 'clubs' && cardDesign === 'category'
+                    ? 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6'
+                    : 'grid md:grid-cols-2 xl:grid-cols-3',
                   collectionType === 'news' ? 'gap-6' : 'gap-4',
                 )}
               >
-                {collectionType === 'clubs'
+                {collectionType === 'clubs' && cardDesign === 'category'
+                  ? (items as Club[]).map((item, index) => {
+                      const isFourItems = items.length === 4
+                      const isCenteredLastPair =
+                        items.length % 3 === 2 && index === items.length - 2
+
+                      return (
+                        <MotionReveal
+                          amount={0.15}
+                          className={cn(
+                            isFourItems ? 'lg:col-span-3' : 'lg:col-span-2',
+                            isCenteredLastPair && 'lg:col-start-2',
+                          )}
+                          delay={0.25 + index * 0.14}
+                          duration={0.65}
+                          key={item.id || `${item.title}-${index}`}
+                          margin="0px 0px -10% 0px"
+                          y={22}
+                        >
+                          <ProgramCategoryCard
+                            color={categoryColors[index % categoryColors.length]}
+                            description={item.shortDescription}
+                            href={`/programs/${item.slug}`}
+                            previewImage={item.previewImage}
+                            title={item.title}
+                          />
+                        </MotionReveal>
+                      )
+                    })
+                  : null}
+                {collectionType === 'clubs' && cardDesign !== 'category'
                   ? (items as Club[]).map((item, index) => (
                       <ClubCard
                         club={item}
@@ -314,9 +345,7 @@ export async function CollectionGridBlock({
                   collectionType === 'clubs'
                     ? manualSelection
                       ? 'Выберите программы в поле «Программы», чтобы они появились в этой сетке.'
-                      : weekday
-                        ? 'Отметьте этот день в поле «Дни занятий» карточки кружка, чтобы он появился здесь.'
-                        : 'Добавьте хотя бы одну активную программу в Payload, чтобы она появилась в этой сетке.'
+                      : 'Добавьте хотя бы одну активную программу в Payload, чтобы она появилась в этой сетке.'
                     : collectionType === 'news'
                       ? 'Добавьте опубликованные новости в Payload, чтобы они появились в этой сетке.'
                       : collectionType === 'teachers'
@@ -331,9 +360,7 @@ export async function CollectionGridBlock({
                   collectionType === 'clubs'
                     ? manualSelection
                       ? 'Программы пока не выбраны'
-                      : weekday
-                        ? 'В этот день кружков пока нет'
-                        : 'Активные программы пока не найдены'
+                      : 'Активные программы пока не найдены'
                     : collectionType === 'news'
                       ? 'Новостей пока нет'
                       : collectionType === 'teachers'

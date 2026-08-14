@@ -99,6 +99,13 @@ export default async function ProgramCategoryPage({ params: paramsPromise }: Arg
     redirect(`/programs/${clubs[0].slug}`)
   }
 
+  const isSchoolCategory = category.slug === 'shkola'
+  const backLink = isSchoolCategory ? (
+    <BackLink href="/" label="На главную" />
+  ) : (
+    <BackLink href="/programs" label="Дополнительные программы" />
+  )
+
   return (
     <PageBlockSection>
       <PageBlockContainer>
@@ -108,7 +115,7 @@ export default async function ProgramCategoryPage({ params: paramsPromise }: Arg
             description={category.description}
             descriptionClassName="mx-auto max-w-2xl text-center"
             headingLevel={1}
-            leading={<BackLink href="/programs" label="Дополнительные программы" />}
+            leading={backLink}
             title={category.pageTitle || category.title}
             titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
           />

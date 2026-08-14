@@ -55,37 +55,40 @@ export const Media: CollectionConfig = {
     staticDir: path.resolve(dirname, '../../public/media'),
     adminThumbnail: 'thumbnail',
     focalPoint: true,
+    // Cap and compress the original file itself — the frontend renders it through
+    // Next/Image's on-demand optimizer (see ImageMedia), so we don't need Payload
+    // to also generate small/medium/large/xlarge variants for it.
+    resizeOptions: {
+      width: 2560,
+      withoutEnlargement: true,
+    },
+    formatOptions: {
+      format: 'webp',
+      options: { quality: 80 },
+    },
+    // Keep only the sizes actually referenced in code: `thumbnail` for the admin
+    // list view, `square` as the testimonial avatar fallback, `og` for social
+    // share meta images (see generateMeta.ts / testimonials.ts).
     imageSizes: [
       {
         name: 'thumbnail',
         width: 300,
+        formatOptions: { format: 'webp', options: { quality: 70 } },
       },
       {
         name: 'square',
         width: 500,
         height: 500,
-      },
-      {
-        name: 'small',
-        width: 600,
-      },
-      {
-        name: 'medium',
-        width: 900,
-      },
-      {
-        name: 'large',
-        width: 1400,
-      },
-      {
-        name: 'xlarge',
-        width: 1920,
+        formatOptions: { format: 'webp', options: { quality: 75 } },
       },
       {
         name: 'og',
         width: 1200,
         height: 630,
         crop: 'center',
+        // JPEG for maximum compatibility with social-share crawlers that
+        // don't reliably render webp OG images.
+        formatOptions: { format: 'jpeg', options: { quality: 82 } },
       },
     ],
   },

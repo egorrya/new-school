@@ -61,7 +61,7 @@ export default function NotFound() {
       </div>
 
       <div className="container relative z-10 flex justify-center px-4">
-        <MotionReveal amount={0.3} duration={0.6} y={18}>
+        <MotionReveal amount={0.12} duration={0.6} y={18}>
           <div className="flex flex-col items-center gap-6 text-center">
             <h1 className="text-3xl font-heading sm:text-4xl">Страница не найдена</h1>
             <Button asChild variant="default">

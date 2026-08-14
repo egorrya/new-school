@@ -3,15 +3,26 @@ import type { LucideIcon } from 'lucide-react'
 import {
   BookOpen,
   BrainCircuit,
+  Building2,
   CalendarDays,
+  Clock,
+  Compass,
+  Dumbbell,
+  FlaskConical,
+  Gamepad2,
   GraduationCap,
   HeartHandshake,
+  Languages,
   Layers3,
   Lightbulb,
+  Monitor,
+  Palette,
   Rocket,
   ShieldCheck,
   Sparkles,
+  UtensilsCrossed,
   Users,
+  Volleyball,
 } from 'lucide-react'
 
 import { Card, CardContent } from '@/components/ui/card'
@@ -27,15 +38,25 @@ import { MotionReveal } from '@/components/shared/MotionReveal'
 const featureIconMap: Record<string, LucideIcon> = {
   'book-open': BookOpen,
   'brain-circuit': BrainCircuit,
+  'building-2': Building2,
   'calendar-days': CalendarDays,
+  clock: Clock,
+  compass: Compass,
+  dumbbell: Dumbbell,
+  'flask-conical': FlaskConical,
   'graduation-cap': GraduationCap,
   'heart-handshake': HeartHandshake,
+  languages: Languages,
   layers: Layers3,
   lightbulb: Lightbulb,
+  monitor: Monitor,
+  palette: Palette,
   rocket: Rocket,
   'shield-check': ShieldCheck,
   sparkles: Sparkles,
+  'utensils-crossed': UtensilsCrossed,
   users: Users,
+  volleyball: Volleyball,
 }
 
 const featureIconColors = ['#06336f', '#FF6824', '#FF1E24', '#00B590', '#FFCB00']
@@ -93,7 +114,7 @@ function FeatureCard({
 
   return (
     <MotionReveal
-      amount={0.35}
+      amount={0.12}
       delay={index * 0.15}
       duration={0.235}
       margin="0px 0px -25% 0px"
@@ -127,7 +148,13 @@ export function FeatureCardsBlock({
   insideTabs,
 }: FeatureCardsBlockType & { insideTabs?: boolean }) {
   const featureCards = cards ?? []
-  const joinedLayout = title?.trim().toLowerCase().replace(/[?!]+$/g, '') === 'почему мы'
+  const normalizedTitle = title
+    ?.trim()
+    .toLowerCase()
+    .replace(/[«»"'?!–—-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+  const joinedLayout = normalizedTitle === 'почему мы' || normalizedTitle === 'новая школа это'
 
   return (
     <PageBlockSection>
