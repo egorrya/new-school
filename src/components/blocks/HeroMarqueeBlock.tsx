@@ -14,7 +14,7 @@ type HeroMarqueeBlockProps = HeroMarqueeBlockType & {
 
 const HERO_ACTION_TEXT_CLASS_NAME = 'font-heading text-xs sm:text-sm lg:text-base'
 const HERO_ACTION_LINK_BASE_CLASS_NAME =
-  'relative inline-flex whitespace-nowrap py-3'
+  'relative inline-flex overflow-hidden whitespace-nowrap py-3'
 const HERO_ACTION_LINK_CLASS_NAME = `${HERO_ACTION_LINK_BASE_CLASS_NAME} px-4 sm:px-6`
 const HERO_PRIMARY_ACTION_LINK_CLASS_NAME =
   `${HERO_ACTION_LINK_BASE_CLASS_NAME} pl-4 pr-3 sm:pl-6 sm:pr-4`
@@ -98,7 +98,7 @@ export function HeroMarqueeBlock({
                   </MotionReveal>
                 ) : null}
                 {primaryAction && secondaryAction ? (
-                  <span aria-hidden className="h-6 w-px shrink-0 bg-border" />
+                  <span aria-hidden className="w-px shrink-0 self-stretch bg-border" />
                 ) : null}
                 {secondaryAction ? (
                   <MotionReveal allowMobileMotion amount={0.12} delay={0.44} duration={0.5} y={14}>
