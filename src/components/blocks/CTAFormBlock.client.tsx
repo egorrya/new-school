@@ -44,7 +44,7 @@ const mobileCardReveal = {
   },
 }
 
-const cardRevealViewport = { amount: 0.1, margin: '-15% 0px -15% 0px', once: false } as const
+const cardRevealViewport = { amount: 0.1, margin: '-15% 0px -15% 0px', once: true } as const
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus()

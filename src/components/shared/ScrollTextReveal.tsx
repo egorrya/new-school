@@ -1,6 +1,13 @@
 'use client'
 
-import { motion, useScroll, useTransform, type MotionValue } from 'motion/react'
+import {
+  motion,
+  useMotionValue,
+  useMotionValueEvent,
+  useScroll,
+  useTransform,
+  type MotionValue,
+} from 'motion/react'
 import { useRef } from 'react'
 
 import { cn } from '@/utilities/ui'
@@ -16,6 +23,13 @@ export function ScrollTextReveal({ text, className }: ScrollTextRevealProps) {
     target: targetRef,
     offset: ['start 0.8', 'end 0.78'],
   })
+  const revealedProgress = useMotionValue(0)
+
+  useMotionValueEvent(scrollYProgress, 'change', (latestProgress) => {
+    if (latestProgress > revealedProgress.get()) {
+      revealedProgress.set(latestProgress)
+    }
+  })
 
   const words = text.split(' ')
 
@@ -29,7 +43,7 @@ export function ScrollTextReveal({ text, className }: ScrollTextRevealProps) {
         const end = start + 1 / words.length
 
         return (
-          <Word key={`${word}-${index}`} progress={scrollYProgress} range={[start, end]}>
+          <Word key={`${word}-${index}`} progress={revealedProgress} range={[start, end]}>
             {word}
           </Word>
         )

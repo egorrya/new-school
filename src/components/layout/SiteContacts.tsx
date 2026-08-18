@@ -23,6 +23,7 @@ type SocialLinkProps = {
   linkClassName?: string
   motionState?: 'hidden' | 'visible' | 'exit'
   size?: React.ComponentProps<typeof Button>['size']
+  spreadWidthWhenComplete?: string
   variant?: 'button' | 'icon' | 'plain'
 }
 
@@ -60,7 +61,7 @@ const contactRevealItemVariants: Variants = {
   }),
 }
 
-const contactsRevealViewport = { amount: 0.12, margin: '-10% 0px -10% 0px', once: false } as const
+const contactsRevealViewport = { amount: 0.12, margin: '-10% 0px -10% 0px', once: true } as const
 
 const plainSocialContainerVariants: Variants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
@@ -185,6 +186,7 @@ export function SiteSocialLinks({
   linkClassName,
   motionState = 'visible',
   size = 'sm',
+  spreadWidthWhenComplete,
   variant = 'button',
 }: SocialLinkProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
@@ -212,12 +214,25 @@ export function SiteSocialLinks({
     return null
   }
 
+  const shouldSpreadSocialLinks =
+    Boolean(spreadWidthWhenComplete) && socialLinks.length === socialItems.length
+
   if (variant === 'plain') {
     return (
       <motion.div
         animate={shouldAnimatePlainMobile ? motionState : undefined}
-        className={cn('flex items-center gap-4', className)}
+        className={cn(
+          'flex items-center gap-4',
+          shouldSpreadSocialLinks &&
+            'lg:w-[var(--social-links-spread-width)] lg:justify-between lg:gap-0',
+          className,
+        )}
         initial={shouldAnimatePlainMobile ? 'hidden' : false}
+        style={
+          shouldSpreadSocialLinks
+            ? ({ '--social-links-spread-width': spreadWidthWhenComplete } as React.CSSProperties)
+            : undefined
+        }
         variants={shouldAnimatePlainMobile ? plainSocialContainerVariants : undefined}
       >
         {socialLinks.map((item) => {

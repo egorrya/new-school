@@ -9,6 +9,7 @@ import {
   PageBlockSection,
 } from '@/components/shared/PageBlock'
 import RichText from '@/components/shared/RichText'
+import { MotionReveal, TabContentMotionProvider } from '@/components/shared/MotionReveal'
 
 import { RenderBlocks } from './RenderBlocks'
 import { TabsBlockClient } from './TabsBlock/TabsBlock.client'
@@ -45,44 +46,50 @@ export function TabsBlock({
       <div
         key={tabId}
         id={tabId}
-        className="w-full"
+        className="w-full [&_p]:!text-base [&_p]:!leading-relaxed"
         style={{
           scrollMarginTop:
             'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + var(--site-tabs-nav-height, 0px) + 2rem)',
         }}
       >
-        <div className="space-y-8">
-          <div className="mx-auto max-w-3xl space-y-8">
-            <h3 className="text-xl font-medium sm:text-2xl">{tab.title}</h3>
+        <TabContentMotionProvider>
+          <div className="space-y-6">
+            <div className="mx-auto max-w-3xl space-y-6">
+              <MotionReveal y={14}>
+                <h3 className="text-xl font-medium sm:text-2xl">{tab.title}</h3>
+              </MotionReveal>
 
-            {showRichText ? (
-              <RichText
-                data={tab.content as DefaultTypedEditorState}
-                enableGutter={false}
-                enableProse
-              />
-            ) : null}
+              {showRichText ? (
+                <MotionReveal>
+                  <RichText
+                    data={tab.content as DefaultTypedEditorState}
+                    enableGutter={false}
+                    enableProse
+                  />
+                </MotionReveal>
+              ) : null}
 
-            {!showRichText && nestedBlocks.length === 0 ? (
-              <PageBlockEmptyState
-                description="Добавьте текст или вложенные screens в эту вкладку."
-                title="Вкладка пока пустая"
-              />
+              {!showRichText && nestedBlocks.length === 0 ? (
+                <PageBlockEmptyState
+                  description="Добавьте текст или вложенные screens в эту вкладку."
+                  title="Вкладка пока пустая"
+                />
+              ) : null}
+            </div>
+
+            {nestedBlocks.length > 0 ? (
+              <div className="mx-auto max-w-3xl space-y-6 [&>section]:!py-0">
+                <RenderBlocks
+                  allowFullScreenHero={false}
+                  blocks={nestedBlocks}
+                  clubId={clubId}
+                  insideTabs
+                  pageUrl={pageUrl}
+                />
+              </div>
             ) : null}
           </div>
-
-          {nestedBlocks.length > 0 ? (
-            <div className="mx-auto max-w-3xl [&>section:first-child]:pt-0">
-              <RenderBlocks
-                allowFullScreenHero={false}
-                blocks={nestedBlocks}
-                clubId={clubId}
-                insideTabs
-                pageUrl={pageUrl}
-              />
-            </div>
-          ) : null}
-        </div>
+        </TabContentMotionProvider>
       </div>
     )
   })

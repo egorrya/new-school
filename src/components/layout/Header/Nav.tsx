@@ -16,6 +16,7 @@ import { cn } from '@/utilities/ui'
 type NavigationLinksProps = {
   className?: string
   header: Header
+  hideLastItemOnDesktop?: boolean
   itemClassName?: string
   revealDelay?: number
 }
@@ -32,12 +33,14 @@ type HeaderNavActionsProps = {
 
 type SecondaryHeaderLinksProps = {
   className?: string
+  desktopCenterNavigationItem?: NonNullable<Header['navigationLinks']>[number]
   header: Header
   siteSettings?: SiteSetting
+  socialLinksSpreadWidth?: string
 }
 
 const navigationLinkClassName =
-  'inline-flex whitespace-nowrap text-sm font-medium leading-none text-foreground transition-[font-size] duration-200 ease-out hover:text-base'
+  'inline-flex whitespace-nowrap text-base font-medium leading-none text-foreground transition-[font-size] duration-200 ease-out hover:text-lg'
 export const headerNavigationItemDelayStep = 0.18
 export const headerNavigationItemRevealDuration = 0.42
 // Hamburger reveals slightly after the CTA button so the two don't pop in as one blob.
@@ -47,6 +50,7 @@ const headerActionsRevealDuration = 0.22
 function NavigationLinks({
   className,
   header,
+  hideLastItemOnDesktop = false,
   itemClassName,
   revealDelay = 0,
 }: NavigationLinksProps) {
@@ -60,7 +64,7 @@ function NavigationLinks({
     <nav
       aria-label="Основное меню"
       className={cn(
-        'pointer-events-auto flex w-max flex-nowrap items-center gap-5 lg:gap-6',
+        'pointer-events-auto flex w-max flex-nowrap items-center gap-8 xl:gap-12 2xl:gap-14',
         className,
       )}
     >
@@ -98,11 +102,13 @@ function NavigationLinks({
         return (
           <MotionReveal
             allowMobileMotion
-            className="inline-flex"
+            className={cn(
+              'inline-flex',
+              hideLastItemOnDesktop && index === navigationLinks.length - 1 && 'xl:hidden',
+            )}
             delay={revealDelay + index * headerNavigationItemDelayStep}
             duration={headerNavigationItemRevealDuration}
             key={item.id || item.link.label}
-            once
             y={8}
           >
             <div className="group relative inline-flex items-center">
@@ -161,6 +167,7 @@ function NavigationLinks({
 export function HeaderNavLinks({
   className,
   header,
+  hideLastItemOnDesktop,
   itemClassName,
   revealDelay,
 }: NavigationLinksProps) {
@@ -168,6 +175,7 @@ export function HeaderNavLinks({
     <NavigationLinks
       className={className}
       header={header}
+      hideLastItemOnDesktop={hideLastItemOnDesktop}
       itemClassName={itemClassName}
       revealDelay={revealDelay}
     />
@@ -252,25 +260,64 @@ export function HeaderNavActions({
 
 export function SecondaryHeaderLinks({
   className,
+  desktopCenterNavigationItem,
   header,
   siteSettings,
+  socialLinksSpreadWidth,
 }: SecondaryHeaderLinksProps) {
   const secondaryLinks = header.secondaryHeaderLinks ?? []
+  const desktopCenterHref = desktopCenterNavigationItem
+    ? resolveHref(desktopCenterNavigationItem.link)
+    : ''
+  const isDesktopCenterExternal =
+    desktopCenterHref.startsWith('http') ||
+    desktopCenterHref.startsWith('mailto:') ||
+    desktopCenterHref.startsWith('tel:')
+  const desktopCenterLinkClassName =
+    'whitespace-nowrap text-xs font-medium leading-none text-foreground'
 
   return (
-    <div className={cn('container', className)}>
-      <div className="flex min-h-9 items-center justify-center gap-4 px-4 py-2 sm:justify-between sm:px-6">
+    <div className={className}>
+      <div className="relative flex items-center justify-between gap-3 px-3 py-1 sm:gap-4 sm:px-2.5 sm:py-1.5 lg:gap-6 lg:px-4 lg:py-2">
         <SiteSocialLinks
           className="hidden shrink-0 sm:flex"
-          linkClassName="text-white hover:text-white [--max-icon-background:white] [--max-icon-foreground:var(--school-black)]"
+          linkClassName="size-[1.375rem]"
           siteSettings={siteSettings}
+          spreadWidthWhenComplete={socialLinksSpreadWidth}
           variant="plain"
         />
+
+        {desktopCenterHref ? (
+          <nav
+            aria-label="Сведения об образовательной организации"
+            className="absolute left-1/2 hidden -translate-x-1/2 xl:flex"
+          >
+            {isDesktopCenterExternal ? (
+              <a
+                className={desktopCenterLinkClassName}
+                href={desktopCenterHref}
+                rel={desktopCenterNavigationItem?.link.newTab ? 'noopener noreferrer' : undefined}
+                target={desktopCenterNavigationItem?.link.newTab ? '_blank' : undefined}
+              >
+                {desktopCenterNavigationItem?.link.label}
+              </a>
+            ) : (
+              <Link
+                className={desktopCenterLinkClassName}
+                href={desktopCenterHref}
+                rel={desktopCenterNavigationItem?.link.newTab ? 'noopener noreferrer' : undefined}
+                target={desktopCenterNavigationItem?.link.newTab ? '_blank' : undefined}
+              >
+                {desktopCenterNavigationItem?.link.label}
+              </Link>
+            )}
+          </nav>
+        ) : null}
 
         {secondaryLinks.length > 0 ? (
           <nav
             aria-label="Дополнительное меню"
-            className="mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-base font-medium leading-none sm:ml-auto sm:mr-0 sm:justify-end"
+            className="mx-auto flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-[17px] font-medium leading-none sm:absolute sm:right-2.5 sm:top-1/2 sm:mx-0 sm:-translate-y-1/2 sm:justify-end lg:right-4"
           >
             {secondaryLinks.map((item) => {
               const href = resolveHref(item.link)
@@ -281,7 +328,7 @@ export function SecondaryHeaderLinks({
 
               const isExternal =
                 href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
-              const linkClassName = 'text-white transition-colors hover:text-white'
+              const linkClassName = 'text-foreground transition-colors hover:text-main'
 
               return isExternal ? (
                 <a

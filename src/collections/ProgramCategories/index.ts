@@ -48,6 +48,16 @@ export const ProgramCategories: CollectionConfig<'programCategories'> = {
       label: 'Описание',
     },
     {
+      name: 'showProgramMarquee',
+      type: 'checkbox',
+      label: 'Показывать бегущую строку с программами вместо описания',
+      defaultValue: false,
+      admin: {
+        description:
+          'При наведении на карточку категории вместо описания появится бегущая строка с названиями активных программ этой категории.',
+      },
+    },
+    {
       name: 'previewImage',
       type: 'upload',
       label: 'Картинка для превью',

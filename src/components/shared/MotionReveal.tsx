@@ -1,6 +1,7 @@
 'use client'
 
-import { motion, useReducedMotion } from 'motion/react'
+import { motion, useInView, useReducedMotion } from 'motion/react'
+import { createContext, useContext, useRef } from 'react'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/utilities/ui'
@@ -21,8 +22,17 @@ type MotionRevealProps = {
   amount?: number
   margin?: MarginType
   allowMobileMotion?: boolean
-  once?: boolean
   y?: number
+}
+
+const TabContentMotionContext = createContext(false)
+
+// A zero intersection threshold makes the reveal depend on the position of an
+// element's top edge, rather than on a percentage of the element's own height.
+const TAB_CONTENT_VIEWPORT_MARGIN = '0px 0px -10% 0px'
+
+export function TabContentMotionProvider({ children }: { children: ReactNode }) {
+  return <TabContentMotionContext.Provider value={true}>{children}</TabContentMotionContext.Provider>
 }
 
 // Keep viewport reveals responsive on first paint even when a caller requests
@@ -38,14 +48,24 @@ export function MotionReveal({
   amount = MAX_VIEWPORT_REVEAL_AMOUNT,
   margin = '-10% 0px -10% 0px',
   allowMobileMotion = false,
-  once = false,
   y = 16,
 }: MotionRevealProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
-  const viewportAmount = Math.min(amount, MAX_VIEWPORT_REVEAL_AMOUNT)
-  const viewportMargin = isMobile ? MOBILE_VIEWPORT_MARGIN : margin
-  const viewportOnce = isMobile || once
+  const isInsideTabContent = useContext(TabContentMotionContext)
+  const viewportAmount = isInsideTabContent ? 0 : Math.min(amount, MAX_VIEWPORT_REVEAL_AMOUNT)
+  const viewportMargin = isInsideTabContent
+    ? TAB_CONTENT_VIEWPORT_MARGIN
+    : isMobile
+      ? MOBILE_VIEWPORT_MARGIN
+      : margin
+  const viewportOnce = true
+  const revealRef = useRef<HTMLDivElement>(null)
+  const isInView = useInView(revealRef, {
+    amount: viewportAmount,
+    margin: viewportMargin,
+    once: viewportOnce,
+  })
 
   if (shouldReduceMotion) {
     return <div className={cn(className)}>{children}</div>
@@ -75,11 +95,11 @@ export function MotionReveal({
   return (
     <motion.div
       className={cn(className)}
+      animate={isInView ? visibleState : exitState}
       initial={initialState}
+      ref={revealRef}
       transition={revealTransition}
       exit={exitState}
-      viewport={{ amount: viewportAmount, margin: viewportMargin, once: viewportOnce }}
-      whileInView={visibleState}
     >
       {children}
     </motion.div>

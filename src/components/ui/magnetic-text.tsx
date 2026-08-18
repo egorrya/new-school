@@ -92,7 +92,7 @@ export function MagneticText({
   return (
     <div
       className={cn(
-        'relative inline-flex items-center justify-center cursor-none select-none',
+        'relative inline-flex cursor-pointer items-center justify-center select-none',
         className,
       )}
       onMouseEnter={handleMouseEnter}

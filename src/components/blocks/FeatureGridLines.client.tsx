@@ -129,7 +129,7 @@ export function FeatureGridLines({ count }: { count: number }) {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0"
       initial="hidden"
-      viewport={{ amount: 0.12, margin: '-10% 0px -10% 0px', once: false }}
+      viewport={{ amount: 0.12, margin: '-10% 0px -10% 0px', once: true }}
       whileInView="visible"
     >
       {lines.map((line) => (

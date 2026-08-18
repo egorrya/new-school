@@ -15,7 +15,7 @@ export function SchoolLifeDivider() {
       className="h-px origin-left bg-foreground/90"
       initial={{ opacity: 0.2, scaleX: 0 }}
       transition={{ duration: 0.82, ease: [0.22, 1, 0.36, 1] }}
-      viewport={{ amount: 0.55, once: false }}
+      viewport={{ amount: 0.55, once: true }}
       whileInView={{ opacity: 1, scaleX: 1 }}
     />
   )

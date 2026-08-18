@@ -55,11 +55,8 @@ const morphTransition = { type: 'spring', stiffness: 260, damping: 28 } as const
 // fresh object identity on every render — which a `{...}` literal inline in
 // JSX always is, even with identical values — can tear down and recreate
 // the IntersectionObserver on every unrelated re-render of this card (e.g.
-// every state change from another card's own open/close cycle). A newly
-// (re)connected observer has no data for a beat, which read as "left the
-// viewport" and replayed the hidden entrance state on cards nowhere near
-// actually leaving view.
-const cardRevealViewport = { amount: 0.12, margin: '-10% 0px -10% 0px', once: false }
+// every state change from another card's own open/close cycle).
+const cardRevealViewport = { amount: 0.12, margin: '-10% 0px -10% 0px', once: true }
 const cardRevealVisibleState = { opacity: 1, y: 0 }
 
 function cardRevealTransition(index: number) {

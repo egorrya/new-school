@@ -345,7 +345,7 @@
   :root {
     --site-header-height: 10.5rem;
     --site-header-logo-height: 2.7rem;
-    --site-header-logo-height-expanded: 7.5rem;
+    --site-header-logo-height-expanded: 7rem;
     --site-header-top-offset: 0.5rem;
     --site-header-fixed-bottom: var(--site-header-height);
     --site-tabs-nav-height: 0px;

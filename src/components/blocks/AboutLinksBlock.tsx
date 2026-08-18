@@ -51,7 +51,7 @@ export async function AboutLinksBlock() {
             )
 
             return (
-              <MotionReveal delay={index * 0.08} key={link.id || link.label} once y={12}>
+              <MotionReveal delay={index * 0.08} key={link.id || link.label} y={12}>
                 {isExternal ? (
                   <a
                     href={link.href}

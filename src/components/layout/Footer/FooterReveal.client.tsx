@@ -53,8 +53,8 @@ export function FooterReveal({ className, brand, navigation, legal }: FooterReve
   // The footer is `fixed`, so it's always technically in the viewport;
   // `wrapperRef` is the in-flow placeholder that actually scrolls, so it's
   // what tells us whether the curtain has scrolled away enough to reveal it.
-  // `once: false` so scrolling away and back replays the letter reveal.
-  const markInView = useInView(wrapperRef, { amount: 0.15, once: false })
+  // The mark reveals only once, so reverse scrolling does not replay it.
+  const markInView = useInView(wrapperRef, { amount: 0.15, once: true })
 
   return (
     <div className="relative" ref={wrapperRef} style={{ height: footerHeight || undefined }}>

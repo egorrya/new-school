@@ -43,10 +43,16 @@ async function getProgramCategories(): Promise<ProgramCategory[]> {
   return result.docs
 }
 
+type CategoryPrograms = {
+  href?: string
+  titles: string[]
+}
+
 // A category page with a single active club immediately redirects to that
 // club's page, so link straight there to avoid an extra navigation hop
-// (which briefly flashes the footer while the redirect resolves).
-async function getSingleClubHrefByCategory(): Promise<Map<number, string>> {
+// (which briefly flashes the footer while the redirect resolves). The same
+// query also provides program titles for the optional card marquee.
+async function getProgramsByCategory(): Promise<Map<number, CategoryPrograms>> {
   const payload = await getPayload({ config: configPromise })
 
   const result = await payload.find({
@@ -55,9 +61,11 @@ async function getSingleClubHrefByCategory(): Promise<Map<number, string>> {
     limit: 0,
     overrideAccess: false,
     pagination: false,
+    sort: ['sortOrder', 'title'],
     select: {
       category: true,
       slug: true,
+      title: true,
     },
     where: {
       isActive: {
@@ -66,7 +74,7 @@ async function getSingleClubHrefByCategory(): Promise<Map<number, string>> {
     },
   })
 
-  const slugsByCategory = new Map<number, string[]>()
+  const clubsByCategory = new Map<number, Array<{ slug: string; title: string }>>()
 
   for (const club of result.docs) {
     const categoryId = typeof club.category === 'object' ? club.category?.id : club.category
@@ -75,20 +83,21 @@ async function getSingleClubHrefByCategory(): Promise<Map<number, string>> {
       continue
     }
 
-    const slugs = slugsByCategory.get(categoryId) ?? []
-    slugs.push(club.slug)
-    slugsByCategory.set(categoryId, slugs)
+    const clubs = clubsByCategory.get(categoryId) ?? []
+    clubs.push({ slug: club.slug, title: club.title })
+    clubsByCategory.set(categoryId, clubs)
   }
 
-  const hrefByCategory = new Map<number, string>()
+  const programsByCategory = new Map<number, CategoryPrograms>()
 
-  for (const [categoryId, slugs] of slugsByCategory) {
-    if (slugs.length === 1) {
-      hrefByCategory.set(categoryId, `/programs/${slugs[0]}`)
-    }
+  for (const [categoryId, clubs] of clubsByCategory) {
+    programsByCategory.set(categoryId, {
+      href: clubs.length === 1 ? `/programs/${clubs[0].slug}` : undefined,
+      titles: clubs.map((club) => club.title),
+    })
   }
 
-  return hrefByCategory
+  return programsByCategory
 }
 
 export async function ProgramCategoriesBlock({
@@ -97,9 +106,9 @@ export async function ProgramCategoriesBlock({
   hideTitle,
   title,
 }: ProgramCategoriesBlockProps) {
-  const [categories, singleClubHrefByCategory] = await Promise.all([
+  const [categories, programsByCategory] = await Promise.all([
     getProgramCategories(),
-    getSingleClubHrefByCategory(),
+    getProgramsByCategory(),
   ])
   const showHeader = !hideTitle && Boolean(title)
 
@@ -127,6 +136,7 @@ export async function ProgramCategoriesBlock({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6">
               {categories.map((category, index) => {
                 const color = categoryColors[index % categoryColors.length]
+                const programs = programsByCategory.get(category.id)
                 const isFourCategories = categories.length === 4
                 const isCenteredLastPair =
                   categories.length % 3 === 2 && index === categories.length - 2
@@ -148,11 +158,10 @@ export async function ProgramCategoriesBlock({
                     <ProgramCategoryCard
                       color={color}
                       description={category.description}
-                      href={
-                        singleClubHrefByCategory.get(category.id) ??
-                        `/programs/category/${category.slug}`
-                      }
+                      href={programs?.href ?? `/programs/category/${category.slug}`}
                       previewImage={category.previewImage}
+                      programTitles={programs?.titles}
+                      showProgramMarquee={category.showProgramMarquee}
                       title={category.title}
                     />
                   </MotionReveal>

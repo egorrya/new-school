@@ -376,7 +376,7 @@ export async function CollectionGridBlock({
           </CollectionGridReveal>
 
           {showViewAllButton && viewAllHref && items.length > 0 ? (
-            <MotionReveal once={false}>
+            <MotionReveal>
               <div className="flex justify-center">
                 <Button asChild>
                   <Link href={viewAllHref}>{viewAllButtonLabel || 'Смотреть все'}</Link>

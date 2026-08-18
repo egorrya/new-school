@@ -838,6 +838,10 @@ export interface ProgramCategory {
   pageTitle?: string | null;
   description?: string | null;
   /**
+   * При наведении на карточку категории вместо описания появится бегущая строка с названиями активных программ этой категории.
+   */
+  showProgramMarquee?: boolean | null;
+  /**
    * Используется как фон карточки категории на странице списка программ.
    */
   previewImage?: (number | null) | Media;
@@ -2059,6 +2063,7 @@ export interface ProgramCategoriesSelect<T extends boolean = true> {
   slug?: T;
   pageTitle?: T;
   description?: T;
+  showProgramMarquee?: T;
   previewImage?: T;
   isActive?: T;
   sortOrder?: T;

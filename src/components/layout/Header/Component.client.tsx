@@ -36,6 +36,24 @@ const headerNavRevealDelay = 0.88
 const headerActionsRevealGap = 0.14
 const headerPositionTransitionDuration = 700
 
+function getDesktopSocialLinksWidth(siteSettings?: SiteSetting) {
+  const logoImage =
+    typeof siteSettings?.logoImage === 'object' && siteSettings.logoImage !== null
+      ? siteSettings.logoImage
+      : null
+  const compactLogoImage =
+    typeof siteSettings?.logoImageCompact === 'object' && siteSettings.logoImageCompact !== null
+      ? siteSettings.logoImageCompact
+      : null
+  const logo = logoImage ?? compactLogoImage
+
+  if (!logo?.width || !logo.height || logo.height <= 0) {
+    return undefined
+  }
+
+  return `calc(var(--site-header-logo-height-expanded) * ${logo.width / logo.height} - 1.25rem)`
+}
+
 export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings }) => {
   const pathname = usePathname()
   const [isMiniHeader, setIsMiniHeader] = useState(false)
@@ -50,11 +68,17 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
   const secondaryHeaderRef = useRef<HTMLDivElement | null>(null)
   const applyScrollStateRef = useRef<(() => void) | null>(null)
   const showSecondaryHeader = Boolean(header.showSecondaryHeader)
+  const desktopSocialLinksWidth = getDesktopSocialLinksWidth(siteSettings)
+  const desktopSecondaryNavigationItem = header.navigationLinks?.at(-1)
   const navigationItemCount = header.navigationLinks?.length ?? 0
+  const primaryNavigationItemCount = Math.max(
+    0,
+    navigationItemCount - (showSecondaryHeader ? 1 : 0),
+  )
   const headerActionsRevealDelay =
-    navigationItemCount > 0
+    primaryNavigationItemCount > 0
       ? headerNavRevealDelay +
-        (navigationItemCount - 1) * headerNavigationItemDelayStep +
+        (primaryNavigationItemCount - 1) * headerNavigationItemDelayStep +
         headerNavigationItemRevealDuration +
         headerActionsRevealGap
       : 0.7
@@ -139,7 +163,10 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
     }
 
     const updateHeight = () => {
-      const height = secondaryHeader.offsetHeight
+      const styles = window.getComputedStyle(secondaryHeader)
+      const verticalMargins =
+        (Number.parseFloat(styles.marginTop) || 0) + (Number.parseFloat(styles.marginBottom) || 0)
+      const height = secondaryHeader.offsetHeight + verticalMargins
       document.documentElement.style.setProperty('--site-secondary-header-height', `${height}px`)
       document.documentElement.style.setProperty(
         '--site-header-fixed-bottom',
@@ -163,17 +190,39 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
         <div
           ref={secondaryHeaderRef}
           className={cn(
-            'fixed inset-x-0 top-0 z-80 bg-black text-white transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
-            isMiniHeader ? 'pointer-events-none -translate-y-full' : 'translate-y-0',
+            'container fixed inset-x-0 top-0 z-80 mt-[calc(var(--site-header-top-offset)/2)] mb-[calc(var(--site-header-top-offset)/4)] text-foreground transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
+            isMiniHeader
+              ? 'pointer-events-none -translate-y-[calc(100%+0.125rem)] sm:-translate-y-[calc(100%+0.25rem)]'
+              : 'translate-y-0',
           )}
         >
-          <SecondaryHeaderLinks header={header} siteSettings={siteSettings} />
+          <motion.div
+            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
+            transition={{ delay: 0.1, duration: 0.48, ease: 'easeOut' }}
+          >
+            <div className="rounded-base border border-border bg-white">
+              <SecondaryHeaderLinks
+                desktopCenterNavigationItem={
+                  showSecondaryHeader ? desktopSecondaryNavigationItem : undefined
+                }
+                header={header}
+                siteSettings={siteSettings}
+                socialLinksSpreadWidth={desktopSocialLinksWidth}
+              />
+            </div>
+          </motion.div>
         </div>
       ) : null}
       <header
         ref={fixedHeaderRef}
         className={cn(
-          'container fixed inset-x-0 pt-(--site-header-top-offset) transition-[top] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          'container fixed inset-x-0 transition-[top] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          showSecondaryHeader && !isMiniHeader
+            ? 'pt-0'
+            : isMiniHeader
+              ? 'mt-(--site-header-top-offset)'
+            : 'pt-(--site-header-top-offset)',
           menuOpen ? 'z-90' : 'z-70',
         )}
         style={{ top: isMiniHeader ? 0 : 'var(--site-secondary-header-height, 0px)' }}
@@ -197,7 +246,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
             className={cn(
               headerRowClassName,
               isMiniHeader
-                ? 'py-1.5 sm:py-2.5 sm:px-2.5 lg:py-4 lg:px-4'
+                ? 'py-[0.28125rem] sm:px-2.5 sm:py-[0.46875rem] lg:px-4 lg:py-3'
                 : 'py-0.5 sm:py-1 sm:px-1 lg:py-1.5 lg:px-1.5',
             )}
             initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
@@ -238,7 +287,11 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
             </motion.div>
 
             <div ref={navRef} className={cn(headerNavClassName)}>
-              <HeaderNavLinks header={header} revealDelay={headerNavRevealDelay} />
+              <HeaderNavLinks
+                header={header}
+                hideLastItemOnDesktop={showSecondaryHeader}
+                revealDelay={headerNavRevealDelay}
+              />
             </div>
 
             <div ref={actionsRef} className="ml-auto">

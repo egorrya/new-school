@@ -1046,7 +1046,7 @@ async function seedProgramCategories(
         'Присмотр и занятия для детей после школы: прогулки, горячее питание, помощь с уроками — без гаджетов.',
       previewImage: media.clubGruppaProdlennogoDnya.id,
       isActive: true,
-      sortOrder: 1,
+      sortOrder: 4,
     },
     {
       slug: 'podgotovka-k-shkole',
@@ -1064,7 +1064,7 @@ async function seedProgramCategories(
       description: 'Английский для всех возрастов, включая подготовку к ОГЭ и ЕГЭ.',
       previewImage: media.clubAnglShkolaCover.id,
       isActive: true,
-      sortOrder: 3,
+      sortOrder: 1,
     },
     {
       slug: 'aktivnye-kanikuly',
@@ -1073,17 +1073,18 @@ async function seedProgramCategories(
       description: 'Клуб полного дня на каникулах: игры, творчество и английский язык.',
       previewImage: media.clubLetnyayaSmenaPreview.id,
       isActive: true,
-      sortOrder: 4,
+      sortOrder: 5,
     },
     {
       slug: 'kruzhki',
       generateSlug: false,
       title: 'Кружки',
-      pageTitle: 'Кружки вместо гаджетов',
+      pageTitle: 'Увлечения',
       description: '',
+      showProgramMarquee: true,
       previewImage: media.clubHudozhestvennayaStudiya.id,
       isActive: true,
-      sortOrder: 5,
+      sortOrder: 3,
     },
     {
       slug: 'shkola',
@@ -3624,7 +3625,7 @@ async function seedPages(
       pageTitle: 'Школа',
       layout: [
         makeHeroBlock({
-          title: 'Миссия Новой школы\nв г. Королеве',
+          title: 'Миссия «Новой школы»\nв г. Королеве',
           description:
             'Это качественное образование в дружелюбной обстановке. Мы соединили лучшее из современных образовательных технологий, чтобы в школу хотелось возвращаться.',
           primaryButtonLabel: 'Записаться на урок',

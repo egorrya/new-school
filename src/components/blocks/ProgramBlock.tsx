@@ -35,10 +35,10 @@ export function ProgramBlock({
           )}
 
           {programItems.length > 0 ? (
-            <MotionReveal amount={0.12} duration={0.47} y={18}>
-              <ol className="grid gap-4">
-                {programItems.map((item, index) => (
-                  <li key={item.id || `${item.title}-${index}`}>
+            <ol className="grid gap-4">
+              {programItems.map((item, index) => (
+                <li key={item.id || `${item.title}-${index}`}>
+                  <MotionReveal amount={0.12} duration={0.47} y={18}>
                     <Card className="bg-card">
                       <CardContent className="grid gap-4 p-5 sm:p-6 lg:grid-cols-[auto_1fr] lg:items-start">
                         <ItemIconBadge icon={item.icon} index={index} />
@@ -50,10 +50,10 @@ export function ProgramBlock({
                         </div>
                       </CardContent>
                     </Card>
-                  </li>
-                ))}
-              </ol>
-            </MotionReveal>
+                  </MotionReveal>
+                </li>
+              ))}
+            </ol>
           ) : (
             <PageBlockEmptyState
               description="Добавьте этапы программы, чтобы показать структуру обучения."
