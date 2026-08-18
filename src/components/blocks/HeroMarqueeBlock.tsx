@@ -12,7 +12,7 @@ type HeroMarqueeBlockProps = HeroMarqueeBlockType & {
   fullScreen?: boolean
 }
 
-const HERO_ACTION_TEXT_CLASS_NAME = 'font-heading text-sm sm:text-base lg:text-lg'
+const HERO_ACTION_TEXT_CLASS_NAME = 'font-heading text-xs sm:text-sm lg:text-base'
 const HERO_ACTION_LINK_BASE_CLASS_NAME =
   'relative inline-flex whitespace-nowrap py-3'
 const HERO_ACTION_LINK_CLASS_NAME = `${HERO_ACTION_LINK_BASE_CLASS_NAME} px-4 sm:px-6`
@@ -77,7 +77,7 @@ export function HeroMarqueeBlock({
           ) : null}
 
           {primaryAction || secondaryAction ? (
-            <div className="flex justify-center py-3 sm:py-4">
+            <div className="flex justify-center">
               <div className="inline-flex max-w-full items-center overflow-hidden rounded-full border border-border bg-white shadow-shadow">
                 {primaryAction ? (
                   <MotionReveal allowMobileMotion amount={0.12} delay={0.32} duration={0.5} y={14}>
