@@ -46,7 +46,7 @@ export function TabsBlock({
       <div
         key={tabId}
         id={tabId}
-        className="w-full [&_p]:!text-base [&_p]:!leading-relaxed"
+        className="w-full [&_p]:!text-base [&_p]:!leading-relaxed [&_p]:!text-black"
         style={{
           scrollMarginTop:
             'calc(var(--site-header-fixed-bottom, var(--site-header-height, 0px)) + var(--site-tabs-nav-height, 0px) + 2rem)',

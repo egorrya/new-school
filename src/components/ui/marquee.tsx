@@ -23,7 +23,7 @@ const marqueeTrackClassName =
   'flex w-max min-w-full animate-marquee items-stretch whitespace-nowrap motion-reduce:animate-none'
 const marqueeSegmentClassName = 'flex shrink-0 items-stretch'
 const marqueeItemClassName =
-  'inline-flex items-center border-y border-l border-border px-12 py-5 text-lg font-medium leading-none motion-reduce:scale-100 sm:px-14 sm:py-6 sm:text-2xl'
+  'inline-flex items-center border-y border-l border-border px-8 py-4 text-base font-medium leading-none motion-reduce:scale-100 sm:px-14 sm:py-6 sm:text-2xl'
 
 type MarqueeStyle = CSSProperties & {
   '--marquee-distance'?: string

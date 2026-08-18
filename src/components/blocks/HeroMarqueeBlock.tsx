@@ -186,7 +186,7 @@ export function HeroMarqueeBlock({
 
         {galleryImages.length > 0 ? (
           <HeroMarqueeImages
-            className="-mt-5 w-screen max-w-none sm:-mt-9"
+            className="-mt-5 -mx-4 w-screen max-w-none sm:-mt-9 sm:mx-0"
             images={galleryImages}
           />
         ) : null}

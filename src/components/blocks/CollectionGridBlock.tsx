@@ -247,7 +247,10 @@ export async function CollectionGridBlock({
 
   return (
     <PageBlockSection
-      className={collectionType === 'reviews' ? 'pb-14 sm:pb-20 lg:pb-24' : undefined}
+      className={cn(
+        collectionType === 'galleryAlbums' && 'pt-0 sm:pt-0 lg:pt-0',
+        collectionType === 'reviews' && 'pb-14 sm:pb-20 lg:pb-24',
+      )}
     >
       <PageBlockContainer container={!insideTabs}>
         <div className={cn('space-y-8', collectionType === 'reviews' && 'space-y-12 sm:space-y-8')}>
