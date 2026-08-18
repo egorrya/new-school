@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useLayoutEffect, useRef, useState } from 'react'
+import { useLayoutEffect, useState } from 'react'
 
 import type { HeroMarqueeBlock as HeroMarqueeBlockType, Media as MediaType } from '@/payload-types'
 
@@ -15,8 +15,7 @@ type HeroMarqueeBlockProps = HeroMarqueeBlockType & {
   fullScreen?: boolean
 }
 
-const HERO_ACTION_TEXT_CLASS_NAME = 'font-heading text-sm lg:text-base'
-const HERO_ACTION_COMPACT_TEXT_CLASS_NAME = 'font-heading text-xs lg:text-sm'
+const HERO_ACTION_TEXT_CLASS_NAME = 'font-heading text-xs min-[23rem]:text-sm lg:text-base'
 const HERO_ACTION_LINK_BASE_CLASS_NAME =
   'relative inline-flex overflow-hidden whitespace-nowrap py-3'
 const HERO_ACTION_LINK_CLASS_NAME = `${HERO_ACTION_LINK_BASE_CLASS_NAME} px-5 sm:px-7`
@@ -78,47 +77,6 @@ function useStableMobileHeroHeight(enabled: boolean) {
   return stableHeight
 }
 
-function useCompactHeroActionText() {
-  const actionContainerRef = useRef<HTMLDivElement>(null)
-  const actionPillRef = useRef<HTMLDivElement>(null)
-  const [isCompact, setIsCompact] = useState(false)
-
-  useLayoutEffect(() => {
-    const actionContainer = actionContainerRef.current
-    const actionPill = actionPillRef.current
-
-    if (!actionContainer || !actionPill) {
-      return
-    }
-
-    let frame = 0
-    const update = () => {
-      const availableWidth = actionContainer.getBoundingClientRect().width
-      const isTooWide =
-        actionPill.scrollWidth > actionPill.clientWidth ||
-        actionPill.getBoundingClientRect().width > availableWidth
-
-      setIsCompact((current) => (current === isTooWide ? current : isTooWide))
-    }
-    const scheduleUpdate = () => {
-      window.cancelAnimationFrame(frame)
-      frame = window.requestAnimationFrame(update)
-    }
-
-    const resizeObserver = new ResizeObserver(scheduleUpdate)
-    resizeObserver.observe(actionContainer)
-    resizeObserver.observe(actionPill)
-    scheduleUpdate()
-
-    return () => {
-      window.cancelAnimationFrame(frame)
-      resizeObserver.disconnect()
-    }
-  }, [])
-
-  return { actionContainerRef, actionPillRef, isCompact }
-}
-
 export function HeroMarqueeBlock({
   title,
   description,
@@ -130,7 +88,6 @@ export function HeroMarqueeBlock({
   fullScreen = false,
 }: HeroMarqueeBlockProps) {
   const stableMobileHeroHeight = useStableMobileHeroHeight(fullScreen)
-  const { actionContainerRef, actionPillRef, isCompact } = useCompactHeroActionText()
   const galleryImages = (images ?? []).filter(
     (image): image is MediaType => typeof image === 'object' && image !== null,
   )
@@ -142,9 +99,6 @@ export function HeroMarqueeBlock({
     secondaryButtonLabel && secondaryButtonLink
       ? { href: secondaryButtonLink, label: secondaryButtonLabel }
       : null
-  const actionTextClassName = isCompact
-    ? HERO_ACTION_COMPACT_TEXT_CLASS_NAME
-    : HERO_ACTION_TEXT_CLASS_NAME
 
   return (
     <PageBlockSection
@@ -182,12 +136,9 @@ export function HeroMarqueeBlock({
           ) : null}
 
           {primaryAction || secondaryAction ? (
-            <div className="flex w-full justify-start sm:justify-center" ref={actionContainerRef}>
+            <div className="flex w-full justify-start sm:justify-center">
               <MotionReveal allowMobileMotion amount={0.12} delay={0.32} duration={0.4} y={12}>
-                <div
-                  className="inline-flex max-w-full items-center overflow-hidden rounded-full border border-border bg-white shadow-shadow"
-                  ref={actionPillRef}
-                >
+                <div className="inline-flex max-w-full items-center overflow-hidden rounded-full border border-border bg-white shadow-shadow">
                   {primaryAction ? (
                     <MotionReveal allowMobileMotion amount={0.12} delay={0.52} duration={0.4} y={14}>
                       <Link
@@ -201,7 +152,7 @@ export function HeroMarqueeBlock({
                         <MagneticText
                           hoverText={primaryAction.label}
                           text={primaryAction.label}
-                          textClassName={actionTextClassName}
+                          textClassName={HERO_ACTION_TEXT_CLASS_NAME}
                         />
                       </Link>
                     </MotionReveal>
@@ -222,7 +173,7 @@ export function HeroMarqueeBlock({
                         <MagneticText
                           hoverText={secondaryAction.label}
                           text={secondaryAction.label}
-                          textClassName={actionTextClassName}
+                          textClassName={HERO_ACTION_TEXT_CLASS_NAME}
                         />
                       </Link>
                     </MotionReveal>
