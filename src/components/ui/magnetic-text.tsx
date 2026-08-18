@@ -1,9 +1,26 @@
 'use client'
 
 import type React from 'react'
-import { useRef, useState, useCallback, useEffect } from 'react'
+import { useRef, useState, useCallback, useEffect, useSyncExternalStore } from 'react'
 
 import { cn } from '@/utilities/ui'
+
+const HOVER_MEDIA_QUERY = '(hover: hover) and (pointer: fine)'
+
+function subscribeToHoverCapability(onStoreChange: () => void) {
+  const query = window.matchMedia(HOVER_MEDIA_QUERY)
+  query.addEventListener('change', onStoreChange)
+
+  return () => query.removeEventListener('change', onStoreChange)
+}
+
+function getCanHover() {
+  return window.matchMedia(HOVER_MEDIA_QUERY).matches
+}
+
+function useCanHover() {
+  return useSyncExternalStore(subscribeToHoverCapability, getCanHover, () => false)
+}
 
 interface MagneticTextProps {
   text: string
@@ -18,6 +35,7 @@ export function MagneticText({
   className,
   textClassName = 'text-5xl font-bold tracking-tighter',
 }: MagneticTextProps) {
+  const canHover = useCanHover()
   const containerRef = useRef<HTMLDivElement>(null)
   const circleRef = useRef<HTMLDivElement>(null)
   const innerTextRef = useRef<HTMLDivElement>(null)
@@ -29,6 +47,10 @@ export function MagneticText({
   const animationFrameRef = useRef<number | undefined>(undefined)
 
   useEffect(() => {
+    if (!canHover) {
+      return
+    }
+
     const updateSize = () => {
       if (containerRef.current) {
         setContainerSize({
@@ -40,9 +62,13 @@ export function MagneticText({
     updateSize()
     window.addEventListener('resize', updateSize)
     return () => window.removeEventListener('resize', updateSize)
-  }, [])
+  }, [canHover])
 
   useEffect(() => {
+    if (!canHover || !isHovered) {
+      return
+    }
+
     const lerp = (start: number, end: number, factor: number) => start + (end - start) * factor
 
     const animate = () => {
@@ -64,7 +90,7 @@ export function MagneticText({
     return () => {
       if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current)
     }
-  }, [])
+  }, [canHover, isHovered])
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return
@@ -92,43 +118,46 @@ export function MagneticText({
   return (
     <div
       className={cn(
-        'relative inline-flex cursor-pointer items-center justify-center select-none',
+        'relative inline-flex items-center justify-center select-none',
+        canHover && 'cursor-pointer',
         className,
       )}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-      onMouseMove={handleMouseMove}
+      onMouseEnter={canHover ? handleMouseEnter : undefined}
+      onMouseLeave={canHover ? handleMouseLeave : undefined}
+      onMouseMove={canHover ? handleMouseMove : undefined}
       ref={containerRef}
     >
       <span className={cn('text-foreground', textClassName)}>{text}</span>
 
-      <div
-        className="absolute top-0 left-0 pointer-events-none rounded-full bg-foreground overflow-hidden"
-        ref={circleRef}
-        style={{
-          width: isHovered ? 150 : 0,
-          height: isHovered ? 150 : 0,
-          transition:
-            'width 0.5s cubic-bezier(0.33, 1, 0.68, 1), height 0.5s cubic-bezier(0.33, 1, 0.68, 1)',
-          willChange: 'transform, width, height',
-        }}
-      >
+      {canHover ? (
         <div
-          className="absolute flex items-center justify-center"
-          ref={innerTextRef}
+          className="absolute top-0 left-0 pointer-events-none overflow-hidden rounded-full bg-foreground"
+          ref={circleRef}
           style={{
-            width: containerSize.width,
-            height: containerSize.height,
-            top: '50%',
-            left: '50%',
-            willChange: 'transform',
+            width: isHovered ? 150 : 0,
+            height: isHovered ? 150 : 0,
+            transition:
+              'width 0.5s cubic-bezier(0.33, 1, 0.68, 1), height 0.5s cubic-bezier(0.33, 1, 0.68, 1)',
+            willChange: 'transform, width, height',
           }}
         >
-          <span className={cn('whitespace-nowrap text-background', textClassName)}>
-            {hoverText}
-          </span>
+          <div
+            className="absolute flex items-center justify-center"
+            ref={innerTextRef}
+            style={{
+              width: containerSize.width,
+              height: containerSize.height,
+              top: '50%',
+              left: '50%',
+              willChange: 'transform',
+            }}
+          >
+            <span className={cn('whitespace-nowrap text-background', textClassName)}>
+              {hoverText}
+            </span>
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   )
 }

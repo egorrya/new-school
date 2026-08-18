@@ -95,7 +95,7 @@ export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps)
   return (
     <motion.div
       className={cn(
-        'overflow-x-hidden py-2 mask-[linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] sm:py-3',
+        'overflow-x-hidden py-2 sm:py-3',
         className,
       )}
       animate={

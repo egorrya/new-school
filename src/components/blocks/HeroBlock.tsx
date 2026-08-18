@@ -109,7 +109,7 @@ export function HeroBlock({
         <div className="relative w-full overflow-x-clip">
           <div
             className={cn(
-              'mobile-standard-text-scale-75 relative grid w-full items-center gap-5 p-4 sm:gap-8 sm:p-6 lg:p-8',
+              'mobile-standard-text-scale-75 relative grid w-full items-center gap-5 px-0 py-4 sm:gap-8 sm:p-6 lg:p-8',
               fullScreen
                 ? 'pt-12 sm:pt-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)] lg:gap-10'
                 : 'lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]',
@@ -118,7 +118,7 @@ export function HeroBlock({
             <div className={cn('space-y-4 sm:space-y-6', fullScreen && 'max-w-3xl')}>
               <div className="space-y-4 sm:space-y-6">
                 <MotionReveal allowMobileMotion amount={0.12} duration={0.7} y={18}>
-                  <h2 className="font-heading text-[1.3rem] leading-[1.1] whitespace-pre-line sm:text-[2rem] lg:text-[2.75rem]">
+                  <h2 className="font-heading text-[1.5rem] leading-[1.1] whitespace-pre-line sm:text-[2rem] lg:text-[2.75rem]">
                     {title}
                   </h2>
                 </MotionReveal>
