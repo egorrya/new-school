@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { useLayoutEffect, useState } from 'react'
 
 import type { HeroMarqueeBlock as HeroMarqueeBlockType, Media as MediaType } from '@/payload-types'
 
@@ -20,6 +23,59 @@ const HERO_PRIMARY_ACTION_LINK_CLASS_NAME =
   `${HERO_ACTION_LINK_BASE_CLASS_NAME} pl-4 pr-3 sm:pl-6 sm:pr-4`
 const HERO_SECONDARY_ACTION_LINK_CLASS_NAME =
   `${HERO_ACTION_LINK_BASE_CLASS_NAME} pl-3 pr-4 sm:pl-4 sm:pr-6`
+const MOBILE_HERO_MEDIA_QUERY = '(width < 40rem)'
+
+function getViewportWidth() {
+  return document.documentElement.clientWidth || window.innerWidth
+}
+
+function useStableMobileHeroHeight(enabled: boolean) {
+  const [stableHeight, setStableHeight] = useState<string | null>(null)
+
+  useLayoutEffect(() => {
+    if (!enabled) {
+      return
+    }
+
+    const mobileQuery = window.matchMedia(MOBILE_HERO_MEDIA_QUERY)
+    let lastWidth = getViewportWidth()
+
+    const updateHeight = () => {
+      setStableHeight(mobileQuery.matches ? `${window.innerHeight}px` : null)
+    }
+
+    const handleResize = () => {
+      const nextWidth = getViewportWidth()
+
+      if (!mobileQuery.matches) {
+        lastWidth = nextWidth
+        setStableHeight(null)
+        return
+      }
+
+      if (Math.abs(nextWidth - lastWidth) >= 1) {
+        lastWidth = nextWidth
+        updateHeight()
+      }
+    }
+
+    const handleQueryChange = () => {
+      lastWidth = getViewportWidth()
+      updateHeight()
+    }
+
+    updateHeight()
+    window.addEventListener('resize', handleResize)
+    mobileQuery.addEventListener('change', handleQueryChange)
+
+    return () => {
+      window.removeEventListener('resize', handleResize)
+      mobileQuery.removeEventListener('change', handleQueryChange)
+    }
+  }, [enabled])
+
+  return stableHeight
+}
 
 export function HeroMarqueeBlock({
   title,
@@ -31,6 +87,7 @@ export function HeroMarqueeBlock({
   images,
   fullScreen = false,
 }: HeroMarqueeBlockProps) {
+  const stableMobileHeroHeight = useStableMobileHeroHeight(fullScreen)
   const galleryImages = (images ?? []).filter(
     (image): image is MediaType => typeof image === 'object' && image !== null,
   )
@@ -50,7 +107,9 @@ export function HeroMarqueeBlock({
         fullScreen
           ? {
               minHeight:
-                'calc(100dvh - var(--site-header-height) - var(--site-secondary-header-height, 0px))',
+                stableMobileHeroHeight
+                  ? `calc(${stableMobileHeroHeight} - var(--site-header-height) - var(--site-secondary-header-height, 0px))`
+                  : 'calc(100dvh - var(--site-header-height) - var(--site-secondary-header-height, 0px))',
             }
           : undefined
       }
@@ -78,47 +137,49 @@ export function HeroMarqueeBlock({
 
           {primaryAction || secondaryAction ? (
             <div className="flex justify-center">
-              <div className="inline-flex max-w-full items-center overflow-hidden rounded-full border border-border bg-white shadow-shadow">
-                {primaryAction ? (
-                  <MotionReveal allowMobileMotion amount={0.12} delay={0.32} duration={0.5} y={14}>
-                    <Link
-                      className={
-                        secondaryAction
-                          ? HERO_PRIMARY_ACTION_LINK_CLASS_NAME
-                          : HERO_ACTION_LINK_CLASS_NAME
-                      }
-                      href={primaryAction.href}
-                    >
-                      <MagneticText
-                        hoverText={primaryAction.label}
-                        text={primaryAction.label}
-                        textClassName={HERO_ACTION_TEXT_CLASS_NAME}
-                      />
-                    </Link>
-                  </MotionReveal>
-                ) : null}
-                {primaryAction && secondaryAction ? (
-                  <span aria-hidden className="w-px shrink-0 self-stretch bg-border" />
-                ) : null}
-                {secondaryAction ? (
-                  <MotionReveal allowMobileMotion amount={0.12} delay={0.44} duration={0.5} y={14}>
-                    <Link
-                      className={
-                        primaryAction
-                          ? HERO_SECONDARY_ACTION_LINK_CLASS_NAME
-                          : HERO_ACTION_LINK_CLASS_NAME
-                      }
-                      href={secondaryAction.href}
-                    >
-                      <MagneticText
-                        hoverText={secondaryAction.label}
-                        text={secondaryAction.label}
-                        textClassName={HERO_ACTION_TEXT_CLASS_NAME}
-                      />
-                    </Link>
-                  </MotionReveal>
-                ) : null}
-              </div>
+              <MotionReveal allowMobileMotion amount={0.12} delay={0.32} duration={0.4} y={12}>
+                <div className="inline-flex max-w-full items-center overflow-hidden rounded-full border border-border bg-white shadow-shadow">
+                  {primaryAction ? (
+                    <MotionReveal allowMobileMotion amount={0.12} delay={0.52} duration={0.4} y={14}>
+                      <Link
+                        className={
+                          secondaryAction
+                            ? HERO_PRIMARY_ACTION_LINK_CLASS_NAME
+                            : HERO_ACTION_LINK_CLASS_NAME
+                        }
+                        href={primaryAction.href}
+                      >
+                        <MagneticText
+                          hoverText={primaryAction.label}
+                          text={primaryAction.label}
+                          textClassName={HERO_ACTION_TEXT_CLASS_NAME}
+                        />
+                      </Link>
+                    </MotionReveal>
+                  ) : null}
+                  {primaryAction && secondaryAction ? (
+                    <span aria-hidden className="w-px shrink-0 self-stretch bg-border" />
+                  ) : null}
+                  {secondaryAction ? (
+                    <MotionReveal allowMobileMotion amount={0.12} delay={0.66} duration={0.4} y={14}>
+                      <Link
+                        className={
+                          primaryAction
+                            ? HERO_SECONDARY_ACTION_LINK_CLASS_NAME
+                            : HERO_ACTION_LINK_CLASS_NAME
+                        }
+                        href={secondaryAction.href}
+                      >
+                        <MagneticText
+                          hoverText={secondaryAction.label}
+                          text={secondaryAction.label}
+                          textClassName={HERO_ACTION_TEXT_CLASS_NAME}
+                        />
+                      </Link>
+                    </MotionReveal>
+                  ) : null}
+                </div>
+              </MotionReveal>
             </div>
           ) : null}
         </div>

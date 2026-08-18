@@ -201,7 +201,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
             initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
             transition={{ delay: 0.1, duration: 0.48, ease: 'easeOut' }}
           >
-            <div className="rounded-base border border-border bg-white">
+            <div className="rounded-base border-0 bg-white sm:border sm:border-border">
               <SecondaryHeaderLinks
                 desktopCenterNavigationItem={
                   showSecondaryHeader ? desktopSecondaryNavigationItem : undefined
