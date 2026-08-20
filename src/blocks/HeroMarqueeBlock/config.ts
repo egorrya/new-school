@@ -41,6 +41,15 @@ export const HeroMarqueeBlock: Block = {
       },
     },
     {
+      name: 'showLatestNews',
+      type: 'checkbox',
+      label: 'Показывать последнюю новость',
+      defaultValue: true,
+      admin: {
+        description: 'Выключите, чтобы скрыть карточку последней новости на первом экране.',
+      },
+    },
+    {
       name: 'primaryButtonLabel',
       type: 'text',
       label: 'Текст кнопки',

@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 
-import type { Page } from '@/payload-types'
+import type { News, Page } from '@/payload-types'
 
 import { AudienceBlock } from './AudienceBlock'
 import { CTAFormBlock } from './CTAFormBlock'
@@ -27,6 +27,7 @@ type PageBlock = NonNullable<Page['layout']>[number]
 type RenderBlocksProps = {
   blocks?: Page['layout'] | null
   pageUrl: string
+  latestNews?: News | null
   allowFullScreenHero?: boolean
   clubId?: number | null
   insideTabs?: boolean
@@ -42,14 +43,15 @@ function renderBlock(
   isFirstBlock: boolean,
   nextBlock?: PageBlock,
   previousBlock?: PageBlock,
+  latestNews?: News | null,
   clubId?: number | null,
   insideTabs?: boolean,
 ) {
   switch (block.blockType) {
     case 'hero':
-      return <HeroBlock {...block} fullScreen={isFirstBlock} />
+      return <HeroBlock {...block} fullScreen={isFirstBlock} latestNews={latestNews} />
     case 'heroMarquee':
-      return <HeroMarqueeBlock {...block} fullScreen={isFirstBlock} />
+      return <HeroMarqueeBlock {...block} fullScreen={isFirstBlock} latestNews={latestNews} />
     case 'titleDescription':
       return (
         <TitleDescriptionBlock
@@ -102,6 +104,7 @@ function renderBlock(
 export function RenderBlocks({
   blocks,
   pageUrl,
+  latestNews,
   allowFullScreenHero = true,
   clubId,
   insideTabs,
@@ -122,6 +125,7 @@ export function RenderBlocks({
                 allowFullScreenHero && index === 0,
                 blocks[index + 1],
                 blocks[index - 1],
+                latestNews,
                 clubId,
                 insideTabs,
               )}

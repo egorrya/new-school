@@ -241,6 +241,10 @@ export interface HeroBlock {
    * Верхнее изображение первого экрана. По умолчанию используется /media/kids.webp.
    */
   kidsImage?: (number | null) | Media;
+  /**
+   * Выключите, чтобы скрыть карточку последней новости на первом экране.
+   */
+  showLatestNews?: boolean | null;
   primaryButtonLabel: string;
   /**
    * Адрес для первой кнопки.
@@ -366,6 +370,10 @@ export interface HeroMarqueeBlock {
    * Краткий текст под заголовком.
    */
   description?: string | null;
+  /**
+   * Выключите, чтобы скрыть карточку последней новости на первом экране.
+   */
+  showLatestNews?: boolean | null;
   primaryButtonLabel?: string | null;
   /**
    * Адрес для кнопки. Показывается только если заполнены оба поля.
@@ -1697,6 +1705,7 @@ export interface HeroBlockSelect<T extends boolean = true> {
   showBlobBackground?: T;
   customBlobPositioning?: T;
   kidsImage?: T;
+  showLatestNews?: T;
   primaryButtonLabel?: T;
   primaryButtonLink?: T;
   secondaryButtonLabel?: T;
@@ -1713,6 +1722,7 @@ export interface HeroMarqueeBlockSelect<T extends boolean = true> {
   title?: T;
   titleEmphasis?: T;
   description?: T;
+  showLatestNews?: T;
   primaryButtonLabel?: T;
   primaryButtonLink?: T;
   secondaryButtonLabel?: T;

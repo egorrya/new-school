@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 
-import type { Redirect } from '@/payload-types'
+import configPromise from '@payload-config'
+import type { News, Redirect } from '@/payload-types'
 import { AboutLinksBlock } from '@/components/blocks/AboutLinksBlock'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
 import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
@@ -11,6 +12,7 @@ import { queryPageBySlug } from '@/utilities/getPageBySlug'
 import { getCachedRedirects } from '@/utilities/getRedirects'
 import { getServerSideURL } from '@/utilities/getURL'
 import { notFound, redirect } from 'next/navigation'
+import { getPayload } from 'payload'
 import { cache } from 'react'
 
 export const dynamic = 'force-dynamic'
@@ -24,6 +26,25 @@ type Args = {
 }
 
 const resolveSlug = (params?: RouteParams | null) => params?.slug?.join('/') || 'home'
+
+const queryLatestNews = cache(async () => {
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'news',
+    depth: 0,
+    limit: 1,
+    pagination: false,
+    overrideAccess: false,
+    sort: '-publishedAt',
+    where: {
+      publishedAt: {
+        less_than_equal: new Date().toISOString(),
+      },
+    },
+  })
+
+  return (result.docs[0] as News | undefined) ?? null
+})
 
 const resolveRedirectUrl = cache(async (url: string) => {
   const redirects = (await getCachedRedirects()()) as Redirect[]
@@ -73,15 +94,24 @@ export default async function Page({ params: paramsPromise }: Args) {
     notFound()
   }
 
-  const isHome = slug === 'home'
   const layout = page.layout ?? []
+  const isHome = slug === 'home'
   const heroBlock = isHome ? layout[0] : undefined
   const remainingBlocks = heroBlock ? layout.slice(1) : layout
+  const shouldShowLatestNews =
+    heroBlock?.blockType === 'hero'
+      ? heroBlock.showLatestNews === true
+      : heroBlock?.blockType === 'heroMarquee'
+        ? heroBlock.showLatestNews !== false
+        : false
+  const latestNews = shouldShowLatestNews ? await queryLatestNews() : null
 
   return (
     <>
       <article className={slug === 'contacts' ? undefined : 'pb-12 sm:pb-16'}>
-        {heroBlock ? <RenderBlocks blocks={[heroBlock]} pageUrl={pageUrl} /> : null}
+        {heroBlock ? (
+          <RenderBlocks blocks={[heroBlock]} latestNews={latestNews} pageUrl={pageUrl} />
+        ) : null}
         {isHome ? <AboutLinksBlock /> : null}
         <RenderBlocks blocks={remainingBlocks} pageUrl={pageUrl} />
       </article>

@@ -60,7 +60,17 @@ export const HeroBlock: Block = {
       relationTo: 'media',
       label: 'Изображение поверх',
       admin: {
-        description: 'Верхнее изображение первого экрана. По умолчанию используется /media/kids.webp.',
+        description:
+          'Верхнее изображение первого экрана. По умолчанию используется /media/kids.webp.',
+      },
+    },
+    {
+      name: 'showLatestNews',
+      type: 'checkbox',
+      label: 'Показывать последнюю новость',
+      defaultValue: false,
+      admin: {
+        description: 'Выключите, чтобы скрыть карточку последней новости на первом экране.',
       },
     },
     {
