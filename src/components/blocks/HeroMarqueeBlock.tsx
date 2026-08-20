@@ -4,6 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useLayoutEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { motion, useReducedMotion } from 'motion/react'
 
 import type {
   HeroMarqueeBlock as HeroMarqueeBlockType,
@@ -16,6 +17,7 @@ import { MotionReveal } from '@/components/shared/MotionReveal'
 import { PageBlockContainer, PageBlockSection } from '@/components/shared/PageBlock'
 import { MagneticText } from '@/components/ui/magnetic-text'
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 
 type HeroMarqueeBlockProps = HeroMarqueeBlockType & {
   fullScreen?: boolean
@@ -30,6 +32,8 @@ const HERO_PRIMARY_ACTION_LINK_CLASS_NAME = `${HERO_ACTION_LINK_BASE_CLASS_NAME}
 const HERO_SECONDARY_ACTION_LINK_CLASS_NAME = `${HERO_ACTION_LINK_BASE_CLASS_NAME} pl-4 pr-5 sm:pl-5 sm:pr-7`
 const MOBILE_HERO_MEDIA_QUERY = '(width < 40rem)'
 const LATEST_NEWS_REVEAL_DELAY = 2.2
+const hiddenNewsClipPath = 'polygon(0 0, 0 0, 0 100%, 0 100%)'
+const visibleNewsClipPath = 'polygon(0 0, 100% 0, 100% 100%, 0 100%)'
 
 function getViewportWidth() {
   return document.documentElement.clientWidth || window.innerWidth
@@ -94,6 +98,8 @@ export function HeroMarqueeBlock({
   fullScreen = false,
   latestNews,
 }: HeroMarqueeBlockProps) {
+  const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
   const stableMobileHeroHeight = useStableMobileHeroHeight(fullScreen)
   const galleryImages = (images ?? []).filter(
     (image): image is MediaType => typeof image === 'object' && image !== null,
@@ -106,6 +112,9 @@ export function HeroMarqueeBlock({
     secondaryButtonLabel && secondaryButtonLink
       ? { href: secondaryButtonLink, label: secondaryButtonLabel }
       : null
+  const latestNewsRevealDelay =
+    galleryImages.length > 0 ? LATEST_NEWS_REVEAL_DELAY : 1.1
+  const shouldUseNewsClipReveal = !isMobile && !shouldReduceMotion
 
   return (
     <PageBlockSection
@@ -133,37 +142,58 @@ export function HeroMarqueeBlock({
                 allowMobileMotion
                 amount={0.12}
                 className="w-full lg:w-auto"
-                delay={galleryImages.length > 0 ? LATEST_NEWS_REVEAL_DELAY : 1.1}
+                delay={latestNewsRevealDelay}
                 duration={0.5}
                 y={14}
               >
-                <Link
-                  aria-label={`Открыть новость: ${latestNews.title}`}
-                  className="group relative isolate flex w-full max-w-full items-center gap-2.5 overflow-hidden rounded-base border border-foreground bg-foreground px-3 py-0 text-left text-background shadow-shadow transition-colors duration-200 after:pointer-events-none after:absolute after:inset-y-0 after:-left-1/2 after:z-0 after:w-1/3 after:-skew-x-12 after:bg-linear-to-r after:from-transparent after:via-white/20 after:to-transparent after:transition-transform after:duration-700 after:content-[''] hover:bg-foreground hover:text-background hover:after:translate-x-[450%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 group-focus-visible:bg-foreground group-focus-visible:text-background group-focus-visible:after:translate-x-[450%] motion-reduce:after:transition-none sm:w-fit sm:max-w-xl"
-                  href={`/news/${latestNews.slug}`}
+                <motion.div
+                  animate={
+                    shouldUseNewsClipReveal ? { clipPath: visibleNewsClipPath } : undefined
+                  }
+                  initial={
+                    shouldUseNewsClipReveal ? { clipPath: hiddenNewsClipPath } : false
+                  }
+                  style={shouldUseNewsClipReveal ? { willChange: 'clip-path' } : undefined}
+                  transition={
+                    shouldUseNewsClipReveal
+                      ? {
+                          clipPath: {
+                            delay: latestNewsRevealDelay,
+                            duration: 2.15,
+                            ease: [0.22, 1, 0.36, 1],
+                          },
+                        }
+                      : undefined
+                  }
                 >
-                  <span className="pointer-events-none relative z-10 size-10 shrink-0 overflow-hidden">
-                    <Image
-                      alt=""
-                      aria-hidden="true"
-                      className="origin-center object-contain scale-[2] translate-y-1.5"
-                      fill
-                      loading="eager"
-                      sizes="2.5rem"
-                      src="/hero/ornaments/stars.svg"
-                      unoptimized
-                    />
-                  </span>
-                  <span className="relative z-10 min-w-0">
-                    <span className="block text-pretty text-[calc(var(--text-xs)*0.9)] font-base leading-snug text-background sm:text-xs">
-                      {latestNews.title}
+                  <Link
+                    aria-label={`Открыть новость: ${latestNews.title}`}
+                    className="group relative isolate flex w-full max-w-full items-center gap-2.5 overflow-hidden rounded-base border border-foreground bg-foreground px-3 py-0 text-left text-background shadow-shadow transition-colors duration-200 after:pointer-events-none after:absolute after:inset-y-0 after:-left-1/2 after:z-0 after:w-1/3 after:-skew-x-12 after:bg-linear-to-r after:from-transparent after:via-white/20 after:to-transparent after:transition-transform after:duration-700 after:content-[''] hover:bg-foreground hover:text-background hover:after:translate-x-[450%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 group-focus-visible:bg-foreground group-focus-visible:text-background group-focus-visible:after:translate-x-[450%] motion-reduce:after:transition-none sm:w-fit sm:max-w-xl"
+                    href={`/news/${latestNews.slug}`}
+                  >
+                    <span className="pointer-events-none relative z-10 size-10 shrink-0 overflow-hidden">
+                      <Image
+                        alt=""
+                        aria-hidden="true"
+                        className="origin-center object-contain scale-[2] translate-y-1.5"
+                        fill
+                        loading="eager"
+                        sizes="2.5rem"
+                        src="/hero/ornaments/stars.svg"
+                        unoptimized
+                      />
                     </span>
-                  </span>
-                  <ArrowRight
-                    aria-hidden="true"
-                    className="relative z-10 size-3.5 shrink-0 -translate-x-1 text-background transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5 group-focus-visible:translate-x-1.5 motion-reduce:transition-none"
-                  />
-                </Link>
+                    <span className="relative z-10 min-w-0">
+                      <span className="block text-pretty text-[calc(var(--text-xs)*0.9)] font-base leading-snug text-background sm:text-xs">
+                        {latestNews.title}
+                      </span>
+                    </span>
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="relative z-10 size-3.5 shrink-0 -translate-x-1 text-background transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5 group-focus-visible:translate-x-1.5 motion-reduce:transition-none"
+                    />
+                  </Link>
+                </motion.div>
               </MotionReveal>
             </div>
           ) : null}
