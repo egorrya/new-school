@@ -1,14 +1,13 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useLayoutEffect, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 
 import type { HeroBlock as HeroBlockType, News } from '@/payload-types'
 
 import { HeroBlobIllustration } from './HeroBlobIllustration'
+import { LatestNewsLink } from './LatestNewsLink'
 import { Button } from '@/components/ui/button'
 
 import { PageBlockContainer, PageBlockSection } from '@/components/shared/PageBlock'
@@ -123,33 +122,7 @@ export function HeroBlock({
               <div className="space-y-4 sm:space-y-6">
                 {latestNews?.slug ? (
                   <MotionReveal allowMobileMotion amount={0.12} duration={0.5} y={14}>
-                    <Link
-                      aria-label={`Открыть новость: ${latestNews.title}`}
-                      className="group relative isolate flex w-full max-w-full items-center gap-2.5 overflow-hidden rounded-base border border-foreground bg-foreground px-3 py-0 text-background shadow-shadow transition-colors duration-200 after:pointer-events-none after:absolute after:inset-y-0 after:-left-1/2 after:z-0 after:w-1/3 after:-skew-x-12 after:bg-linear-to-r after:from-transparent after:via-white/20 after:to-transparent after:transition-transform after:duration-700 after:content-[''] hover:bg-foreground hover:text-background hover:after:translate-x-[450%] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-foreground focus-visible:ring-offset-2 group-focus-visible:bg-foreground group-focus-visible:text-background group-focus-visible:after:translate-x-[450%] motion-reduce:after:transition-none sm:w-fit sm:max-w-xl"
-                      href={`/news/${latestNews.slug}`}
-                    >
-                      <span className="pointer-events-none relative z-10 size-10 shrink-0 overflow-hidden">
-                        <Image
-                          alt=""
-                          aria-hidden="true"
-                          className="origin-center object-contain scale-[2] translate-y-1.5"
-                          fill
-                          loading="eager"
-                          sizes="2.5rem"
-                          src="/hero/ornaments/stars.svg"
-                          unoptimized
-                        />
-                      </span>
-                      <span className="relative z-10 min-w-0 text-left">
-                        <span className="block text-pretty text-[calc(var(--text-xs)*0.9)] font-base leading-snug text-background sm:text-xs">
-                          {latestNews.title}
-                        </span>
-                      </span>
-                      <ArrowRight
-                        aria-hidden="true"
-                        className="relative z-10 size-3.5 shrink-0 -translate-x-1 text-background transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:translate-x-1.5 group-focus-visible:translate-x-1.5 motion-reduce:transition-none"
-                      />
-                    </Link>
+                    <LatestNewsLink slug={latestNews.slug} textAlign="left" title={latestNews.title} />
                   </MotionReveal>
                 ) : null}
                 <MotionReveal

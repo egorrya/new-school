@@ -83,6 +83,7 @@ export const Logo = (props: Props) => {
             imgClassName={baseImageClassName}
             pictureClassName={isHeaderVariant ? 'block h-full' : 'block'}
             priority
+            quality={100}
             resource={primaryLogoImage}
             size="192px"
           />
@@ -103,6 +104,7 @@ export const Logo = (props: Props) => {
               imgClassName={compactImageClassName}
               pictureClassName={isHeaderVariant ? 'block h-full' : 'block'}
               priority={isHeaderVariant}
+              quality={100}
               resource={compactLogoImage}
               size={compactLogoSize}
             />
