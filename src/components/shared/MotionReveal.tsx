@@ -1,11 +1,12 @@
 'use client'
 
-import { motion, useInView, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { createContext, useContext, useRef } from 'react'
 import type { ReactNode } from 'react'
 
 import { cn } from '@/utilities/ui'
 import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
+import { useScrollRevealVisibility } from '@/utilities/useScrollRevealVisibility'
 
 type MarginValue = `${number}${'px' | '%'}`
 type MarginType =
@@ -22,6 +23,7 @@ type MotionRevealProps = {
   amount?: number
   margin?: MarginType
   allowMobileMotion?: boolean
+  once?: boolean
   y?: number
 }
 
@@ -48,6 +50,7 @@ export function MotionReveal({
   amount = MAX_VIEWPORT_REVEAL_AMOUNT,
   margin = '-10% 0px -10% 0px',
   allowMobileMotion = false,
+  once = false,
   y = 16,
 }: MotionRevealProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
@@ -59,12 +62,11 @@ export function MotionReveal({
     : isMobile
       ? MOBILE_VIEWPORT_MARGIN
       : margin
-  const viewportOnce = true
   const revealRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(revealRef, {
+  const isVisible = useScrollRevealVisibility(revealRef, {
     amount: viewportAmount,
     margin: viewportMargin,
-    once: viewportOnce,
+    once,
   })
 
   if (shouldReduceMotion) {
@@ -95,7 +97,7 @@ export function MotionReveal({
   return (
     <motion.div
       className={cn(className)}
-      animate={isInView ? visibleState : exitState}
+      animate={isVisible ? visibleState : exitState}
       initial={initialState}
       ref={revealRef}
       transition={revealTransition}

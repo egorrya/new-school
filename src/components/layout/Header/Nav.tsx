@@ -7,7 +7,6 @@ import { motion, useReducedMotion } from 'motion/react'
 import type { Header, SiteSetting } from '@/payload-types'
 
 import { Button } from '@/components/ui/button'
-import { MotionReveal } from '@/components/shared/MotionReveal'
 import { SiteSocialLinks } from '@/components/layout/SiteContacts'
 import { MobileMenu } from './MobileMenu.client'
 import { resolveHref } from '@/utilities/resolveNavigationHref'
@@ -55,6 +54,7 @@ function NavigationLinks({
   revealDelay = 0,
 }: NavigationLinksProps) {
   const navigationLinks = header.navigationLinks ?? []
+  const shouldReduceMotion = useReducedMotion() ?? false
 
   if (navigationLinks.length === 0) {
     return null
@@ -100,16 +100,19 @@ function NavigationLinks({
         )
 
         return (
-          <MotionReveal
-            allowMobileMotion
+          <motion.div
+            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
             className={cn(
               'inline-flex',
               hideLastItemOnDesktop && index === navigationLinks.length - 1 && 'xl:hidden',
             )}
-            delay={revealDelay + index * headerNavigationItemDelayStep}
-            duration={headerNavigationItemRevealDuration}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
             key={item.id || item.link.label}
-            y={8}
+            transition={{
+              delay: revealDelay + index * headerNavigationItemDelayStep,
+              duration: headerNavigationItemRevealDuration,
+              ease: 'easeOut',
+            }}
           >
             <div className="group relative inline-flex items-center">
               {link}
@@ -157,7 +160,7 @@ function NavigationLinks({
                 </div>
               ) : null}
             </div>
-          </MotionReveal>
+          </motion.div>
         )
       })}
     </nav>

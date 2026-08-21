@@ -4,7 +4,7 @@ import * as Dialog from '@radix-ui/react-dialog'
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion, type Variants } from 'motion/react'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useEffect, useState } from 'react'
 
 import type { Header, SiteSetting } from '@/payload-types'
 
@@ -64,9 +64,6 @@ const pillClassName =
   'flex w-full select-none items-center justify-center border-b border-border text-center text-foreground transition-colors duration-300 hover:text-main'
 
 const pillSizeClassName = 'min-h-16 px-4 py-4 text-xl font-medium'
-
-const requiredNavigationPillSizeClassName =
-  'min-h-16 px-4 py-4 text-base font-medium whitespace-nowrap'
 
 const hamburgerBarClassName = 'absolute left-0 h-0.5 w-5 rounded-full bg-current'
 
@@ -184,7 +181,6 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
     key: string,
     link: PillLink,
     onExpand?: () => void,
-    isRequiredNavigation = false,
   ) => {
     const href = resolveHref(link)
 
@@ -195,22 +191,11 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
     const isExternal =
       href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')
 
-    const sharedClassName = cn(
-      pillClassName,
-      isRequiredNavigation ? requiredNavigationPillSizeClassName : pillSizeClassName,
-    )
-    const sharedStyle = {
-      fontSize: isRequiredNavigation
-        ? 'clamp(0.72rem, calc((100vw - 3rem) / 28), 1.25rem)'
-        : undefined,
-    } as CSSProperties
+    const sharedClassName = cn(pillClassName, pillSizeClassName)
 
     const linkBody = (
       <motion.span
-        className={cn(
-          'inline-flex items-center gap-2 leading-[1.2]',
-          isRequiredNavigation && 'max-w-full whitespace-nowrap leading-none',
-        )}
+        className="inline-flex items-center gap-2 leading-[1.2]"
         variants={shouldReduceMotion ? undefined : labelVariants}
       >
         {link.label}
@@ -228,7 +213,6 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
           <button
             className={cn(sharedClassName, 'cursor-pointer')}
             onClick={onExpand}
-            style={sharedStyle}
             type="button"
           >
             {linkBody}
@@ -239,7 +223,6 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
             href={href}
             onClick={closeMenu}
             rel={link.newTab ? 'noopener noreferrer' : undefined}
-            style={sharedStyle}
             target={link.newTab ? '_blank' : undefined}
           >
             {linkBody}
@@ -250,7 +233,6 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
             href={href}
             onClick={closeMenu}
             rel={link.newTab ? 'noopener noreferrer' : undefined}
-            style={sharedStyle}
             target={link.newTab ? '_blank' : undefined}
           >
             {linkBody}
@@ -332,7 +314,6 @@ export function MobileMenu({ header, siteSettings, open, onOpenChange }: MobileM
                                 item.id || item.link.label,
                                 item.link,
                                 hasSubLinks ? () => setActiveParentIndex(originalIndex) : undefined,
-                                true,
                               )
                             }),
                           ]}

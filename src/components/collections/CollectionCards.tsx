@@ -236,7 +236,7 @@ export function JobCard({ job, index = 0 }: { job: Job; index?: number }) {
   const href = isExternal ? job.externalUrl! : `/vacancies/${job.id}`
 
   return (
-    <MotionReveal delay={index * 0.06} duration={0.4} y={16}>
+    <MotionReveal className="h-full" delay={index * 0.08} duration={0.47} y={18}>
       <CollectionCardShell className="transition-transform duration-300 ease-out sm:hover:-translate-y-1">
         <Link
           aria-label={job.title}

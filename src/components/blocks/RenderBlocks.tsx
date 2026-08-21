@@ -1,6 +1,6 @@
 import { Fragment } from 'react'
 
-import type { News, Page } from '@/payload-types'
+import type { Media, News, Page } from '@/payload-types'
 
 import { AudienceBlock } from './AudienceBlock'
 import { CTAFormBlock } from './CTAFormBlock'
@@ -28,6 +28,7 @@ type RenderBlocksProps = {
   blocks?: Page['layout'] | null
   pageUrl: string
   latestNews?: News | null
+  marqueeImages?: Media[]
   allowFullScreenHero?: boolean
   clubId?: number | null
   insideTabs?: boolean
@@ -44,6 +45,7 @@ function renderBlock(
   nextBlock?: PageBlock,
   previousBlock?: PageBlock,
   latestNews?: News | null,
+  marqueeImages?: Media[],
   clubId?: number | null,
   insideTabs?: boolean,
 ) {
@@ -51,7 +53,14 @@ function renderBlock(
     case 'hero':
       return <HeroBlock {...block} fullScreen={isFirstBlock} latestNews={latestNews} />
     case 'heroMarquee':
-      return <HeroMarqueeBlock {...block} fullScreen={isFirstBlock} latestNews={latestNews} />
+      return (
+        <HeroMarqueeBlock
+          {...block}
+          fullScreen={isFirstBlock}
+          latestNews={latestNews}
+          marqueeImages={marqueeImages}
+        />
+      )
     case 'titleDescription':
       return (
         <TitleDescriptionBlock
@@ -105,6 +114,7 @@ export function RenderBlocks({
   blocks,
   pageUrl,
   latestNews,
+  marqueeImages,
   allowFullScreenHero = true,
   clubId,
   insideTabs,
@@ -126,6 +136,7 @@ export function RenderBlocks({
                 blocks[index + 1],
                 blocks[index - 1],
                 latestNews,
+                marqueeImages,
                 clubId,
                 insideTabs,
               )}

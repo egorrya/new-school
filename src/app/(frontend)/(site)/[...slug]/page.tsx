@@ -4,6 +4,7 @@ import configPromise from '@payload-config'
 import type { News, Redirect } from '@/payload-types'
 import { AboutLinksBlock } from '@/components/blocks/AboutLinksBlock'
 import { RenderBlocks } from '@/components/blocks/RenderBlocks'
+import { getGalleryMarqueeImages } from '@/components/collections/getGalleryMarqueeImages'
 import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { generateMeta } from '@/lib/generateMeta'
 import { getDocumentHref } from '@/utilities/getDocumentHref'
@@ -95,6 +96,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   }
 
   const layout = page.layout ?? []
+  const hasHeroMarquee = layout.some((block) => block.blockType === 'heroMarquee')
   const isHome = slug === 'home'
   const heroBlock = isHome ? layout[0] : undefined
   const remainingBlocks = heroBlock ? layout.slice(1) : layout
@@ -104,16 +106,24 @@ export default async function Page({ params: paramsPromise }: Args) {
       : heroBlock?.blockType === 'heroMarquee'
         ? heroBlock.showLatestNews !== false
         : false
-  const latestNews = shouldShowLatestNews ? await queryLatestNews() : null
+  const [latestNews, marqueeImages] = await Promise.all([
+    shouldShowLatestNews ? queryLatestNews() : null,
+    hasHeroMarquee ? getGalleryMarqueeImages() : [],
+  ])
 
   return (
     <>
       <article className={slug === 'contacts' ? undefined : 'pb-12 sm:pb-16'}>
         {heroBlock ? (
-          <RenderBlocks blocks={[heroBlock]} latestNews={latestNews} pageUrl={pageUrl} />
+          <RenderBlocks
+            blocks={[heroBlock]}
+            latestNews={latestNews}
+            marqueeImages={marqueeImages}
+            pageUrl={pageUrl}
+          />
         ) : null}
         {isHome ? <AboutLinksBlock /> : null}
-        <RenderBlocks blocks={remainingBlocks} pageUrl={pageUrl} />
+        <RenderBlocks blocks={remainingBlocks} marqueeImages={marqueeImages} pageUrl={pageUrl} />
       </article>
       {slug !== 'contacts' && !isHome ? <SiteContactsSection /> : null}
     </>

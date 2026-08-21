@@ -4,6 +4,7 @@ import { motion, useInView, useReducedMotion, useScroll, useTransform } from 'mo
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
 import { cn } from '@/utilities/ui'
+import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 import { FooterMark } from './FooterMark.client'
 
 type FooterRevealProps = {
@@ -26,6 +27,7 @@ export function FooterReveal({ className, brand, navigation, legal }: FooterReve
   const footerRef = useRef<HTMLElement>(null)
   const [footerHeight, setFooterHeight] = useState(0)
   const shouldReduceMotion = useReducedMotion() ?? false
+  const isMobile = useIsMobileViewport()
 
   useLayoutEffect(() => {
     const el = footerRef.current
@@ -53,8 +55,9 @@ export function FooterReveal({ className, brand, navigation, legal }: FooterReve
   // The footer is `fixed`, so it's always technically in the viewport;
   // `wrapperRef` is the in-flow placeholder that actually scrolls, so it's
   // what tells us whether the curtain has scrolled away enough to reveal it.
-  // The mark reveals only once, so reverse scrolling does not replay it.
-  const markInView = useInView(wrapperRef, { amount: 0.15, once: true })
+  // The wordmark replays on desktop when returning to the footer. On mobile,
+  // it reveals once to avoid repeating a long letter sequence while reading.
+  const markInView = useInView(wrapperRef, { amount: 0.15, once: isMobile })
 
   return (
     <div className="relative" ref={wrapperRef} style={{ height: footerHeight || undefined }}>

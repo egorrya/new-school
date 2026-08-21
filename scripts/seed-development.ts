@@ -3161,25 +3161,6 @@ async function seedCollections(
     })
   }
 
-  const jobSeeds = [
-    {
-      title: 'Вакансия 1',
-      shortDescription: PLACEHOLDER_TEXT,
-      contactText: PLACEHOLDER_TEXT,
-      isActive: true,
-    },
-    {
-      title: 'Вакансия 2',
-      shortDescription: PLACEHOLDER_TEXT,
-      contactText: PLACEHOLDER_TEXT,
-      isActive: true,
-    },
-  ] as const
-
-  for (const job of jobSeeds) {
-    await upsertPublishedDoc(payload, 'jobs', 'title', job.title, job as Record<string, unknown>)
-  }
-
   const gallerySeeds = [
     {
       title: 'Галерея на главной',

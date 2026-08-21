@@ -21,6 +21,7 @@ import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
 type HeroMarqueeBlockProps = HeroMarqueeBlockType & {
   fullScreen?: boolean
   latestNews?: News | null
+  marqueeImages?: MediaType[]
 }
 
 const HERO_ACTION_TEXT_CLASS_NAME = 'font-heading text-xs min-[23rem]:text-sm lg:text-base'
@@ -93,16 +94,14 @@ export function HeroMarqueeBlock({
   primaryButtonLink,
   secondaryButtonLabel,
   secondaryButtonLink,
-  images,
+  marqueeImages = [],
   fullScreen = false,
   latestNews,
 }: HeroMarqueeBlockProps) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const isMobile = useIsMobileViewport()
   const stableMobileHeroHeight = useStableMobileHeroHeight(fullScreen)
-  const galleryImages = (images ?? []).filter(
-    (image): image is MediaType => typeof image === 'object' && image !== null,
-  )
+  const galleryImages = marqueeImages
   const primaryAction =
     primaryButtonLabel && primaryButtonLink
       ? { href: primaryButtonLink, label: primaryButtonLabel }

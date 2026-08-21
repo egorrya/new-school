@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { formatRussianDate, isMediaDocument } from '@/components/collections/CollectionCards'
+import { getGalleryMarqueeImages } from '@/components/collections/getGalleryMarqueeImages'
 import { HeroMarqueeImages } from '@/components/blocks/HeroMarqueeImages.client'
 import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { Button } from '@/components/ui/button'
@@ -17,7 +18,6 @@ import { MediaFrame } from '@/components/shared/MediaFrame'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import { PageBlockContainer, PageBlockSection } from '@/components/shared/PageBlock'
 import { generateMeta } from '@/lib/generateMeta'
-import { queryPageBySlug } from '@/utilities/getPageBySlug'
 
 export const dynamic = 'force-dynamic'
 
@@ -72,12 +72,7 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
   }
 
   const coverImage = isMediaDocument(news.coverImage) ? news.coverImage : null
-  const homePage = coverImage ? null : await queryPageBySlug('home')
-  const heroMarqueeBlock = homePage?.layout?.find((block) => block.blockType === 'heroMarquee')
-  const galleryImages =
-    heroMarqueeBlock?.blockType === 'heroMarquee'
-      ? (heroMarqueeBlock.images?.filter(isMediaDocument) ?? [])
-      : []
+  const galleryImages = coverImage ? [] : await getGalleryMarqueeImages()
   const hasFallbackGallery = galleryImages.length > 0
 
   return (

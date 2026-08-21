@@ -1,18 +1,18 @@
 import type { Metadata } from 'next'
 
 import configPromise from '@payload-config'
-import type { Teacher } from '@/payload-types'
+import type { Media, Teacher } from '@/payload-types'
 import { cache, Fragment } from 'react'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
 import { TeacherListGrid } from '@/components/blocks/TeacherListBlock.client'
+import { TeacherSpotlightBlock } from '@/components/blocks/TeacherSpotlightBlock'
 import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import {
   PageBlockContainer,
   PageBlockEmptyState,
-  PageBlockHeader,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
 import {
@@ -43,6 +43,23 @@ const queryTeachers = cache(async (page: number) => {
   })
 })
 
+const queryTeachersIntroImage = cache(async () => {
+  const payload = await getPayload({ config: configPromise })
+  const result = await payload.find({
+    collection: 'media',
+    depth: 0,
+    limit: 1,
+    overrideAccess: false,
+    where: {
+      filename: {
+        equals: 'IMG_6788.webp',
+      },
+    },
+  })
+
+  return (result.docs[0] as Media | undefined) ?? null
+})
+
 function getPageNumbers(page: number, totalPages: number) {
   const pages = new Set<number>([1, totalPages, page, page - 1, page + 1])
   return Array.from(pages)
@@ -59,7 +76,7 @@ export default async function TeachersPage({ searchParams }: Args) {
   const requestedPage = Number(resolvedSearchParams?.page ?? '1')
   const page = Number.isFinite(requestedPage) && requestedPage >= 1 ? Math.floor(requestedPage) : 1
 
-  const result = await queryTeachers(page)
+  const [result, introImage] = await Promise.all([queryTeachers(page), queryTeachersIntroImage()])
 
   if (page > 1 && page > result.totalPages) {
     notFound()
@@ -70,18 +87,17 @@ export default async function TeachersPage({ searchParams }: Args) {
 
   return (
     <>
+      <TeacherSpotlightBlock
+        blockType="teacherSpotlight"
+        headingLevel={1}
+        image={introImage}
+        imagePosition="right"
+        text="Опытные педагоги, которые помогают детям учиться с интересом и уверенностью."
+        title="Преподаватели"
+      />
       <PageBlockSection>
         <PageBlockContainer>
           <div className="space-y-8">
-            <PageBlockHeader
-              className="mx-auto max-w-4xl text-center"
-              description="Команда преподавателей нашей школы."
-              descriptionClassName="mx-auto max-w-3xl text-center"
-              headingLevel={1}
-              title="Преподаватели"
-              titleClassName="mx-auto text-2xl sm:text-3xl lg:text-4xl"
-            />
-
             {teachers.length > 0 ? (
               <>
                 <TeacherListGrid teachers={teachers} />

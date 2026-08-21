@@ -1,12 +1,13 @@
 'use client'
 
 import type { SchoolLifeBlock as SchoolLifeBlockType } from '@/payload-types'
-import { motion, useInView, useReducedMotion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { useRef } from 'react'
 
 import { SchoolLifeDivider } from '@/components/blocks/SchoolLifeDivider.client'
 import { SchoolLifeMark } from '@/components/blocks/SchoolLifeMark.client'
 import { PageBlockContainer, PageBlockSection } from '@/components/shared/PageBlock'
+import { useScrollRevealVisibility } from '@/utilities/useScrollRevealVisibility'
 
 const WORD_REVEAL_DELAY = 0.15
 const WORD_REVEAL_DURATION = 0.48
@@ -20,14 +21,15 @@ const visibleRevealState = { opacity: 1, y: 0 }
 export function SchoolLifeBlock({ description, title }: SchoolLifeBlockType) {
   const shouldReduceMotion = useReducedMotion() ?? false
   const sectionRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(sectionRef, { amount: 0.15, once: true })
+  const isVisible = useScrollRevealVisibility(sectionRef, { amount: 0.15 })
+
   const titleLines = title.split('\n').map((line) => line.trim().split(/\s+/).filter(Boolean))
   const wordCount = titleLines.reduce((count, words) => count + words.length, 0)
   const headingDuration = Math.max(0, wordCount - 1) * WORD_REVEAL_DELAY + WORD_REVEAL_DURATION
   const dividerDelay = headingDuration + SEQUENCE_DELAY
   const markDelay = dividerDelay + DIVIDER_DURATION + SEQUENCE_DELAY
   const textDelay = markDelay + MARK_REVEAL_DURATION + SEQUENCE_DELAY
-  const isVisible = shouldReduceMotion || isInView
+  const shouldShowContent = shouldReduceMotion || isVisible
 
   return (
     <PageBlockSection className="py-14 sm:py-20 lg:py-28">
@@ -46,7 +48,7 @@ export function SchoolLifeBlock({ description, title }: SchoolLifeBlockType) {
                       animate={
                         shouldReduceMotion
                           ? undefined
-                          : isInView
+                          : isVisible
                             ? visibleRevealState
                             : hiddenRevealState
                       }
@@ -69,14 +71,14 @@ export function SchoolLifeBlock({ description, title }: SchoolLifeBlockType) {
           </h2>
 
           <div className="mt-9 sm:mt-12 lg:mt-16">
-            <SchoolLifeDivider delay={dividerDelay} isVisible={isVisible} />
+            <SchoolLifeDivider delay={dividerDelay} isVisible={shouldShowContent} />
 
             <div className="pt-8 sm:pt-12 lg:pt-16">
               <div className="grid gap-8 sm:gap-10 lg:grid-cols-[minmax(12rem,1fr)_minmax(0,2fr)] lg:gap-16">
-                <SchoolLifeMark delay={markDelay} isVisible={isVisible} />
+                <SchoolLifeMark delay={markDelay} isVisible={shouldShowContent} />
 
                 <motion.p
-                  animate={shouldReduceMotion ? undefined : isInView ? visibleRevealState : hiddenRevealState}
+                  animate={shouldReduceMotion ? undefined : isVisible ? visibleRevealState : hiddenRevealState}
                   className="max-w-3xl text-lg leading-relaxed font-light text-[var(--school-black)] sm:text-xl lg:text-2xl"
                   initial={shouldReduceMotion ? false : hiddenRevealState}
                   transition={{

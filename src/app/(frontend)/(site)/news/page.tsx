@@ -27,6 +27,7 @@ import {
 } from '@/components/ui/pagination'
 import { Button } from '@/components/ui/button'
 import { generateMeta } from '@/lib/generateMeta'
+import { cn } from '@/utilities/ui'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,7 +92,15 @@ export default async function NewsPage({ searchParams }: Args) {
 
             {news.length > 0 ? (
               <>
-                <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                <div
+                  className={cn(
+                    'grid gap-6 md:grid-cols-2 xl:grid-cols-3',
+                    news.length === 1 &&
+                      'mx-auto w-full grid-cols-1 md:grid-cols-1 md:max-w-[calc(50%_-_0.75rem)] xl:grid-cols-1 xl:max-w-[calc(33.333%_-_1rem)]',
+                    news.length === 2 &&
+                      'xl:mx-auto xl:grid-cols-2 xl:max-w-[calc(66.667%_-_0.5rem)]',
+                  )}
+                >
                   {news.map((item, index) => (
                     <NewsCard
                       key={item.id || `${item.title}-${index}`}

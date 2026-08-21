@@ -15,6 +15,7 @@ import {
   PageBlockEmptyState,
   PageBlockSection,
 } from '@/components/shared/PageBlock'
+import { MediaFrame } from '@/components/shared/MediaFrame'
 import { MotionReveal } from '@/components/shared/MotionReveal'
 import { ScrollTextReveal } from '@/components/shared/ScrollTextReveal'
 import { TeacherPhotoWall } from '@/components/blocks/TeacherPhotoWall.client'
@@ -22,8 +23,15 @@ import { TeacherPhotoWall } from '@/components/blocks/TeacherPhotoWall.client'
 import { cn } from '@/utilities/ui'
 
 const STAGGER_STEP = 0.09
+const TEACHER_WALL_REVEAL_DELAY = 0.18
 const TEACHER_PHOTO_LIMIT = 12
 const TEACHER_SCAN_LIMIT = 40
+
+type TeacherSpotlightProps = TeacherSpotlightBlockType & {
+  headingLevel?: 1 | 2
+  image?: MediaType | null
+  insideTabs?: boolean
+}
 
 async function getTeacherSpotlightPhotos() {
   const payload = await getPayload({ config: configPromise })
@@ -55,17 +63,20 @@ export async function TeacherSpotlightBlock({
   buttonLink,
   imagePosition,
   insideTabs,
-}: TeacherSpotlightBlockType & { insideTabs?: boolean }) {
+  image,
+  headingLevel = 2,
+}: TeacherSpotlightProps) {
   const isImageLeft = imagePosition === 'left'
   const checklistItems = items ?? []
   const hasButton = Boolean(buttonLabel && buttonLink)
-  const photos = await getTeacherSpotlightPhotos()
+  const photos = image ? [] : await getTeacherSpotlightPhotos()
+  const Heading = headingLevel === 1 ? 'h1' : 'h2'
 
   let step = 0
   const nextDelay = () => step++ * STAGGER_STEP
 
   return (
-    <PageBlockSection className="py-14 sm:py-20 lg:py-24">
+    <PageBlockSection className="py-14 sm:py-20 lg:py-12">
       <PageBlockContainer container={!insideTabs}>
         <div className="grid grid-cols-1 gap-0 lg:grid-cols-2 lg:items-center">
           <div
@@ -85,9 +96,9 @@ export async function TeacherSpotlightBlock({
               ) : null}
               {insideTabs ? null : (
                 <MotionReveal delay={nextDelay()} duration={0.47} y={18}>
-                  <h2 className="max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">
+                  <Heading className="max-w-4xl font-heading text-2xl leading-[1.1] sm:text-3xl lg:text-4xl">
                     {title}
-                  </h2>
+                  </Heading>
                 </MotionReveal>
               )}
               <MotionReveal delay={nextDelay()} duration={0.45} y={16}>
@@ -126,14 +137,23 @@ export async function TeacherSpotlightBlock({
           </div>
 
           <MotionReveal
+            allowMobileMotion
             className={cn('min-w-0', isImageLeft && 'lg:order-1')}
-            delay={nextDelay()}
-            duration={0.5}
-            y={22}
+            delay={nextDelay() + TEACHER_WALL_REVEAL_DELAY}
+            duration={0.7}
+            y={30}
           >
-            {photos.length >= 2 ? (
+            {image ? (
+              <MediaFrame
+                alt={image.alt || title}
+                aspectClassName="aspect-[4/3] lg:aspect-auto lg:min-h-[28rem]"
+                priority
+                resource={image}
+                size="(min-width: 1024px) 50vw, 100vw"
+              />
+            ) : photos.length >= 2 ? (
               <TeacherPhotoWall
-                className="aspect-[4/3] min-h-[20rem] lg:aspect-auto lg:min-h-[28rem]"
+                className="aspect-[4/3] lg:aspect-auto lg:min-h-[28rem]"
                 names={photos.map((entry) => entry.name)}
                 photos={photos.map((entry) => entry.photo)}
               />

@@ -33,7 +33,7 @@ export async function TextImageBlock({
   const nextDelay = () => step++ * STAGGER_STEP
 
   return (
-    <PageBlockSection className="py-14 sm:py-20 lg:py-24">
+    <PageBlockSection className="py-14 sm:py-20 lg:py-12">
       <PageBlockContainer container={!insideTabs}>
         <div className="grid grid-cols-1 gap-0 lg:grid-cols-2">
           <div

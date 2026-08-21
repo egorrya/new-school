@@ -87,8 +87,7 @@ export const HeroMarqueeBlock: Block = {
       hasMany: true,
       label: 'Изображения',
       admin: {
-        description:
-          'Изображения для бегущей строки внизу экрана. Обычно берутся из галереи «Новой школы».',
+        hidden: true,
       },
     },
   ],

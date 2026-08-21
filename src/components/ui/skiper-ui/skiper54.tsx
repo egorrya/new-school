@@ -49,6 +49,7 @@ const activeSlideRadius = 24
 const inactiveSlideRadius = 18
 const inactiveSlideInset = 15
 const inactiveSlideScale = 0.985
+const maxVisiblePaginationBullets = 7
 
 const areProgressValuesEqual = (a: number[], b: number[]) =>
   a.length === b.length && a.every((value, index) => Math.abs(value - b[index]) < 0.01)
@@ -121,6 +122,7 @@ const Carousel006 = ({
   const [shouldLoadMedia, setShouldLoadMedia] = useState(false)
   const [slideProgresses, setSlideProgresses] = useState<number[]>([])
   const canNavigate = slides.length > 1
+  const useCompactPagination = slides.length > maxVisiblePaginationBullets
   const activeIndex = useBufferedLoop
     ? normalizeSlideIndex(current, slides.length)
     : Math.min(current, slides.length - 1)
@@ -337,7 +339,10 @@ const Carousel006 = ({
                       pictureClassName="relative block h-full w-full"
                       priority={index === initialSnap}
                       resource={slide.image}
-                      size="(max-width: 640px) 76vw, (max-width: 768px) 52vw, (max-width: 1024px) 34vw, (max-width: 1280px) 27vw, 23vw"
+                      // The image's box never changes size: the active-state animation only
+                      // changes its mask. It can still be nearly viewport-wide, so keep a
+                      // single, sufficiently large srcset candidate for every slide.
+                      size="(max-width: 640px) calc(100vw - 3rem), 100vw"
                       videoClassName="absolute inset-0 h-full w-full scale-105 object-cover"
                     />
                   ) : (
@@ -367,18 +372,32 @@ const Carousel006 = ({
 
           {showPagination && (
             <div className="flex min-w-0 items-center justify-center gap-2">
-              {slides.map((slide, index) => (
-                <button
-                  key={slide.id}
-                  aria-label={`Перейти к слайду ${index + 1}`}
-                  className={cn(
-                    "h-2.5 w-2.5 shrink-0 cursor-pointer rounded-full border border-border transition-all",
-                    activeIndex === index ? "w-7 bg-black" : "bg-secondary-background",
-                  )}
-                  onClick={() => scrollToSlide(index)}
-                  type="button"
-                />
-              ))}
+              {useCompactPagination ? (
+                <p
+                  aria-atomic="true"
+                  aria-live="polite"
+                  className="min-w-16 rounded-full border border-border bg-secondary-background px-3 py-1 text-center text-sm font-medium tabular-nums"
+                >
+                  <span className="sr-only">Текущий слайд: </span>
+                  {activeIndex + 1}
+                  <span aria-hidden="true"> / </span>
+                  <span className="sr-only"> из </span>
+                  {slides.length}
+                </p>
+              ) : (
+                slides.map((slide, index) => (
+                  <button
+                    key={slide.id}
+                    aria-label={`Перейти к слайду ${index + 1}`}
+                    className={cn(
+                      "h-2.5 w-2.5 shrink-0 cursor-pointer rounded-full border border-border transition-all",
+                      activeIndex === index ? "w-7 bg-black" : "bg-secondary-background",
+                    )}
+                    onClick={() => scrollToSlide(index)}
+                    type="button"
+                  />
+                ))
+              )}
             </div>
           )}
 

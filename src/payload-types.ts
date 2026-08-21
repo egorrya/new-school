@@ -387,9 +387,6 @@ export interface HeroMarqueeBlock {
    * Адрес для второй кнопки.
    */
   secondaryButtonLink?: string | null;
-  /**
-   * Изображения для бегущей строки внизу экрана. Обычно берутся из галереи «Новой школы».
-   */
   images?: (number | Media)[] | null;
   id?: string | null;
   blockName?: string | null;

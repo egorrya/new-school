@@ -283,6 +283,10 @@ export async function CollectionGridBlock({
                     ? 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6'
                     : 'grid md:grid-cols-2 xl:grid-cols-3',
                   collectionType === 'news' ? 'gap-6' : 'gap-4',
+                  collectionType === 'news' && items.length === 1 &&
+                    'mx-auto w-full grid-cols-1 md:grid-cols-1 md:max-w-[calc(50%_-_0.75rem)] xl:grid-cols-1 xl:max-w-[calc(33.333%_-_1rem)]',
+                  collectionType === 'news' && items.length === 2 &&
+                    'xl:mx-auto xl:grid-cols-2 xl:max-w-[calc(66.667%_-_0.5rem)]',
                 )}
               >
                 {collectionType === 'clubs' && cardDesign === 'category'
