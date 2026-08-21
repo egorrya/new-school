@@ -7,19 +7,17 @@ import { cache } from 'react'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 
-import { formatRussianDate } from '@/components/collections/CollectionCards'
+import { formatRussianDate, isMediaDocument } from '@/components/collections/CollectionCards'
+import { HeroMarqueeImages } from '@/components/blocks/HeroMarqueeImages.client'
 import { SiteContactsSection } from '@/components/layout/SiteContactsSection'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import RichText from '@/components/shared/RichText'
 import { MediaFrame } from '@/components/shared/MediaFrame'
 import { MotionReveal } from '@/components/shared/MotionReveal'
-import {
-  PageBlockContainer,
-  PageBlockEmptyState,
-  PageBlockSection,
-} from '@/components/shared/PageBlock'
+import { PageBlockContainer, PageBlockSection } from '@/components/shared/PageBlock'
 import { generateMeta } from '@/lib/generateMeta'
+import { queryPageBySlug } from '@/utilities/getPageBySlug'
 
 export const dynamic = 'force-dynamic'
 
@@ -73,22 +71,38 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
     notFound()
   }
 
+  const coverImage = isMediaDocument(news.coverImage) ? news.coverImage : null
+  const homePage = coverImage ? null : await queryPageBySlug('home')
+  const heroMarqueeBlock = homePage?.layout?.find((block) => block.blockType === 'heroMarquee')
+  const galleryImages =
+    heroMarqueeBlock?.blockType === 'heroMarquee'
+      ? (heroMarqueeBlock.images?.filter(isMediaDocument) ?? [])
+      : []
+  const hasFallbackGallery = galleryImages.length > 0
+
   return (
     <>
       <PageBlockSection>
         <PageBlockContainer>
-          <article className="grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
-            <MotionReveal duration={0.47} y={18}>
-              <MediaFrame
-                alt={news.title}
-                aspectClassName="aspect-[4/3]"
-                fallbackImageSrc="/seed-media/seed-banner-1.svg"
-                priority
-                resource={news.coverImage}
-              />
-            </MotionReveal>
+          <article
+            className={
+              coverImage
+                ? 'grid items-center gap-10 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]'
+                : 'mx-auto max-w-3xl'
+            }
+          >
+            {coverImage ? (
+              <MotionReveal duration={0.47} y={18}>
+                <MediaFrame
+                  alt={news.title}
+                  aspectClassName="aspect-[4/3]"
+                  priority
+                  resource={coverImage}
+                />
+              </MotionReveal>
+            ) : null}
 
-            <div className="space-y-6">
+            <div className={coverImage ? 'space-y-6' : 'mx-auto max-w-3xl space-y-6'}>
               <div className="space-y-3">
                 <MotionReveal delay={0.08} duration={0.47} y={18}>
                   <div className="flex flex-wrap items-center gap-2">
@@ -100,20 +114,15 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
                 </MotionReveal>
               </div>
 
-              <MotionReveal delay={0.24} duration={0.47} y={18}>
-                <div className="space-y-3">
-                  {news.content ? (
+              {news.content ? (
+                <MotionReveal delay={0.24} duration={0.47} y={18}>
+                  <div className="space-y-3">
                     <RichText data={news.content} enableGutter={false} enableProse={true} />
-                  ) : (
-                    <PageBlockEmptyState
-                      description="Добавьте текст новости в Payload, чтобы эта страница стала содержательнее."
-                      title="Текст новости пока не добавлен"
-                    />
-                  )}
-                </div>
-              </MotionReveal>
+                  </div>
+                </MotionReveal>
+              ) : null}
 
-              <MotionReveal delay={0.32} duration={0.47} y={18}>
+              <MotionReveal delay={news.content ? 0.32 : 0.24} duration={0.47} y={18}>
                 <div className="flex flex-wrap gap-3">
                   <Button asChild variant="neutral">
                     <Link href="/news">К новостям</Link>
@@ -122,6 +131,13 @@ export default async function NewsDetailPage({ params: paramsPromise }: Args) {
               </MotionReveal>
             </div>
           </article>
+
+          {!coverImage && hasFallbackGallery ? (
+            <HeroMarqueeImages
+              className="relative left-1/2 mt-8 w-screen max-w-none -translate-x-1/2 sm:mt-10"
+              images={galleryImages}
+            />
+          ) : null}
         </PageBlockContainer>
       </PageBlockSection>
       <SiteContactsSection />

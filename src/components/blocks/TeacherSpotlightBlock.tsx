@@ -149,7 +149,7 @@ export async function TeacherSpotlightBlock({
 
         {closingText ? (
           <ScrollTextReveal
-            className="mx-auto max-w-3xl py-14 text-xl leading-[1.75] text-foreground sm:py-[5.6rem] sm:text-2xl lg:max-w-5xl lg:py-[19.6vh] lg:text-3xl"
+            className="mx-auto max-w-3xl py-14 text-lg leading-[1.75] text-foreground sm:py-[5.6rem] sm:text-2xl lg:max-w-5xl lg:py-[19.6vh] lg:text-3xl"
             text={closingText}
           />
         ) : null}

@@ -14,7 +14,7 @@ export function PageBlockSection({
 }: PageBlockSectionProps) {
   return (
     <section
-      className={cn(spacing === 'default' && 'py-8 sm:py-12 lg:py-16', className)}
+      className={cn(spacing === 'default' && 'py-8 sm:py-12 lg:py-12', className)}
       {...props}
     />
   )

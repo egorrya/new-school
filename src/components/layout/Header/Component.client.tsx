@@ -190,18 +190,19 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
         <div
           ref={secondaryHeaderRef}
           className={cn(
-            'container fixed inset-x-0 top-0 z-80 mt-0.5 mb-[calc(var(--site-header-top-offset)*3/4)] text-foreground transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
+            'fixed inset-x-0 top-0 z-80 mt-0 sm:mt-0.5 mb-[calc(var(--site-header-top-offset)*3/4)] text-foreground transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
             isMiniHeader
               ? 'pointer-events-none -translate-y-[calc(100%+0.125rem)] sm:-translate-y-[calc(100%+0.25rem)]'
               : 'translate-y-0',
           )}
         >
           <motion.div
+            className="w-full px-0 sm:mx-auto sm:max-w-(--breakpoint-sm) sm:px-4 md:max-w-(--breakpoint-md) md:px-8 lg:max-w-(--breakpoint-lg) xl:max-w-(--breakpoint-xl) 2xl:max-w-(--breakpoint-2xl)"
             animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
             initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
             transition={{ delay: 0.1, duration: 0.48, ease: 'easeOut' }}
           >
-            <div className="rounded-base border border-border bg-transparent sm:bg-white">
+            <div className="border-b border-border bg-white sm:rounded-base sm:border">
               <SecondaryHeaderLinks
                 desktopCenterNavigationItem={
                   showSecondaryHeader ? desktopSecondaryNavigationItem : undefined
