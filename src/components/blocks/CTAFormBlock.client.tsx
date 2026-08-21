@@ -111,7 +111,7 @@ function CTAFormFields({
           onInvalid={(event) => event.currentTarget.setCustomValidity('Поставьте галочку, чтобы отправить заявку.')}
           required
         />
-        <Label className="cursor-pointer text-sm leading-snug text-foreground/80" htmlFor="cta-consent">
+        <Label className="cursor-pointer text-sm leading-snug text-foreground" htmlFor="cta-consent">
           <span>Согласен(-на) с </span>
           <a
             className="underline underline-offset-2 transition-colors hover:text-main"

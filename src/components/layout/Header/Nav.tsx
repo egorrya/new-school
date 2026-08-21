@@ -278,10 +278,10 @@ export function SecondaryHeaderLinks({
 
   return (
     <div className={className}>
-      <div className="relative flex items-center justify-between gap-3 px-3 py-1 sm:gap-4 sm:px-2.5 sm:py-1.5 lg:gap-6 lg:px-4 lg:py-2">
+      <div className="relative flex items-center justify-between gap-3 px-3 py-1.5 sm:gap-4 sm:px-2.5 sm:py-2 lg:gap-6 lg:px-4 lg:py-2.5">
         <SiteSocialLinks
           className="hidden shrink-0 sm:flex"
-          linkClassName="size-[1.375rem]"
+          linkClassName="size-[1.25rem]"
           siteSettings={siteSettings}
           spreadWidthWhenComplete={socialLinksSpreadWidth}
           variant="plain"

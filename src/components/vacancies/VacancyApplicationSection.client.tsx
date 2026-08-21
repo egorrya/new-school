@@ -206,7 +206,7 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
 
         <div className="flex items-start gap-3">
           <Checkbox id="vacancy-consent" name="consentAccepted" required />
-          <Label className="cursor-pointer text-sm leading-snug text-foreground/80" htmlFor="vacancy-consent">
+          <Label className="cursor-pointer text-sm leading-snug text-foreground" htmlFor="vacancy-consent">
             Даю согласие на обработку персональных данных в соответствии с{' '}
             <a
               className="underline underline-offset-2 transition-colors sm:hover:text-main"

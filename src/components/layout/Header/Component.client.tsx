@@ -190,7 +190,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
         <div
           ref={secondaryHeaderRef}
           className={cn(
-            'container fixed inset-x-0 top-0 z-80 mb-[calc(var(--site-header-top-offset)*3/4)] text-foreground transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
+            'container fixed inset-x-0 top-0 z-80 mt-0.5 mb-[calc(var(--site-header-top-offset)*3/4)] text-foreground transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
             isMiniHeader
               ? 'pointer-events-none -translate-y-[calc(100%+0.125rem)] sm:-translate-y-[calc(100%+0.25rem)]'
               : 'translate-y-0',
@@ -201,7 +201,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
             initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
             transition={{ delay: 0.1, duration: 0.48, ease: 'easeOut' }}
           >
-            <div className="rounded-b-base border-0 bg-transparent sm:border-x sm:border-b sm:border-border sm:bg-white">
+            <div className="rounded-base border border-border bg-transparent sm:bg-white">
               <SecondaryHeaderLinks
                 desktopCenterNavigationItem={
                   showSecondaryHeader ? desktopSecondaryNavigationItem : undefined

@@ -52,6 +52,7 @@
 @source inline("bg-warning/30");
 
 @theme {
+  --default-border-width: 0.9px;
   --color-black: var(--school-black);
   --breakpoint-sm: 40rem;
   --breakpoint-md: 48rem;

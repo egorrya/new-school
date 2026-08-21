@@ -232,7 +232,7 @@ export function HeroMarqueeBlock({
                     </MotionReveal>
                   ) : null}
                   {primaryAction && secondaryAction ? (
-                    <span aria-hidden className="w-px shrink-0 self-stretch bg-border" />
+                    <span aria-hidden className="shrink-0 self-stretch border-l border-border" />
                   ) : null}
                   {secondaryAction ? (
                     <MotionReveal
