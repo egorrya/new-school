@@ -22,6 +22,7 @@ import { Header } from './globals/Header/config'
 import { SiteSettings } from './globals/SiteSettings/config'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
+import { migrations } from './migrations'
 import deepMerge from '@/utilities/deepMerge'
 import { getServerSideURL } from './utilities/getURL'
 
@@ -81,6 +82,7 @@ export default buildConfig({
     pool: {
       connectionString: process.env.DATABASE_URL || '',
     },
+    prodMigrations: migrations,
   }),
   collections: [
     Pages,

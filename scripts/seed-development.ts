@@ -1,14 +1,12 @@
 import 'dotenv/config'
 
-import { readFile } from 'fs/promises'
 import path from 'path'
 
-import { HeadObjectCommand, PutObjectCommand, S3Client } from '@aws-sdk/client-s3'
 import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
 import { defaultLegalEntityText } from '@/globals/Footer/defaults'
-import type { Header, Media } from '@/payload-types'
+import type { Header } from '@/payload-types'
 
 type SeedMediaInput = {
   key: string
@@ -19,6 +17,7 @@ type SeedMediaInput = {
 
 type SeedContext = {
   disableRevalidate: true
+  skipCloudStorage?: true
 }
 
 type SeededPage = {
@@ -30,6 +29,10 @@ const defaultSitePhone = '+7 (925) 292-40-96'
 const defaultSitePhoneHref = 'tel:+79252924096'
 const SEED_CONTEXT: SeedContext = {
   disableRevalidate: true,
+}
+const SEED_MEDIA_CONTEXT: SeedContext = {
+  ...SEED_CONTEXT,
+  ...(process.env.SEED_REUSE_S3 === 'true' ? { skipCloudStorage: true } : {}),
 }
 
 const seedMediaFiles: SeedMediaInput[] = [
@@ -923,7 +926,10 @@ async function upsertUpload(
 
   const created = await payload.create({
     collection: 'media',
-    context: SEED_CONTEXT,
+    // When restoring a database against a bucket previously filled by this
+    // exact seed, Payload still generates the media metadata but the S3 hook
+    // does not upload the original or derived image sizes again.
+    context: SEED_MEDIA_CONTEXT,
     data: {
       alt,
     },
@@ -932,103 +938,14 @@ async function upsertUpload(
     overwriteExistingFiles: true,
   })
 
-  await ensureStorageObjectForSeedMedia(created as Media, filePath)
-
   return created
 }
 
-let s3Client: S3Client | null = null
-
-function getS3Client() {
-  if (!s3Client) {
-    s3Client = new S3Client({
-      credentials: {
-        accessKeyId: process.env.S3_ACCESS_KEY_ID as string,
-        secretAccessKey: process.env.S3_SECRET_ACCESS_KEY as string,
-      },
-      endpoint: process.env.S3_ENDPOINT,
-      forcePathStyle: true,
-      region: 'auto',
-    })
-  }
-
-  return s3Client
-}
-
-async function ensureStorageObjectForSeedMedia(media: Media, filePath: string) {
-  if (
-    !media.url ||
-    !media.filename ||
-    !process.env.S3_BUCKET ||
-    !process.env.S3_PUBLIC_URL ||
-    !process.env.S3_ACCESS_KEY_ID
-  ) {
-    return
-  }
-
-  const publicHostname = new URL(process.env.S3_PUBLIC_URL).hostname
-
-  const keys = [
-    media.url,
-    media.thumbnailURL,
-    ...Object.values(media.sizes || {}).map((size) => size?.url),
-  ]
-    .filter((url): url is string => Boolean(url))
-    .reduce<string[]>((accumulator, url) => {
-      try {
-        const parsedUrl = new URL(url)
-        if (parsedUrl.hostname !== publicHostname) {
-          return accumulator
-        }
-
-        const key = decodeURIComponent(parsedUrl.pathname.replace(/^\/+/, ''))
-        if (!accumulator.includes(key)) {
-          accumulator.push(key)
-        }
-      } catch {
-        return accumulator
-      }
-
-      return accumulator
-    }, [])
-
-  if (keys.length === 0) {
-    return
-  }
-
-  const client = getS3Client()
-  let file: Buffer | null = null
-
-  for (const key of keys) {
-    let existingSize: number | null = null
-
-    try {
-      const existing = await client.send(
-        new HeadObjectCommand({ Bucket: process.env.S3_BUCKET, Key: key }),
-      )
-      existingSize = existing.ContentLength ?? null
-    } catch {
-      existingSize = null
-    }
-
-    file = file || (await readFile(filePath))
-
-    if (existingSize === file.byteLength) {
-      continue
-    }
-
-    await client.send(
-      new PutObjectCommand({
-        Body: file,
-        Bucket: process.env.S3_BUCKET,
-        ContentType: media.mimeType || undefined,
-        Key: key,
-      }),
-    )
-  }
-}
-
 async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
+  if (process.env.SEED_REUSE_S3 === 'true') {
+    console.log('Reusing existing S3 seed media without uploads.')
+  }
+
   const allMediaFiles = [
     ...seedMediaFiles,
     ...orgInfoMediaFiles,
