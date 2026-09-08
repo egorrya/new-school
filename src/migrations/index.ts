@@ -4,6 +4,7 @@ import * as migration_20260818_220000_add_program_category_marquee from './20260
 import * as migration_20260820_000000_add_hero_latest_news from './20260820_000000_add_hero_latest_news'
 import * as migration_20260908_000000_add_hero_marquee_schema from './20260908_000000_add_hero_marquee_schema'
 import * as migration_20260908_100000_add_program_category_fields from './20260908_100000_add_program_category_fields'
+import * as migration_20260908_101949_complete_production_schema from './20260908_101949_complete_production_schema'
 
 export const migrations = [
   {
@@ -35,5 +36,10 @@ export const migrations = [
     up: migration_20260908_100000_add_program_category_fields.up,
     down: migration_20260908_100000_add_program_category_fields.down,
     name: '20260908_100000_add_program_category_fields',
+  },
+  {
+    up: migration_20260908_101949_complete_production_schema.up,
+    down: migration_20260908_101949_complete_production_schema.down,
+    name: '20260908_101949_complete_production_schema',
   },
 ]
