@@ -3,6 +3,7 @@ import * as migration_20260814_153000_add_vacancy_application_fields from './202
 import * as migration_20260818_220000_add_program_category_marquee from './20260818_220000_add_program_category_marquee'
 import * as migration_20260820_000000_add_hero_latest_news from './20260820_000000_add_hero_latest_news'
 import * as migration_20260908_000000_add_hero_marquee_schema from './20260908_000000_add_hero_marquee_schema'
+import * as migration_20260908_100000_add_program_category_fields from './20260908_100000_add_program_category_fields'
 
 export const migrations = [
   {
@@ -29,5 +30,10 @@ export const migrations = [
     up: migration_20260908_000000_add_hero_marquee_schema.up,
     down: migration_20260908_000000_add_hero_marquee_schema.down,
     name: '20260908_000000_add_hero_marquee_schema',
+  },
+  {
+    up: migration_20260908_100000_add_program_category_fields.up,
+    down: migration_20260908_100000_add_program_category_fields.down,
+    name: '20260908_100000_add_program_category_fields',
   },
 ]
