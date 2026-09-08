@@ -13,6 +13,7 @@ type SeedMediaInput = {
   filename: string
   alt: string
   filePath: string
+  storageFilename?: string
 }
 
 type SeedContext = {
@@ -139,11 +140,14 @@ const programMediaFiles: SeedMediaInput[] = [
   programImageDoc('clubNulevoyKlass', 'nulevoy-klass.jpg', 'Дети на занятии в нулевом классе'),
   programImageDoc('clubNachalnyeKlassy', 'nachalnye-klassy.jpg', 'Ученики начальных классов на уроке'),
   programImageDoc('clubSrednyayaShkola', 'srednyaya-shkola.jpg', 'Ученики средней школы на уроке'),
-  programImageDoc(
-    'clubStarshieKlassy',
-    'starshie-klassy.jpg',
-    'Учительница беседует со старшеклассниками в классе на уроке',
-  ),
+  {
+    ...programImageDoc(
+      'clubStarshieKlassy',
+      'starshie-klassy.jpg',
+      'Учительница беседует со старшеклассниками в классе на уроке',
+    ),
+    storageFilename: 'starshie-klassy.webp',
+  },
 ]
 
 function teacherImageDoc(key: string, filename: string, alt: string): SeedMediaInput {
@@ -186,33 +190,36 @@ function galleryImageDoc(key: string, filename: string, alt: string): SeedMediaI
   }
 }
 
+// These are the original S3 keys for the checked-in gallery images. They are
+// used only by the opt-in reuse mode, so a normal seed still uploads its own
+// filenames when starting with an empty bucket.
 const galleryMediaFiles: SeedMediaInput[] = [
-  galleryImageDoc('gallery01', 'gallery-01.webp', 'Фото из галереи «Новой школы» 1'),
-  galleryImageDoc('gallery02', 'gallery-02.webp', 'Фото из галереи «Новой школы» 2'),
-  galleryImageDoc('gallery03', 'gallery-03.webp', 'Фото из галереи «Новой школы» 3'),
-  galleryImageDoc('gallery04', 'gallery-04.webp', 'Фото из галереи «Новой школы» 4'),
-  galleryImageDoc('gallery05', 'gallery-05.webp', 'Фото из галереи «Новой школы» 5'),
-  galleryImageDoc('gallery06', 'gallery-06.webp', 'Фото из галереи «Новой школы» 6'),
-  galleryImageDoc('gallery07', 'gallery-07.webp', 'Фото из галереи «Новой школы» 7'),
-  galleryImageDoc('gallery08', 'gallery-08.webp', 'Фото из галереи «Новой школы» 8'),
-  galleryImageDoc('gallery09', 'gallery-09.webp', 'Фото из галереи «Новой школы» 9'),
-  galleryImageDoc('gallery10', 'gallery-10.webp', 'Фото из галереи «Новой школы» 10'),
-  galleryImageDoc('gallery11', 'gallery-11.webp', 'Фото из галереи «Новой школы» 11'),
-  galleryImageDoc('gallery12', 'gallery-12.webp', 'Фото из галереи «Новой школы» 12'),
-  galleryImageDoc('gallery13', 'gallery-13.webp', 'Фото из галереи «Новой школы» 13'),
-  galleryImageDoc('gallery14', 'gallery-14.webp', 'Фото из галереи «Новой школы» 14'),
-  galleryImageDoc('gallery15', 'gallery-15.webp', 'Фото из галереи «Новой школы» 15'),
-  galleryImageDoc('gallery16', 'gallery-16.webp', 'Фото из галереи «Новой школы» 16'),
-  galleryImageDoc('gallery17', 'gallery-17.webp', 'Фото из галереи «Новой школы» 17'),
-  galleryImageDoc('gallery18', 'gallery-18.webp', 'Фото из галереи «Новой школы» 18'),
-  galleryImageDoc('gallery19', 'gallery-19.webp', 'Фото из галереи «Новой школы» 19'),
-  galleryImageDoc('gallery20', 'gallery-20.webp', 'Фото из галереи «Новой школы» 20'),
-  galleryImageDoc('gallery21', 'gallery-21.webp', 'Фото из галереи «Новой школы» 21'),
-  galleryImageDoc('gallery22', 'gallery-22.webp', 'Фото из галереи «Новой школы» 22'),
-  galleryImageDoc('gallery23', 'gallery-23.webp', 'Фото из галереи «Новой школы» 23'),
-  galleryImageDoc('gallery24', 'gallery-24.webp', 'Фото из галереи «Новой школы» 24'),
-  galleryImageDoc('gallery25', 'gallery-25.webp', 'Фото из галереи «Новой школы» 25'),
-  galleryImageDoc('gallery26', 'gallery-26.webp', 'Фото из галереи «Новой школы» 26'),
+  { ...galleryImageDoc('gallery01', 'gallery-01.webp', 'Фото из галереи «Новой школы» 1'), storageFilename: '1 сентября (101).webp' },
+  { ...galleryImageDoc('gallery02', 'gallery-02.webp', 'Фото из галереи «Новой школы» 2'), storageFilename: '1 сентября (14).webp' },
+  { ...galleryImageDoc('gallery03', 'gallery-03.webp', 'Фото из галереи «Новой школы» 3'), storageFilename: '1 сентября (91).webp' },
+  { ...galleryImageDoc('gallery04', 'gallery-04.webp', 'Фото из галереи «Новой школы» 4'), storageFilename: '11-2048x1365-1.webp' },
+  { ...galleryImageDoc('gallery05', 'gallery-05.webp', 'Фото из галереи «Новой школы» 5'), storageFilename: '2-1-2048x1365-1.webp' },
+  { ...galleryImageDoc('gallery06', 'gallery-06.webp', 'Фото из галереи «Новой школы» 6'), storageFilename: '2022-05-16 17-55-28 (11).webp' },
+  { ...galleryImageDoc('gallery07', 'gallery-07.webp', 'Фото из галереи «Новой школы» 7'), storageFilename: 'IMG_1705.webp' },
+  { ...galleryImageDoc('gallery08', 'gallery-08.webp', 'Фото из галереи «Новой школы» 8'), storageFilename: 'IMG_1708.webp' },
+  { ...galleryImageDoc('gallery09', 'gallery-09.webp', 'Фото из галереи «Новой школы» 9'), storageFilename: 'IMG_2645.webp' },
+  { ...galleryImageDoc('gallery10', 'gallery-10.webp', 'Фото из галереи «Новой школы» 10'), storageFilename: 'IMG_6788.webp' },
+  { ...galleryImageDoc('gallery11', 'gallery-11.webp', 'Фото из галереи «Новой школы» 11'), storageFilename: 'IMG_7334.webp' },
+  { ...galleryImageDoc('gallery12', 'gallery-12.webp', 'Фото из галереи «Новой школы» 12'), storageFilename: 'IMG_7336.webp' },
+  { ...galleryImageDoc('gallery13', 'gallery-13.webp', 'Фото из галереи «Новой школы» 13'), storageFilename: 'IMG_7343.webp' },
+  { ...galleryImageDoc('gallery14', 'gallery-14.webp', 'Фото из галереи «Новой школы» 14'), storageFilename: 'IMG_7345.webp' },
+  { ...galleryImageDoc('gallery15', 'gallery-15.webp', 'Фото из галереи «Новой школы» 15'), storageFilename: 'IMG_7347.webp' },
+  { ...galleryImageDoc('gallery16', 'gallery-16.webp', 'Фото из галереи «Новой школы» 16'), storageFilename: 'IMG_7348.webp' },
+  { ...galleryImageDoc('gallery17', 'gallery-17.webp', 'Фото из галереи «Новой школы» 17'), storageFilename: 'IMG_9322.webp' },
+  { ...galleryImageDoc('gallery18', 'gallery-18.webp', 'Фото из галереи «Новой школы» 18'), storageFilename: 'WhatsApp Image 2023-09-04 at 14.43.44.webp' },
+  { ...galleryImageDoc('gallery19', 'gallery-19.webp', 'Фото из галереи «Новой школы» 19'), storageFilename: 'WhatsApp Image 2023-09-04 at 14.43.45.webp' },
+  { ...galleryImageDoc('gallery20', 'gallery-20.webp', 'Фото из галереи «Новой школы» 20'), storageFilename: 'WhatsApp Image 2023-09-15 at 18.01.48.webp' },
+  { ...galleryImageDoc('gallery21', 'gallery-21.webp', 'Фото из галереи «Новой школы» 21'), storageFilename: 'msg-1001677395309-12024.webp' },
+  { ...galleryImageDoc('gallery22', 'gallery-22.webp', 'Фото из галереи «Новой школы» 22'), storageFilename: 'msg-1001677395309-5429.webp' },
+  { ...galleryImageDoc('gallery23', 'gallery-23.webp', 'Фото из галереи «Новой школы» 23'), storageFilename: 'msg-1001677395309-5495.webp' },
+  { ...galleryImageDoc('gallery24', 'gallery-24.webp', 'Фото из галереи «Новой школы» 24'), storageFilename: 'msg-1001677395309-5527.webp' },
+  { ...galleryImageDoc('gallery25', 'gallery-25.webp', 'Фото из галереи «Новой школы» 25'), storageFilename: 'msg-1001677395309-9634.webp' },
+  { ...galleryImageDoc('gallery26', 'gallery-26.webp', 'Фото из галереи «Новой школы» 26'), storageFilename: 'photo_5278567188661391356_y.webp' },
 ]
 
 function orgInfoDoc(key: string, filename: string, alt: string): SeedMediaInput {
@@ -889,7 +896,7 @@ async function unlockPageDocument(
 
 async function upsertUpload(
   payload: Awaited<ReturnType<typeof getPayload>>,
-  { filename, alt, filePath }: SeedMediaInput,
+  { filename, alt, filePath, storageFilename }: SeedMediaInput,
 ) {
   // Seed images are static repo assets that don't change between runs. Once a
   // media doc exists for a given filename/alt we only sync its metadata — we
@@ -897,6 +904,10 @@ async function upsertUpload(
   // would make Payload reprocess (resize + reformat) and re-upload every size to
   // R2 on every single seed run, burning through the free-tier operation limits.
   const existingByFilename = await findOneByField(payload, 'media', 'filename', filename)
+  const reuseStorage = process.env.SEED_REUSE_S3 === 'true' && storageFilename
+  const storageData = reuseStorage && process.env.S3_PUBLIC_URL
+    ? { filename: storageFilename, url: `${process.env.S3_PUBLIC_URL}/${storageFilename}` }
+    : {}
 
   if (existingByFilename) {
     return payload.update({
@@ -904,6 +915,7 @@ async function upsertUpload(
       context: SEED_CONTEXT,
       data: {
         alt,
+        ...storageData,
       },
       id: existingByFilename.id,
       overrideAccess: true,
@@ -918,6 +930,7 @@ async function upsertUpload(
       context: SEED_CONTEXT,
       data: {
         alt,
+        ...storageData,
       },
       id: existingByAlt.id,
       overrideAccess: true,
@@ -938,7 +951,20 @@ async function upsertUpload(
     overwriteExistingFiles: true,
   })
 
-  return created
+  if (!reuseStorage || !process.env.S3_PUBLIC_URL) {
+    return created
+  }
+
+  return payload.update({
+    collection: 'media',
+    context: SEED_CONTEXT,
+    data: {
+      alt,
+      ...storageData,
+    },
+    id: created.id,
+    overrideAccess: true,
+  })
 }
 
 async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
