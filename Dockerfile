@@ -17,6 +17,9 @@ RUN \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+FROM deps AS production-deps
+RUN npm prune --omit=dev --include=optional
+
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -48,6 +51,17 @@ RUN --mount=type=secret,id=payload_secret \
   else echo "Lockfile not found." && exit 1; \
   fi
 
+# The standalone Next.js output intentionally excludes scripts. Bundle the
+# production seed so it can be run from the deployed container without
+# installing development dependencies on the server.
+RUN ./node_modules/.bin/esbuild scripts/seed-development.ts \
+  --bundle \
+  --platform=node \
+  --format=esm \
+  --packages=external \
+  --alias:next/cache=next/cache.js \
+  --outfile=/app/seed-development.mjs
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
@@ -66,10 +80,15 @@ COPY --from=builder /app/public ./public
 RUN mkdir .next
 RUN chown nextjs:nodejs .next
 
+# Next's standalone trace contains only modules used by the web server. The
+# seed has a wider dependency graph, so provide production dependencies only.
+COPY --from=production-deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/seed-development.mjs ./seed-development.mjs
 
 USER nextjs
 
