@@ -20,26 +20,10 @@ const isLocalServerURL = (() => {
     return false
   }
 })()
-const skipTypecheckDuringBuild = process.env.SKIP_NEXT_TYPECHECK === 'true'
 
 const nextConfig: NextConfig = {
   // The production Dockerfile runs the traced standalone server from `.next/standalone`.
   output: 'standalone',
-  // The production host has too little RAM for Next's build-time type checker.
-  // Keep the check enabled by default (including local builds), and opt out only
-  // for the Coolify build through SKIP_NEXT_TYPECHECK=true.
-  typescript: {
-    ignoreBuildErrors: skipTypecheckDuringBuild,
-  },
-  // Limit build concurrency on the same small host.
-  experimental: {
-    cpus: 1,
-    memoryBasedWorkersCount: true,
-    parallelServerBuildTraces: false,
-    parallelServerCompiles: false,
-    webpackBuildWorker: true,
-    webpackMemoryOptimizations: true,
-  },
   // Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
   // See: https://github.com/vercel/next.js/issues/86431
   sassOptions: {

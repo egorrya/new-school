@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1.7
 # To use this Dockerfile, you have to set `output: 'standalone'` in your next.config.js file.
 # From https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 
@@ -25,12 +26,23 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# These values affect the compiled Next.js application and therefore have to be
+# supplied by the image builder. They are public URLs, not credentials.
+ARG NEXT_PUBLIC_SERVER_URL
+ARG S3_PUBLIC_URL
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ENV S3_PUBLIC_URL=$S3_PUBLIC_URL
+
+# Pages are rendered dynamically, so the build must not connect to PostgreSQL.
+# The real connection string is supplied by Coolify at runtime.
+ENV DATABASE_URL=postgres://build:build@localhost:5432/build
+
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN \
+RUN --mount=type=secret,id=payload_secret,env=PAYLOAD_SECRET \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
