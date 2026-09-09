@@ -42,7 +42,8 @@ ENV DATABASE_URL=postgres://build:build@localhost:5432/build
 # Uncomment the following line in case you want to disable telemetry during the build.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN --mount=type=secret,id=payload_secret,env=PAYLOAD_SECRET \
+RUN --mount=type=secret,id=payload_secret \
+  export PAYLOAD_SECRET="$(cat /run/secrets/payload_secret)" && \
   if [ -f yarn.lock ]; then yarn run build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
