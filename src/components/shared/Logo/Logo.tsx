@@ -50,11 +50,7 @@ export const Logo = (props: Props) => {
           '--logo-compact-ratio': getImageRatio(hasCompactLogo ? compactLogoImage : primaryLogoImage).toString(),
         }
       : undefined
-    const compactLogoSize = isHeaderVariant && compactLogoImage?.width
-      ? `${compactLogoImage.width}px`
-      : isHeaderVariant
-        ? '807px'
-        : '320px'
+    const compactLogoSize = isHeaderVariant ? '(max-width: 639px) 192px, 320px' : '320px'
 
     return (
       <span

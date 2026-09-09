@@ -2,6 +2,7 @@ import 'dotenv/config'
 
 import path from 'path'
 
+import { sql } from '@payloadcms/db-postgres'
 import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
@@ -904,9 +905,13 @@ async function upsertUpload(
   // would make Payload reprocess (resize + reformat) and re-upload every size to
   // R2 on every single seed run, burning through the free-tier operation limits.
   const existingByFilename = await findOneByField(payload, 'media', 'filename', filename)
-  const reuseStorage = process.env.SEED_REUSE_S3 === 'true' && storageFilename
+  const resolvedStorageFilename = storageFilename ?? filename
+  const reuseStorage = process.env.SEED_REUSE_S3 === 'true'
   const storageData = reuseStorage && process.env.S3_PUBLIC_URL
-    ? { filename: storageFilename, url: `${process.env.S3_PUBLIC_URL}/${storageFilename}` }
+    ? {
+        filename: resolvedStorageFilename,
+        url: `${process.env.S3_PUBLIC_URL}/${resolvedStorageFilename}`,
+      }
     : {}
 
   if (existingByFilename) {
@@ -967,6 +972,44 @@ async function upsertUpload(
   })
 }
 
+async function clearReusedMediaVariants(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  mediaIDs: number[],
+) {
+  if (process.env.SEED_REUSE_S3 !== 'true' || mediaIDs.length === 0) {
+    return
+  }
+
+  // R2 contains the original legacy assets, but not every Payload-generated
+  // thumbnail/square/OG variant. Keeping their stale URLs makes clients fetch
+  // 404s instead of falling back to the verified original URL.
+  await payload.db.drizzle.execute(sql`
+    UPDATE media
+    SET
+      thumbnail_u_r_l = NULL,
+      sizes_thumbnail_url = NULL,
+      sizes_thumbnail_width = NULL,
+      sizes_thumbnail_height = NULL,
+      sizes_thumbnail_mime_type = NULL,
+      sizes_thumbnail_filesize = NULL,
+      sizes_thumbnail_filename = NULL,
+      sizes_square_url = NULL,
+      sizes_square_width = NULL,
+      sizes_square_height = NULL,
+      sizes_square_mime_type = NULL,
+      sizes_square_filesize = NULL,
+      sizes_square_filename = NULL,
+      sizes_og_url = NULL,
+      sizes_og_width = NULL,
+      sizes_og_height = NULL,
+      sizes_og_mime_type = NULL,
+      sizes_og_filesize = NULL,
+      sizes_og_filename = NULL,
+      updated_at = NOW()
+    WHERE id IN (${sql.join(mediaIDs.map((id) => sql`${id}`), sql`, `)})
+  `)
+}
+
 async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
   if (process.env.SEED_REUSE_S3 === 'true') {
     console.log('Reusing existing S3 seed media without uploads.')
@@ -981,6 +1024,10 @@ async function seedMedia(payload: Awaited<ReturnType<typeof getPayload>>) {
     ...galleryMediaFiles,
   ]
   const seededMedia = await Promise.all(allMediaFiles.map((media) => upsertUpload(payload, media)))
+  await clearReusedMediaVariants(
+    payload,
+    seededMedia.map(({ id }) => id),
+  )
 
   return seededMedia.reduce<Record<string, { id: number }>>((accumulator, media, index) => {
     accumulator[allMediaFiles[index].key] = {

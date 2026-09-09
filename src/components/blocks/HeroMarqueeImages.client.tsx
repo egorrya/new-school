@@ -125,6 +125,8 @@ export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps)
             ref={copyIndex === 0 ? segmentRef : undefined}
           >
             {images.map((image, index) => {
+              const isInitiallyVisible = copyIndex === 0 && index < 2
+
               return (
                 <div
                   className="h-44 shrink-0 overflow-hidden rounded-base shadow-shadow sm:h-56 lg:h-72"
@@ -134,8 +136,8 @@ export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps)
                     className="h-full"
                     disableFadeIn
                     imgClassName="h-full w-auto object-contain"
-                    loading={copyIndex === 0 ? 'eager' : 'lazy'}
-                    priority={copyIndex === 0 && index < 2}
+                    loading={isInitiallyVisible ? 'eager' : 'lazy'}
+                    priority={isInitiallyVisible}
                     quality={75}
                     resource={image}
                     size="(max-width: 640px) 200px, (max-width: 1024px) 260px, 340px"

@@ -125,17 +125,12 @@ export function HeroBlock({
                     <LatestNewsLink slug={latestNews.slug} textAlign="left" title={latestNews.title} />
                   </MotionReveal>
                 ) : null}
-                <MotionReveal
-                  allowMobileMotion
-                  amount={0.12}
-                  delay={latestNews?.slug ? 0.1 : 0}
-                  duration={0.7}
-                  y={18}
+                <h2
+                  className="hero-heading-reveal font-heading text-[1.5rem] leading-[1.1] whitespace-pre-line sm:text-[2rem] lg:text-[2.75rem]"
+                  style={{ animationDelay: latestNews?.slug ? '100ms' : undefined }}
                 >
-                  <h2 className="font-heading text-[1.5rem] leading-[1.1] whitespace-pre-line sm:text-[2rem] lg:text-[2.75rem]">
-                    {title}
-                  </h2>
-                </MotionReveal>
+                  {title}
+                </h2>
                 <MotionReveal
                   allowMobileMotion
                   amount={0.12}

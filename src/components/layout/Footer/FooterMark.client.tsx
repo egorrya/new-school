@@ -4,10 +4,17 @@ import { motion, useReducedMotion, type Variants } from 'motion/react'
 
 const BRAND_MARK = 'НОВАЯ ШКОЛА'
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
+const LETTER_STAGGER = 0.09
+const LETTER_DELAY = 0.1
+const LETTER_DURATION = 1.1
+
+export const FOOTER_MARK_LETTER_STAGGER = LETTER_STAGGER
+export const FOOTER_MARK_LAST_LETTER_DELAY =
+  LETTER_DELAY + (Array.from(BRAND_MARK).length - 1) * LETTER_STAGGER
 
 const rowVariants: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.09, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: LETTER_STAGGER, delayChildren: LETTER_DELAY } },
 }
 
 const letterVariants: Variants = {
@@ -15,7 +22,7 @@ const letterVariants: Variants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 1.1, ease: EASE_OUT },
+    transition: { duration: LETTER_DURATION, ease: EASE_OUT },
   },
 }
 

@@ -170,17 +170,12 @@ export function HeroMarqueeBlock({
             </div>
           ) : null}
 
-          <MotionReveal
-            allowMobileMotion
-            amount={0.12}
-            delay={latestNews?.slug ? 0.1 : 0}
-            duration={0.6}
-            y={18}
+          <h1
+            className="hero-heading-reveal max-w-4xl font-heading text-2xl leading-[1.1] sm:text-4xl lg:text-5xl"
+            style={{ animationDelay: latestNews?.slug ? '100ms' : undefined }}
           >
-            <h1 className="max-w-4xl font-heading text-2xl leading-[1.1] sm:text-4xl lg:text-5xl">
-              {title}
-            </h1>
-          </MotionReveal>
+            {title}
+          </h1>
 
           {description ? (
             <MotionReveal

@@ -5,6 +5,7 @@ import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 
 import { cn } from '@/utilities/ui'
 import { useIsMobileViewport } from '@/utilities/useIsMobileViewport'
+import { FooterCredit } from './FooterCredit.client'
 import { FooterMark } from './FooterMark.client'
 
 type FooterRevealProps = {
@@ -12,6 +13,7 @@ type FooterRevealProps = {
   brand: ReactNode
   navigation: ReactNode
   legal: ReactNode
+  copyrightText: string
 }
 
 /**
@@ -22,7 +24,7 @@ type FooterRevealProps = {
  * height). On smaller screens it returns to normal document flow: otherwise
  * a tall footer starts above the viewport and is obscured by the fixed header.
  */
-export function FooterReveal({ className, brand, navigation, legal }: FooterRevealProps) {
+export function FooterReveal({ className, brand, navigation, legal, copyrightText }: FooterRevealProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const footerRef = useRef<HTMLElement>(null)
   const [footerHeight, setFooterHeight] = useState(0)
@@ -73,6 +75,9 @@ export function FooterReveal({ className, brand, navigation, legal }: FooterReve
           </motion.div>
         </div>
         <FooterMark inView={markInView} />
+        <div className="pt-0.5 pb-3.5 sm:pt-1 sm:pb-4">
+          <FooterCredit copyrightText={copyrightText} inView={markInView} />
+        </div>
       </footer>
     </div>
   )

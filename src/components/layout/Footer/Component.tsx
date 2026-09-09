@@ -25,8 +25,9 @@ export async function Footer() {
   return (
     <FooterReveal
       className="bg-card text-foreground"
+      copyrightText={copyrightText}
       brand={
-        <div className="space-y-5">
+        <div>
           <Link className="inline-flex" href="/" aria-label={siteName}>
             <Logo
               logo={siteSettings?.logoImage ?? null}
@@ -34,7 +35,6 @@ export async function Footer() {
               siteName={siteName}
             />
           </Link>
-          <p className="text-xs leading-relaxed text-foreground/60">{copyrightText}</p>
         </div>
       }
       legal={
