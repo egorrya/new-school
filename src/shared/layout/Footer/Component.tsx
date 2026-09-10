@@ -53,7 +53,7 @@ export async function Footer() {
             </nav>
           ) : null}
           {legalEntityText ? (
-            <p className="whitespace-pre-line text-xs font-normal leading-relaxed text-foreground/60">
+            <p className="whitespace-pre-line text-xs font-normal leading-relaxed text-foreground/70">
               {legalEntityText}
             </p>
           ) : null}

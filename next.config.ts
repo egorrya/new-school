@@ -24,6 +24,11 @@ const isLocalServerURL = (() => {
 const nextConfig: NextConfig = {
   // The production Dockerfile runs the traced standalone server from `.next/standalone`.
   output: 'standalone',
+  experimental: {
+    // The public site uses a compact Tailwind bundle. Inlining it removes the
+    // render-blocking stylesheet request on first visits without changing the UI.
+    inlineCss: true,
+  },
   // Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
   // See: https://github.com/vercel/next.js/issues/86431
   sassOptions: {

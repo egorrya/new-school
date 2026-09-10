@@ -46,7 +46,7 @@ export function FooterCredit({ copyrightText, inView }: FooterCreditProps) {
   const [hasBeenHovered, setHasBeenHovered] = useState(false)
 
   return (
-    <p className="font-base flex items-baseline justify-center whitespace-nowrap text-[0.625rem] leading-none tracking-[0.01em] text-foreground/50 sm:text-[0.6875rem]">
+    <p className="font-base flex items-baseline justify-center whitespace-nowrap text-[0.625rem] leading-none tracking-[0.01em] text-foreground/70 sm:text-[0.6875rem]">
       <motion.span
         className="inline-flex shrink-0 items-baseline"
         initial={shouldReduceMotion ? undefined : 'hidden'}
