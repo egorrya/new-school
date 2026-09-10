@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
+import { selfOnly } from '../../access/selfOnly'
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -12,8 +13,10 @@ export const Users: CollectionConfig = {
     admin: authenticated,
     create: authenticated,
     delete: authenticated,
-    read: authenticated,
-    update: authenticated,
+    // The Payload account page uses these permissions, so users can read and
+    // update their own name and email without gaining access to other accounts.
+    read: selfOnly,
+    update: selfOnly,
   },
   admin: {
     group: 'Система',
