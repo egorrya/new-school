@@ -151,7 +151,7 @@ export function MobileMenu({ header, hideTrigger = false, siteSettings, open, on
 
   const renderBackPill = () => (
     <motion.li
-      className="flex flex-[0_0_100%] items-stretch justify-center box-border"
+      className="flex w-full flex-none items-stretch justify-center box-border"
       custom={0}
       key="back"
       role="none"
@@ -205,7 +205,7 @@ export function MobileMenu({ header, hideTrigger = false, siteSettings, open, on
 
     return (
       <motion.li
-        className="flex flex-[0_0_100%] items-stretch justify-center box-border"
+        className="flex w-full flex-none items-stretch justify-center box-border"
         key={key}
         role="none"
         variants={shouldReduceMotion ? undefined : bubbleVariants}
@@ -323,7 +323,7 @@ export function MobileMenu({ header, hideTrigger = false, siteSettings, open, on
 
                       {!isSubmenuOpen ? (
                         <motion.li
-                          className="flex flex-[0_0_100%] items-stretch justify-center box-border"
+                          className="flex w-full flex-none items-stretch justify-center box-border"
                           custom={0}
                           role="none"
                           variants={shouldReduceMotion ? undefined : bubbleVariants}

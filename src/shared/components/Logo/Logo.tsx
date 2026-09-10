@@ -50,7 +50,8 @@ export const Logo = (props: Props) => {
           '--logo-compact-ratio': getImageRatio(hasCompactLogo ? compactLogoImage : primaryLogoImage).toString(),
         }
       : undefined
-    const compactLogoSize = isHeaderVariant ? '(max-width: 639px) 192px, 320px' : '320px'
+    const headerLogoSize = '(max-width: 639px) 64px, 192px'
+    const compactLogoSize = isHeaderVariant ? headerLogoSize : '320px'
 
     return (
       <span
@@ -78,10 +79,10 @@ export const Logo = (props: Props) => {
             alt={title}
             imgClassName={baseImageClassName}
             pictureClassName={isHeaderVariant ? 'block h-full' : 'block'}
-            priority
-            quality={75}
+            priority={isHeaderVariant}
+            quality={isHeaderVariant ? 65 : 75}
             resource={primaryLogoImage}
-            size="192px"
+            size={isHeaderVariant ? headerLogoSize : '192px'}
           />
         </span>
         {hasCompactLogo ? (
@@ -100,7 +101,7 @@ export const Logo = (props: Props) => {
               imgClassName={compactImageClassName}
               pictureClassName={isHeaderVariant ? 'block h-full' : 'block'}
               priority={isHeaderVariant}
-              quality={75}
+              quality={isHeaderVariant ? 65 : 75}
               resource={compactLogoImage}
               size={compactLogoSize}
             />

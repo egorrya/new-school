@@ -32,19 +32,22 @@ export function HeroMarqueeImages({ images, className }: HeroMarqueeImagesProps)
                 return null
               }
 
+              const isLcpImage = copyIndex === 0 && index === 0
               const isAboveTheFold = copyIndex === 0 && index < 2
+              const revealDelay = Math.min(index, 8) * 80
 
               return (
                 <div
-                  className="h-44 shrink-0 overflow-hidden rounded-base shadow-shadow sm:h-56 lg:h-72"
+                  className="hero-marquee-image-reveal h-44 shrink-0 overflow-hidden rounded-base shadow-shadow sm:h-56 lg:h-72"
                   key={`${copyIndex}-${image.id}-${index}`}
+                  style={{ animationDelay: `${revealDelay}ms` }}
                 >
                   <Image
                     alt={image.alt || ''}
                     className="h-full w-auto object-contain"
+                    fetchPriority={isLcpImage ? 'high' : undefined}
                     height={image.height}
                     loading={isAboveTheFold ? 'eager' : 'lazy'}
-                    preload={isAboveTheFold}
                     quality={75}
                     sizes={photoSize}
                     src={getMediaUrl(image.url, image.updatedAt)}

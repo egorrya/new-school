@@ -47,7 +47,7 @@ export function MediaFrame({
           alt={alt}
           fill
           htmlElement={null}
-          pictureClassName="relative block h-full w-full"
+          pictureClassName="absolute inset-0 block"
           imgClassName={cn('h-full w-full object-cover', imageClassName)}
           priority={priority}
           quality={quality}
