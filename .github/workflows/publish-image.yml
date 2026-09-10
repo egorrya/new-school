@@ -50,3 +50,11 @@ jobs:
             S3_PUBLIC_URL=${{ vars.S3_PUBLIC_URL }}
           secrets: |
             payload_secret=${{ secrets.PAYLOAD_SECRET }}
+
+      - name: Deploy the published image in Coolify
+        env:
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          COOLIFY_WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK }}
+        run: |
+          curl --fail --show-error --silent --request GET "$COOLIFY_WEBHOOK" \
+            --header "Authorization: Bearer $COOLIFY_TOKEN"
