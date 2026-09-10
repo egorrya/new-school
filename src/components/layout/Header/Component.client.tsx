@@ -36,6 +36,28 @@ const headerNavRevealDelay = 0.88
 const headerActionsRevealGap = 0.14
 const headerPositionTransitionDuration = 700
 
+// This is rendered with the initial HTML so full-screen sections do not first
+// lay out as if the secondary header were absent. The client still measures the
+// element afterwards, which covers an editor adding links that wrap to another
+// line or a viewport resize.
+const secondaryHeaderInitialHeightStyles = `
+  :root {
+    --site-secondary-header-height: 33px;
+  }
+
+  @media (width >= 40rem) {
+    :root {
+      --site-secondary-header-height: 46px;
+    }
+  }
+
+  @media (width >= 64rem) {
+    :root {
+      --site-secondary-header-height: 50px;
+    }
+  }
+`
+
 function getDesktopSocialLinksWidth(siteSettings?: SiteSetting) {
   const logoImage =
     typeof siteSettings?.logoImage === 'object' && siteSettings.logoImage !== null
@@ -186,6 +208,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings
 
   return (
     <>
+      {showSecondaryHeader ? <style>{secondaryHeaderInitialHeightStyles}</style> : null}
       {showSecondaryHeader ? (
         <div
           ref={secondaryHeaderRef}

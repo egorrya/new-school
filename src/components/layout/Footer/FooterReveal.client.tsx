@@ -75,7 +75,7 @@ export function FooterReveal({ className, brand, navigation, legal, copyrightTex
           </motion.div>
         </div>
         <FooterMark inView={markInView} />
-        <div className="pt-0.5 pb-3.5 sm:pt-1 sm:pb-4">
+        <div className="pt-3.5 pb-3.5 sm:pt-1 sm:pb-4">
           <FooterCredit copyrightText={copyrightText} inView={markInView} />
         </div>
       </footer>

@@ -55,6 +55,7 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
     imgStyle,
     priority,
     quality = 75,
+    reveal = 'fade',
     resource,
     size: sizeFromProps,
     src: srcFromProps,
@@ -110,8 +111,14 @@ export const ImageMedia: React.FC<MediaProps> = (props) => {
         pictureClassName,
         !disableFadeIn &&
           !skipTransition &&
-          'motion-safe:transition-opacity motion-safe:duration-700 motion-safe:ease-out',
+          'motion-safe:transition-[filter,opacity,transform] motion-safe:duration-700 motion-safe:ease-out',
         disableFadeIn || isLoaded ? 'opacity-100' : 'opacity-0',
+        !disableFadeIn &&
+          !skipTransition &&
+          reveal === 'soft' &&
+          (isLoaded
+            ? 'motion-safe:scale-100 motion-safe:blur-0'
+            : 'motion-safe:scale-[1.015] motion-safe:blur-[2px]'),
       )}
     >
       <NextImage

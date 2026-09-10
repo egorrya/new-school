@@ -146,7 +146,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
         >
           <span
             className={cn(
-              'pointer-events-none absolute -left-1 top-0 select-none font-heading text-7xl leading-none text-main/15 sm:-left-4 sm:text-8xl',
+              'pointer-events-none absolute left-0 top-0 select-none font-heading text-7xl leading-none text-main/15 sm:left-0 sm:text-8xl',
               switchContentClass,
             )}
           >
@@ -185,7 +185,7 @@ export function TestimonialsCarousel({ testimonials }: TestimonialsCarouselProps
 
           <span
             className={cn(
-              'pointer-events-none absolute -right-1 bottom-0 select-none font-heading text-7xl leading-none text-main/15 sm:-right-4 sm:text-8xl',
+              'pointer-events-none absolute right-0 bottom-0 select-none font-heading text-7xl leading-none text-main/15 sm:right-0 sm:text-8xl',
               switchContentClass,
             )}
           >

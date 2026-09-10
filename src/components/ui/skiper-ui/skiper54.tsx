@@ -315,7 +315,7 @@ const Carousel006 = ({
               <motion.button
                 aria-label={`Перейти к слайду ${originalIndex + 1}`}
                 className={cn(
-                  "h-full max-w-[calc(100vw-3rem)] overflow-hidden border-0 bg-secondary-background p-0 shadow-shadow will-change-[border-radius,clip-path,transform]",
+                  "h-full max-w-[calc(100vw-3rem)] overflow-hidden border-0 bg-transparent p-0 shadow-shadow will-change-[border-radius,clip-path,transform]",
                   canNavigate && "cursor-pointer",
                 )}
                 initial={false}
@@ -338,6 +338,7 @@ const Carousel006 = ({
                       loading="eager"
                       pictureClassName="relative block h-full w-full"
                       priority={index === initialSnap}
+                      reveal="soft"
                       resource={slide.image}
                       // The image's box never changes size: the active-state animation only
                       // changes its mask. It can still be nearly viewport-wide, so keep a
@@ -346,7 +347,7 @@ const Carousel006 = ({
                       videoClassName="absolute inset-0 h-full w-full scale-105 object-cover"
                     />
                   ) : (
-                    <div className="absolute inset-0 bg-secondary-background" />
+                    <div className="absolute inset-0" />
                   )}
                 </div>
               </motion.button>

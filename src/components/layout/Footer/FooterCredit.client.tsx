@@ -46,15 +46,15 @@ export function FooterCredit({ copyrightText, inView }: FooterCreditProps) {
   const [hasBeenHovered, setHasBeenHovered] = useState(false)
 
   return (
-    <p className="font-base flex items-center justify-center whitespace-nowrap text-[0.625rem] leading-none tracking-[0.01em] text-foreground/50 sm:text-[0.6875rem]">
+    <p className="font-base flex items-baseline justify-center whitespace-nowrap text-[0.625rem] leading-none tracking-[0.01em] text-foreground/50 sm:text-[0.6875rem]">
       <motion.span
-        className="inline-flex items-center"
+        className="inline-flex shrink-0 items-baseline"
         initial={shouldReduceMotion ? undefined : 'hidden'}
         animate={shouldReduceMotion ? undefined : inView ? 'visible' : 'hidden'}
         variants={shouldReduceMotion ? undefined : creditVariants}
       >
         <motion.span
-          className="inline-flex items-center"
+          className="inline-flex shrink-0 items-baseline"
           variants={shouldReduceMotion ? undefined : wordVariants}
         >
           <span>{copyrightText}</span>
@@ -63,7 +63,7 @@ export function FooterCredit({ copyrightText, inView }: FooterCreditProps) {
           </span>
         </motion.span>
         <motion.a
-          className="relative inline-grid transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground/60"
+          className="relative inline-grid shrink-0 items-baseline transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-foreground/60"
           href="https://soldsite.ru"
           target="_blank"
           rel="noreferrer"
@@ -74,12 +74,12 @@ export function FooterCredit({ copyrightText, inView }: FooterCreditProps) {
           onMouseLeave={() => setIsHovered(false)}
           variants={shouldReduceMotion ? undefined : wordVariants}
         >
-          <span className="invisible col-start-1 row-start-1 inline-flex" aria-hidden="true">
+          <span className="invisible col-start-1 row-start-1 inline-flex items-baseline" aria-hidden="true">
             <span>Разработано</span>
             <span className="ml-[0.25em]">Soldsite</span>
           </span>
           <span
-            className={`col-start-1 row-start-1 flex items-center ${isHovered ? 'justify-center' : 'justify-start'}`}
+            className={`col-start-1 row-start-1 flex items-baseline ${isHovered ? 'justify-center' : 'justify-start'}`}
           >
             <AnimatePresence mode="popLayout">
               {!isHovered ? (

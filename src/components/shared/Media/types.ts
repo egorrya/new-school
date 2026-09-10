@@ -21,6 +21,8 @@ export interface Props {
   loading?: 'lazy' | 'eager' // for NextImage only
   priority?: boolean // for NextImage only
   quality?: number // for NextImage only
+  // `soft` adds a subtle scale and blur transition alongside the standard fade-in.
+  reveal?: 'fade' | 'soft'
   ref?: Ref<HTMLImageElement | HTMLVideoElement | null>
   resource?: MediaType | string | number | null // for Payload media
   size?: string // for NextImage only
