@@ -4,8 +4,8 @@ import Link from 'next/link'
 import React from 'react'
 import { motion, useReducedMotion, type Variants } from 'motion/react'
 
-import { Button } from '@/components/ui/button'
-import { MotionReveal } from '@/components/shared/MotionReveal'
+import { Button } from '@/shared/ui/primitives/button'
+import { MotionReveal } from '@/shared/components/MotionReveal'
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const
 

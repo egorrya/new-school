@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <title>Новая школа</title>
   <rect width="64" height="64" rx="18" fill="#06336F" />
-  <path d="M17 18c0-2.21 1.79-4 4-4h5c2.21 0 4 1.79 4 4v10h4V18c0-2.21 1.79-4 4-4h5c2.21 0 4 1.79 4 4v28c0 2.21-1.79 4-4 4h-5c-2.21 0-4-1.79-4-4V36h-4v10c0 2.21-1.79 4-4 4h-5c-2.21 0-4-1.79-4-4V18Z" fill="#FFFFFF" />
+  <path d="M19 14h8v14h10V14h8v36h-8V36H27v14h-8V14Z" fill="#FFFFFF" />
 </svg>

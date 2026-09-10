@@ -89,6 +89,12 @@
   }
 }
 
+@keyframes gridSpotlightDrift {
+  to {
+    transform: translate3d(2.5rem, 2.5rem, 0);
+  }
+}
+
 @keyframes orbFloat {
   0% {
     transform: translate3d(0, 0, 0);
@@ -185,6 +191,14 @@
     will-change: transform;
   }
 
+  .grid-spotlight-cells {
+    will-change: transform;
+  }
+
+  .grid-spotlight[data-active='true'] .grid-spotlight-cells {
+    animation: gridSpotlightDrift 4s linear infinite;
+  }
+
   @keyframes marqueeStart {
     from {
       opacity: 0.95;
@@ -274,6 +288,7 @@
     .animate-orb-top-right,
     .animate-orb-bottom-left,
     .animate-background-drift,
+    .grid-spotlight[data-active='true'] .grid-spotlight-cells,
     .hero-heading-reveal {
       animation: none !important;
     }

@@ -1,0 +1,396 @@
+import type {
+  Club,
+  CollectionGridBlock as CollectionGridBlockType,
+  GalleryAlbum,
+  Job,
+  News,
+  Review,
+  Teacher,
+} from '@/payload-types'
+
+import { ClubCard } from '@/features/clubs/ui/ClubCard'
+import { NewsCard } from '@/features/news/ui/NewsCard'
+import { JobCard } from '@/features/vacancies/ui/JobCard'
+import {
+  GalleryPhotoSlider,
+} from '@/features/gallery/ui/GalleryPhotoSlider'
+import { buildGalleryPhotoSlides } from '@/features/gallery/galleryPhotoSlides'
+import { CollectionGridHeader } from '@/features/page-builder/blocks/CollectionGridBlock/Header'
+import { CollectionGridReveal } from '@/features/page-builder/blocks/CollectionGridBlock/Reveal'
+import { categoryColors } from '@/features/page-builder/blocks/ProgramCategoriesBlock/View'
+import { ProgramCategoryCard } from '@/features/page-builder/blocks/ProgramCategoriesBlock/Card.client'
+import { TeacherListGrid } from '@/features/page-builder/blocks/TeacherListBlock/Grid.client'
+import { TestimonialsCarousel } from '@/features/page-builder/blocks/TestimonialsBlock/Carousel.client'
+import { toTestimonialItems } from '@/features/reviews/lib/testimonials'
+import { collectionListingPaths } from '@/features/page-builder/blocks/CollectionGridBlock/collectionListingPaths'
+import { MotionReveal } from '@/shared/components/MotionReveal'
+
+import configPromise from '@payload-config'
+import { draftMode } from 'next/headers'
+import { getPayload } from 'payload'
+import Link from 'next/link'
+
+import {
+  PageBlockContainer,
+  PageBlockEmptyState,
+  PageBlockSection,
+} from '@/shared/components/PageBlock'
+import { Button } from '@/shared/ui/primitives/button'
+import { cn } from '@/shared/lib/cn'
+
+type CollectionType = CollectionGridBlockType['collectionType']
+
+type CollectionDocuments = {
+  clubs: Club
+  news: News
+  teachers: Teacher
+  reviews: Review
+  jobs: Job
+  galleryAlbums: GalleryAlbum
+}
+
+const collectionSorts: Record<CollectionType, string[]> = {
+  clubs: ['sortOrder', 'title'],
+  news: ['-publishedAt'],
+  teachers: ['sortOrder'],
+  reviews: ['sortOrder'],
+  jobs: ['-createdAt'],
+  galleryAlbums: ['sortOrder'],
+}
+
+async function getCollectionDocuments<T extends CollectionType>(
+  collectionType: T,
+  itemLimit: number | null | undefined,
+  draft: boolean,
+  galleryAlbum?: CollectionGridBlockType['galleryAlbum'],
+  manualSelection?: boolean | null,
+  items?: CollectionGridBlockType['items'],
+  categoryFilter?: CollectionGridBlockType['categoryFilter'],
+): Promise<CollectionDocuments[T][]> {
+  const payload = await getPayload({ config: configPromise })
+  const now = new Date().toISOString()
+  const resolvedItemLimit = itemLimit ?? 6
+
+  switch (collectionType) {
+    case 'clubs': {
+      if (manualSelection) {
+        const itemIds = (items ?? []).map((item) => (typeof item === 'object' ? item.id : item))
+
+        if (itemIds.length === 0) {
+          return []
+        }
+
+        const result = await payload.find({
+          collection: 'clubs',
+          depth: 1,
+          draft,
+          overrideAccess: draft,
+          pagination: false,
+          where: {
+            id: {
+              in: itemIds,
+            },
+          },
+        })
+
+        const docsById = new Map(result.docs.map((doc) => [doc.id, doc]))
+
+        return itemIds
+          .map((id) => docsById.get(id))
+          .filter((doc): doc is NonNullable<typeof doc> => Boolean(doc)) as CollectionDocuments[T][]
+      }
+
+      const categoryFilterId =
+        typeof categoryFilter === 'object' && categoryFilter !== null ? categoryFilter.id : categoryFilter
+
+      const result = await payload.find({
+        collection: 'clubs',
+        depth: 1,
+        limit: resolvedItemLimit,
+        draft,
+        overrideAccess: draft,
+        sort: collectionSorts.clubs,
+        pagination: false,
+        where: {
+          and: [
+            {
+              isActive: {
+                equals: true,
+              },
+            },
+            ...(categoryFilterId ? [{ category: { equals: categoryFilterId } }] : []),
+          ],
+        },
+      })
+      return result.docs as CollectionDocuments[T][]
+    }
+    case 'news': {
+      const result = await payload.find({
+        collection: 'news',
+        depth: 1,
+        limit: resolvedItemLimit,
+        overrideAccess: false,
+        sort: collectionSorts.news,
+        pagination: false,
+        where: {
+          publishedAt: {
+            less_than_equal: now,
+          },
+        },
+      })
+      return result.docs as CollectionDocuments[T][]
+    }
+    case 'teachers': {
+      const result = await payload.find({
+        collection: 'teachers',
+        depth: 1,
+        overrideAccess: false,
+        sort: collectionSorts.teachers,
+        pagination: false,
+      })
+      return result.docs as CollectionDocuments[T][]
+    }
+    case 'reviews': {
+      const result = await payload.find({
+        collection: 'reviews',
+        depth: 1,
+        limit: resolvedItemLimit,
+        overrideAccess: false,
+        sort: collectionSorts.reviews,
+        pagination: false,
+        where: {
+          isPublished: {
+            equals: true,
+          },
+        },
+      })
+      return result.docs as CollectionDocuments[T][]
+    }
+    case 'jobs': {
+      const result = await payload.find({
+        collection: 'jobs',
+        depth: 1,
+        limit: resolvedItemLimit,
+        overrideAccess: false,
+        sort: collectionSorts.jobs,
+        pagination: false,
+        where: {
+          isActive: {
+            equals: true,
+          },
+        },
+      })
+      return result.docs as CollectionDocuments[T][]
+    }
+    case 'galleryAlbums': {
+      const galleryAlbumId =
+        typeof galleryAlbum === 'object' && galleryAlbum !== null ? galleryAlbum.id : galleryAlbum
+
+      if (galleryAlbumId) {
+        const album = await payload.findByID({
+          collection: 'gallery-albums',
+          id: galleryAlbumId,
+          depth: 1,
+          overrideAccess: false,
+        })
+
+        return [album] as CollectionDocuments[T][]
+      }
+
+      const result = await payload.find({
+        collection: 'gallery-albums',
+        depth: 1,
+        limit: 100,
+        overrideAccess: false,
+        sort: collectionSorts.galleryAlbums,
+        pagination: false,
+      })
+      return result.docs as CollectionDocuments[T][]
+    }
+  }
+
+  throw new Error(`Unsupported collection type: ${collectionType}`)
+}
+
+export async function CollectionGridBlock({
+  collectionType,
+  description,
+  galleryAlbum,
+  hideTitle,
+  itemLimit,
+  manualSelection,
+  items: manualItems,
+  categoryFilter,
+  cardDesign,
+  showViewAllButton,
+  title,
+  viewAllButtonLabel,
+  insideTabs,
+}: CollectionGridBlockType & { insideTabs?: boolean }) {
+  const { isEnabled: draft } = await draftMode()
+  const items = await getCollectionDocuments(
+    collectionType,
+    itemLimit,
+    draft,
+    galleryAlbum,
+    manualSelection,
+    manualItems,
+    categoryFilter,
+  )
+  const gallerySlides =
+    collectionType === 'galleryAlbums'
+      ? buildGalleryPhotoSlides(items as GalleryAlbum[])
+      : []
+  const viewAllHref = collectionListingPaths[collectionType]
+
+  return (
+    <PageBlockSection
+      className={cn(
+        collectionType === 'galleryAlbums' && 'pt-0 sm:pt-0 lg:pt-0',
+        collectionType === 'reviews' && 'pb-14 sm:pb-20 lg:pb-24',
+      )}
+    >
+      <PageBlockContainer container={!insideTabs}>
+        <div className={cn('space-y-8', collectionType === 'reviews' && 'space-y-12 sm:space-y-8')}>
+          <CollectionGridHeader
+            className={insideTabs ? undefined : 'mx-auto max-w-4xl text-center'}
+            description={description}
+            descriptionClassName={insideTabs ? 'max-w-3xl' : 'mx-auto max-w-3xl text-center'}
+            title={insideTabs ? null : hideTitle ? null : title}
+            titleClassName="w-full text-2xl sm:text-3xl lg:text-4xl"
+          />
+
+          <CollectionGridReveal>
+            {collectionType === 'galleryAlbums' ? (
+              gallerySlides.length > 0 ? (
+                <GalleryPhotoSlider slides={gallerySlides} />
+              ) : (
+                <PageBlockEmptyState
+                  description="Добавьте альбомы с фотографиями в Payload, чтобы собрать галерею в слайдер."
+                  title="Фотографии пока не добавлены"
+                />
+              )
+            ) : collectionType === 'reviews' && items.length > 0 ? (
+              <TestimonialsCarousel testimonials={toTestimonialItems(items as Review[])} />
+            ) : collectionType === 'teachers' && items.length > 0 ? (
+              <TeacherListGrid teachers={items as Teacher[]} />
+            ) : items.length > 0 ? (
+              <div
+                className={cn(
+                  collectionType === 'clubs' && cardDesign === 'category'
+                    ? 'grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-6'
+                    : 'grid md:grid-cols-2 xl:grid-cols-3',
+                  collectionType === 'news' ? 'gap-6' : 'gap-4',
+                  collectionType === 'news' && items.length === 1 &&
+                    'mx-auto w-full grid-cols-1 md:grid-cols-1 md:max-w-[calc(50%_-_0.75rem)] xl:grid-cols-1 xl:max-w-[calc(33.333%_-_1rem)]',
+                  collectionType === 'news' && items.length === 2 &&
+                    'xl:mx-auto xl:grid-cols-2 xl:max-w-[calc(66.667%_-_0.5rem)]',
+                )}
+              >
+                {collectionType === 'clubs' && cardDesign === 'category'
+                  ? (items as Club[]).map((item, index) => {
+                      const isFourItems = items.length === 4
+                      const isCenteredLastPair =
+                        items.length % 3 === 2 && index === items.length - 2
+
+                      return (
+                        <MotionReveal
+                          amount={0.15}
+                          className={cn(
+                            isFourItems ? 'lg:col-span-3' : 'lg:col-span-2',
+                            isCenteredLastPair && 'lg:col-start-2',
+                          )}
+                          delay={0.25 + index * 0.14}
+                          duration={0.65}
+                          key={item.id || `${item.title}-${index}`}
+                          margin="-10% 0px -10% 0px"
+                          y={22}
+                        >
+                          <ProgramCategoryCard
+                            color={categoryColors[index % categoryColors.length]}
+                            description={item.shortDescription}
+                            href={`/programs/${item.slug}`}
+                            previewImage={item.previewImage}
+                            title={item.title}
+                          />
+                        </MotionReveal>
+                      )
+                    })
+                  : null}
+                {collectionType === 'clubs' && cardDesign !== 'category'
+                  ? (items as Club[]).map((item, index) => (
+                      <ClubCard
+                        club={item}
+                        index={index}
+                        key={item.id || `${item.title}-${index}`}
+                        priority={index === 0}
+                      />
+                    ))
+                  : null}
+                {collectionType === 'news'
+                  ? (items as News[]).map((item, index) => (
+                      <NewsCard
+                        key={item.id || `${item.title}-${index}`}
+                        index={index}
+                        news={item}
+                        priority={index === 0}
+                      />
+                    ))
+                  : null}
+                {collectionType === 'jobs'
+                  ? (items as Job[]).map((item, index) => (
+                      <JobCard index={index} key={item.id || `${item.title}-${index}`} job={item} />
+                    ))
+                  : null}
+              </div>
+            ) : (
+              <PageBlockEmptyState
+                className={collectionType === 'jobs' ? 'mx-auto w-fit max-w-full' : undefined}
+                description={
+                  collectionType === 'clubs'
+                    ? manualSelection
+                      ? 'Выберите программы в поле «Программы», чтобы они появились в этой сетке.'
+                      : 'Добавьте хотя бы одну активную программу в Payload, чтобы она появилась в этой сетке.'
+                    : collectionType === 'news'
+                      ? 'Добавьте опубликованные новости в Payload, чтобы они появились в этой сетке.'
+                      : collectionType === 'teachers'
+                        ? 'Добавьте преподавателей с фото и описанием, чтобы показать эту секцию.'
+                        : collectionType === 'reviews'
+                          ? 'Добавьте опубликованные отзывы, чтобы показать социальное доказательство.'
+                          : collectionType === 'jobs'
+                            ? null
+                            : 'Добавьте альбомы галереи с фотографиями, чтобы показать эту секцию.'
+                }
+                title={
+                  collectionType === 'clubs'
+                    ? manualSelection
+                      ? 'Программы пока не выбраны'
+                      : 'Активные программы пока не найдены'
+                    : collectionType === 'news'
+                      ? 'Новостей пока нет'
+                      : collectionType === 'teachers'
+                        ? 'Преподаватели пока не добавлены'
+                      : collectionType === 'reviews'
+                        ? 'Отзывы пока не добавлены'
+                        : collectionType === 'jobs'
+                          ? 'В данный момент вакансий нет'
+                          : 'Альбомы галереи пока не добавлены'
+                }
+              />
+            )}
+          </CollectionGridReveal>
+
+          {showViewAllButton && viewAllHref && items.length > 0 ? (
+            <MotionReveal>
+              <div className="flex justify-center">
+                <Button asChild>
+                  <Link href={viewAllHref}>{viewAllButtonLabel || 'Смотреть все'}</Link>
+                </Button>
+              </div>
+            </MotionReveal>
+          ) : null}
+        </div>
+      </PageBlockContainer>
+    </PageBlockSection>
+  )
+}

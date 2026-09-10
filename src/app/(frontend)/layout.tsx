@@ -1,17 +1,17 @@
 import type { Metadata } from 'next'
 
-import { cn } from '@/utilities/ui'
+import { cn } from '@/shared/lib/cn'
 import { Montserrat } from 'next/font/google'
 import React from 'react'
 
-import { Footer } from '@/components/layout/Footer/Component'
-import { Header } from '@/components/layout/Header/Component'
-import { Toaster } from '@/components/ui/sonner'
-import { InfiniteGridBackground } from '@/components/ui/backgrounds/infinite-grid-background'
-import { mergeOpenGraph } from '@/lib/mergeOpenGraph'
+import { Footer } from '@/shared/layout/Footer/Component'
+import { Header } from '@/shared/layout/Header/Component'
+import { Toaster } from '@/shared/ui/primitives/sonner'
+import { InfiniteGridBackground } from '@/shared/ui/primitives/backgrounds/infinite-grid-background'
+import { mergeOpenGraph } from '@/server/seo/mergeOpenGraph'
 
 import './globals.css'
-import { getServerSideURL } from '@/utilities/getURL'
+import { getServerSideURL } from '@/shared/lib/getURL'
 
 const montserrat = Montserrat({
   subsets: ['latin', 'cyrillic'],

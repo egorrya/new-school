@@ -77,4 +77,22 @@ const nextConfig: NextConfig = {
   },
 }
 
-export default withPayload(nextConfig, { devBundleServerPackages: false })
+const payloadConfig = withPayload(nextConfig, { devBundleServerPackages: false })
+
+// `withPayload` adds `Critical-CH: Sec-CH-Prefers-Color-Scheme` to every
+// response. Chrome restarts the first navigation to satisfy that critical
+// client hint, which Lighthouse records as an avoidable 307 redirect. The
+// hint itself is still requested for the Payload admin UI; it simply no
+// longer blocks rendering the public site.
+const getPayloadHeaders = payloadConfig.headers
+
+payloadConfig.headers = async () => {
+  const headers = getPayloadHeaders ? await getPayloadHeaders() : []
+
+  return headers.map((route) => ({
+    ...route,
+    headers: route.headers.filter(({ key }) => key.toLowerCase() !== 'critical-ch'),
+  }))
+}
+
+export default payloadConfig

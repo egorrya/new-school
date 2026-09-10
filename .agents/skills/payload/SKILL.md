@@ -333,27 +333,50 @@ hooks: {
 
 See [HOOKS.md#context](reference/HOOKS.md#context).
 
-## Project Structure
+## Project Structure in This Repository
 
 ```txt
 src/
 ├── app/
 │   ├── (frontend)/
-│   │   └── page.tsx
+│   │   └── (site)/             # route files, layouts, metadata and route handlers only
 │   └── (payload)/
 │       └── admin/[[...segments]]/page.tsx
-├── collections/
-│   ├── Posts.ts
-│   ├── Media.ts
-│   └── Users.ts
-├── globals/
-│   └── Header.ts
-├── components/
-│   └── CustomField.tsx
-├── hooks/
-│   └── slugify.ts
-└── payload.config.ts
+├── cms/
+│   ├── collections/
+│   ├── globals/
+│   ├── fields/
+│   ├── access/
+│   ├── hooks/
+│   ├── plugins/
+│   ├── migrations/
+│   └── admin/
+├── features/
+│   ├── page-builder/
+│   │   ├── schema.ts            # Payload block registry
+│   │   ├── RenderBlocks.tsx
+│   │   └── blocks/<Block>/      # schema.ts, View.tsx and client leaves together
+│   └── <domain>/                # data, screens and UI for a site domain
+├── server/
+│   ├── payload/                 # Payload queries and caches
+│   ├── forms/
+│   └── seo/
+├── shared/
+│   ├── components/
+│   ├── ui/
+│   ├── hooks/
+│   └── lib/
+├── payload.config.ts            # stable @payload-config entry point
+└── payload-types.ts             # generated; never edit manually
 ```
+
+### Repository Boundaries
+
+- Keep URL mapping and Next.js special exports in `src/app/`; implement screens and page composition in `src/features/`.
+- Keep a Payload block schema and its rendering implementation colocated under `features/page-builder/blocks/<Block>/`. Update `schema.ts` and `RenderBlocks.tsx` together when adding or removing a block.
+- Keep Payload configs under `src/cms/` and use `@/cms/...` imports. After a schema or custom admin component path changes, run `npm run generate:types` and `npm run generate:importmap`.
+- Keep Payload access and cached queries in `src/server/`. Do not import them into client components or `shared/` modules.
+- Do not recreate retired roots (`src/collections`, `src/blocks`, `src/components`, `src/utilities`, `src/lib`).
 
 ## Type Generation
 

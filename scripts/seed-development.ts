@@ -6,7 +6,8 @@ import { sql } from '@payloadcms/db-postgres'
 import { getPayload, type CollectionSlug } from 'payload'
 
 import config from '@payload-config'
-import { defaultLegalEntityText } from '@/globals/Footer/defaults'
+import { defaultLegalEntityText } from '@/cms/globals/Footer/defaults'
+import { TEACHERS_INTRO_IMAGE_ALT } from '@/features/teachers/constants'
 import type { Header } from '@/payload-types'
 
 type SeedMediaInput = {
@@ -80,7 +81,11 @@ const programMediaFiles: SeedMediaInput[] = [
     'muzykalno-teatralnaya-studiya.jpg',
     'Занятие музыкально-театральной студии в «Новой школе»',
   ),
-  programImageDoc('clubKrasivoePismo', 'krasivoe-pismo.jpg', 'Занятие по каллиграфии в «Новой школе»'),
+  programImageDoc(
+    'clubKrasivoePismo',
+    'krasivoe-pismo.jpg',
+    'Занятие по каллиграфии в «Новой школе»',
+  ),
   programImageDoc(
     'clubMentalnayaArifmetika',
     'mentalnaya-arifmetika.jpg',
@@ -116,8 +121,16 @@ const programMediaFiles: SeedMediaInput[] = [
     'angl-shkola-cover.jpg',
     'Ученики пишут работу по английскому языку в классе с британской символикой',
   ),
-  programImageDoc('clubLetnyayaSmenaCover', 'letnyaya-smena-cover.jpg', 'Дети на летних каникулах в английском клубе «Новой школы»'),
-  programImageDoc('clubLetnyayaSmenaPreview', 'letnyaya-smena-preview.jpg', 'Стрельба из лука на летней смене в «Новой школе»'),
+  programImageDoc(
+    'clubLetnyayaSmenaCover',
+    'letnyaya-smena-cover.jpg',
+    'Дети на летних каникулах в английском клубе «Новой школы»',
+  ),
+  programImageDoc(
+    'clubLetnyayaSmenaPreview',
+    'letnyaya-smena-preview.jpg',
+    'Стрельба из лука на летней смене в «Новой школе»',
+  ),
   programImageDoc(
     'clubPromezhutochnyeKanikulyCover',
     'promezhutochnye-kanikuly-cover.jpg',
@@ -139,7 +152,11 @@ const programMediaFiles: SeedMediaInput[] = [
     'Дети в группе продлённого дня в «Новой школе»',
   ),
   programImageDoc('clubNulevoyKlass', 'nulevoy-klass.jpg', 'Дети на занятии в нулевом классе'),
-  programImageDoc('clubNachalnyeKlassy', 'nachalnye-klassy.jpg', 'Ученики начальных классов на уроке'),
+  programImageDoc(
+    'clubNachalnyeKlassy',
+    'nachalnye-klassy.jpg',
+    'Ученики начальных классов на уроке',
+  ),
   programImageDoc('clubSrednyayaShkola', 'srednyaya-shkola.jpg', 'Ученики средней школы на уроке'),
   {
     ...programImageDoc(
@@ -195,32 +212,112 @@ function galleryImageDoc(key: string, filename: string, alt: string): SeedMediaI
 // used only by the opt-in reuse mode, so a normal seed still uploads its own
 // filenames when starting with an empty bucket.
 const galleryMediaFiles: SeedMediaInput[] = [
-  { ...galleryImageDoc('gallery01', 'gallery-01.webp', 'Фото из галереи «Новой школы» 1'), storageFilename: '1 сентября (101).webp' },
-  { ...galleryImageDoc('gallery02', 'gallery-02.webp', 'Фото из галереи «Новой школы» 2'), storageFilename: '1 сентября (14).webp' },
-  { ...galleryImageDoc('gallery03', 'gallery-03.webp', 'Фото из галереи «Новой школы» 3'), storageFilename: '1 сентября (91).webp' },
-  { ...galleryImageDoc('gallery04', 'gallery-04.webp', 'Фото из галереи «Новой школы» 4'), storageFilename: '11-2048x1365-1.webp' },
-  { ...galleryImageDoc('gallery05', 'gallery-05.webp', 'Фото из галереи «Новой школы» 5'), storageFilename: '2-1-2048x1365-1.webp' },
-  { ...galleryImageDoc('gallery06', 'gallery-06.webp', 'Фото из галереи «Новой школы» 6'), storageFilename: '2022-05-16 17-55-28 (11).webp' },
-  { ...galleryImageDoc('gallery07', 'gallery-07.webp', 'Фото из галереи «Новой школы» 7'), storageFilename: 'IMG_1705.webp' },
-  { ...galleryImageDoc('gallery08', 'gallery-08.webp', 'Фото из галереи «Новой школы» 8'), storageFilename: 'IMG_1708.webp' },
-  { ...galleryImageDoc('gallery09', 'gallery-09.webp', 'Фото из галереи «Новой школы» 9'), storageFilename: 'IMG_2645.webp' },
-  { ...galleryImageDoc('gallery10', 'gallery-10.webp', 'Фото из галереи «Новой школы» 10'), storageFilename: 'IMG_6788.webp' },
-  { ...galleryImageDoc('gallery11', 'gallery-11.webp', 'Фото из галереи «Новой школы» 11'), storageFilename: 'IMG_7334.webp' },
-  { ...galleryImageDoc('gallery12', 'gallery-12.webp', 'Фото из галереи «Новой школы» 12'), storageFilename: 'IMG_7336.webp' },
-  { ...galleryImageDoc('gallery13', 'gallery-13.webp', 'Фото из галереи «Новой школы» 13'), storageFilename: 'IMG_7343.webp' },
-  { ...galleryImageDoc('gallery14', 'gallery-14.webp', 'Фото из галереи «Новой школы» 14'), storageFilename: 'IMG_7345.webp' },
-  { ...galleryImageDoc('gallery15', 'gallery-15.webp', 'Фото из галереи «Новой школы» 15'), storageFilename: 'IMG_7347.webp' },
-  { ...galleryImageDoc('gallery16', 'gallery-16.webp', 'Фото из галереи «Новой школы» 16'), storageFilename: 'IMG_7348.webp' },
-  { ...galleryImageDoc('gallery17', 'gallery-17.webp', 'Фото из галереи «Новой школы» 17'), storageFilename: 'IMG_9322.webp' },
-  { ...galleryImageDoc('gallery18', 'gallery-18.webp', 'Фото из галереи «Новой школы» 18'), storageFilename: 'WhatsApp Image 2023-09-04 at 14.43.44.webp' },
-  { ...galleryImageDoc('gallery19', 'gallery-19.webp', 'Фото из галереи «Новой школы» 19'), storageFilename: 'WhatsApp Image 2023-09-04 at 14.43.45.webp' },
-  { ...galleryImageDoc('gallery20', 'gallery-20.webp', 'Фото из галереи «Новой школы» 20'), storageFilename: 'WhatsApp Image 2023-09-15 at 18.01.48.webp' },
-  { ...galleryImageDoc('gallery21', 'gallery-21.webp', 'Фото из галереи «Новой школы» 21'), storageFilename: 'msg-1001677395309-12024.webp' },
-  { ...galleryImageDoc('gallery22', 'gallery-22.webp', 'Фото из галереи «Новой школы» 22'), storageFilename: 'msg-1001677395309-5429.webp' },
-  { ...galleryImageDoc('gallery23', 'gallery-23.webp', 'Фото из галереи «Новой школы» 23'), storageFilename: 'msg-1001677395309-5495.webp' },
-  { ...galleryImageDoc('gallery24', 'gallery-24.webp', 'Фото из галереи «Новой школы» 24'), storageFilename: 'msg-1001677395309-5527.webp' },
-  { ...galleryImageDoc('gallery25', 'gallery-25.webp', 'Фото из галереи «Новой школы» 25'), storageFilename: 'msg-1001677395309-9634.webp' },
-  { ...galleryImageDoc('gallery26', 'gallery-26.webp', 'Фото из галереи «Новой школы» 26'), storageFilename: 'photo_5278567188661391356_y.webp' },
+  {
+    ...galleryImageDoc('gallery01', 'gallery-01.webp', 'Фото из галереи «Новой школы» 1'),
+    storageFilename: '1 сентября (101).webp',
+  },
+  {
+    ...galleryImageDoc('gallery02', 'gallery-02.webp', 'Фото из галереи «Новой школы» 2'),
+    storageFilename: '1 сентября (14).webp',
+  },
+  {
+    ...galleryImageDoc('gallery03', 'gallery-03.webp', 'Фото из галереи «Новой школы» 3'),
+    storageFilename: '1 сентября (91).webp',
+  },
+  {
+    ...galleryImageDoc('gallery04', 'gallery-04.webp', 'Фото из галереи «Новой школы» 4'),
+    storageFilename: '11-2048x1365-1.webp',
+  },
+  {
+    ...galleryImageDoc('gallery05', 'gallery-05.webp', 'Фото из галереи «Новой школы» 5'),
+    storageFilename: '2-1-2048x1365-1.webp',
+  },
+  {
+    ...galleryImageDoc('gallery06', 'gallery-06.webp', 'Фото из галереи «Новой школы» 6'),
+    storageFilename: '2022-05-16 17-55-28 (11).webp',
+  },
+  {
+    ...galleryImageDoc('gallery07', 'gallery-07.webp', 'Фото из галереи «Новой школы» 7'),
+    storageFilename: 'IMG_1705.webp',
+  },
+  {
+    ...galleryImageDoc('gallery08', 'gallery-08.webp', 'Фото из галереи «Новой школы» 8'),
+    storageFilename: 'IMG_1708.webp',
+  },
+  {
+    ...galleryImageDoc('gallery09', 'gallery-09.webp', 'Фото из галереи «Новой школы» 9'),
+    storageFilename: 'IMG_2645.webp',
+  },
+  // This asset is also the hero photo on `/teachers`. Its R2 object has a
+  // legacy name, so page code locates the media document by this stable label.
+  {
+    ...galleryImageDoc('gallery10', 'gallery-10.webp', TEACHERS_INTRO_IMAGE_ALT),
+    storageFilename: 'IMG_6788.webp',
+  },
+  {
+    ...galleryImageDoc('gallery11', 'gallery-11.webp', 'Фото из галереи «Новой школы» 11'),
+    storageFilename: 'IMG_7334.webp',
+  },
+  {
+    ...galleryImageDoc('gallery12', 'gallery-12.webp', 'Фото из галереи «Новой школы» 12'),
+    storageFilename: 'IMG_7336.webp',
+  },
+  {
+    ...galleryImageDoc('gallery13', 'gallery-13.webp', 'Фото из галереи «Новой школы» 13'),
+    storageFilename: 'IMG_7343.webp',
+  },
+  {
+    ...galleryImageDoc('gallery14', 'gallery-14.webp', 'Фото из галереи «Новой школы» 14'),
+    storageFilename: 'IMG_7345.webp',
+  },
+  {
+    ...galleryImageDoc('gallery15', 'gallery-15.webp', 'Фото из галереи «Новой школы» 15'),
+    storageFilename: 'IMG_7347.webp',
+  },
+  {
+    ...galleryImageDoc('gallery16', 'gallery-16.webp', 'Фото из галереи «Новой школы» 16'),
+    storageFilename: 'IMG_7348.webp',
+  },
+  {
+    ...galleryImageDoc('gallery17', 'gallery-17.webp', 'Фото из галереи «Новой школы» 17'),
+    storageFilename: 'IMG_9322.webp',
+  },
+  {
+    ...galleryImageDoc('gallery18', 'gallery-18.webp', 'Фото из галереи «Новой школы» 18'),
+    storageFilename: 'WhatsApp Image 2023-09-04 at 14.43.44.webp',
+  },
+  {
+    ...galleryImageDoc('gallery19', 'gallery-19.webp', 'Фото из галереи «Новой школы» 19'),
+    storageFilename: 'WhatsApp Image 2023-09-04 at 14.43.45.webp',
+  },
+  {
+    ...galleryImageDoc('gallery20', 'gallery-20.webp', 'Фото из галереи «Новой школы» 20'),
+    storageFilename: 'WhatsApp Image 2023-09-15 at 18.01.48.webp',
+  },
+  {
+    ...galleryImageDoc('gallery21', 'gallery-21.webp', 'Фото из галереи «Новой школы» 21'),
+    storageFilename: 'msg-1001677395309-12024.webp',
+  },
+  {
+    ...galleryImageDoc('gallery22', 'gallery-22.webp', 'Фото из галереи «Новой школы» 22'),
+    storageFilename: 'msg-1001677395309-5429.webp',
+  },
+  {
+    ...galleryImageDoc('gallery23', 'gallery-23.webp', 'Фото из галереи «Новой школы» 23'),
+    storageFilename: 'msg-1001677395309-5495.webp',
+  },
+  {
+    ...galleryImageDoc('gallery24', 'gallery-24.webp', 'Фото из галереи «Новой школы» 24'),
+    storageFilename: 'msg-1001677395309-5527.webp',
+  },
+  {
+    ...galleryImageDoc('gallery25', 'gallery-25.webp', 'Фото из галереи «Новой школы» 25'),
+    storageFilename: 'msg-1001677395309-9634.webp',
+  },
+  {
+    ...galleryImageDoc('gallery26', 'gallery-26.webp', 'Фото из галереи «Новой школы» 26'),
+    storageFilename: 'photo_5278567188661391356_y.webp',
+  },
 ]
 
 function orgInfoDoc(key: string, filename: string, alt: string): SeedMediaInput {
@@ -399,7 +496,7 @@ function makeHeroBlock({
   secondaryButtonLabel?: string
   secondaryButtonLink?: string
   image?: number | null
-  }) {
+}) {
   return {
     blockType: 'hero',
     title,
@@ -485,11 +582,7 @@ function makeMarqueeBlock(items: string[] = DEFAULT_MARQUEE_ITEMS) {
   }
 }
 
-function makeTextImageBlock(
-  title: string,
-  imagePosition: 'left' | 'right',
-  image?: number | null,
-) {
+function makeTextImageBlock(title: string, imagePosition: 'left' | 'right', image?: number | null) {
   return {
     blockType: 'textImage',
     title,
@@ -659,7 +752,11 @@ function makeCollectionGridBlock(
   itemLimit: number,
   showViewAllButton = false,
   description: string = PLACEHOLDER_TEXT,
-  options: { categoryFilter?: number; cardDesign?: 'default' | 'category'; hideTitle?: boolean } = {},
+  options: {
+    categoryFilter?: number
+    cardDesign?: 'default' | 'category'
+    hideTitle?: boolean
+  } = {},
 ) {
   return {
     blockType: 'collectionGrid',
@@ -859,10 +956,7 @@ async function upsertPublishedDoc(
   return payload.create(createOptions)
 }
 
-async function unlockPageDocument(
-  payload: Awaited<ReturnType<typeof getPayload>>,
-  pageId: number,
-) {
+async function unlockPageDocument(payload: Awaited<ReturnType<typeof getPayload>>, pageId: number) {
   const locks = await payload.find({
     collection: 'payload-locked-documents',
     depth: 0,
@@ -907,12 +1001,13 @@ async function upsertUpload(
   const existingByFilename = await findOneByField(payload, 'media', 'filename', filename)
   const resolvedStorageFilename = storageFilename ?? filename
   const reuseStorage = process.env.SEED_REUSE_S3 === 'true'
-  const storageData = reuseStorage && process.env.S3_PUBLIC_URL
-    ? {
-        filename: resolvedStorageFilename,
-        url: `${process.env.S3_PUBLIC_URL}/${resolvedStorageFilename}`,
-      }
-    : {}
+  const storageData =
+    reuseStorage && process.env.S3_PUBLIC_URL
+      ? {
+          filename: resolvedStorageFilename,
+          url: `${process.env.S3_PUBLIC_URL}/${resolvedStorageFilename}`,
+        }
+      : {}
 
   if (existingByFilename) {
     return payload.update({
@@ -1006,7 +1101,10 @@ async function clearReusedMediaVariants(
       sizes_og_filesize = NULL,
       sizes_og_filename = NULL,
       updated_at = NOW()
-    WHERE id IN (${sql.join(mediaIDs.map((id) => sql`${id}`), sql`, `)})
+    WHERE id IN (${sql.join(
+      mediaIDs.map((id) => sql`${id}`),
+      sql`, `,
+    )})
   `)
 }
 
@@ -1190,7 +1288,11 @@ async function seedCollections(
               hideTitle: true,
               description: 'Пн–Пт, с 12:00 до 19:00.',
               scheduleItems: [
-                { label: '12:00–13:00', value: 'Забираем детей из школы (привести ребёнка родители могут самостоятельно с 13:00)' },
+                {
+                  label: '12:00–13:00',
+                  value:
+                    'Забираем детей из школы (привести ребёнка родители могут самостоятельно с 13:00)',
+                },
                 { label: '13:00–13:30', value: 'Выполнение домашнего задания' },
                 { label: '13:30–14:00', value: 'Перекус, игры' },
                 { label: '14:00–15:30', value: 'Выполнение домашнего задания, игры' },
@@ -1198,7 +1300,10 @@ async function seedCollections(
                 { label: '16:30–17:00', value: 'Ужин' },
                 { label: '17:00–17:20', value: 'Самостоятельное чтение' },
                 { label: '17:20–18:20', value: 'Творчество, фитнес (по расписанию)' },
-                { label: '18:20–19:00', value: 'Свободное время (настольные игры, чтение и т.п.), разбор детей' },
+                {
+                  label: '18:20–19:00',
+                  value: 'Свободное время (настольные игры, чтение и т.п.), разбор детей',
+                },
               ],
             },
           ],
@@ -1621,7 +1726,8 @@ async function seedCollections(
       slug: 'raspisanie-kruzhkov',
       generateSlug: false,
       title: 'Расписание',
-      shortDescription: 'Все кружки по дням недели — выберите день, чтобы увидеть, какие занятия проходят.',
+      shortDescription:
+        'Все кружки по дням недели — выберите день, чтобы увидеть, какие занятия проходят.',
       category: programCategories.kruzhki.id,
       useTabsNavigation: true,
       // Вкладки по дням недели заполняются ниже, после того как созданы все
@@ -1673,7 +1779,10 @@ async function seedCollections(
               description: 'Группы формируются по возрасту и уровню английского языка.',
               scheduleItems: [
                 { label: 'Возраст', value: '4–6 лет' },
-                { label: 'Преподаватели', value: 'С международной квалификацией TKT: Young Learners' },
+                {
+                  label: 'Преподаватели',
+                  value: 'С международной квалификацией TKT: Young Learners',
+                },
               ],
             },
           ],
@@ -1728,7 +1837,8 @@ async function seedCollections(
             {
               blockType: 'schedule',
               title: 'Расписание занятий',
-              description: 'Группы формируются по возрасту учеников и уровню владения английским языком.',
+              description:
+                'Группы формируются по возрасту учеников и уровню владения английским языком.',
               scheduleItems: [
                 { label: 'Периодичность', value: '2 раза в неделю по 80 минут' },
                 { label: 'Период', value: 'С сентября по май' },
@@ -1924,7 +2034,8 @@ async function seedCollections(
       slug: 'anglijskij-na-kanikulah',
       generateSlug: false,
       title: 'Английский на каникулах',
-      shortDescription: 'Английский в каникулярных сменах «Новой школы» — смотрите программы каникул.',
+      shortDescription:
+        'Английский в каникулярных сменах «Новой школы» — смотрите программы каникул.',
       category: programCategories.anglijskij.id,
       linkToCategory: programCategories['aktivnye-kanikuly'].id,
       previewImage: media.clubLetnyayaSmenaPreview.id,
@@ -1936,7 +2047,8 @@ async function seedCollections(
       slug: 'letnie-smeny-s-anglijskim',
       generateSlug: false,
       title: 'Летние смены с английским',
-      shortDescription: 'Летний клуб полного дня для детей 7–12 лет: игры, творчество и английский язык.',
+      shortDescription:
+        'Летний клуб полного дня для детей 7–12 лет: игры, творчество и английский язык.',
       category: programCategories['aktivnye-kanikuly'].id,
       previewImage: media.clubLetnyayaSmenaPreview.id,
       coverImage: media.clubLetnyayaSmenaCover.id,
@@ -2061,7 +2173,8 @@ async function seedCollections(
       slug: 'promezhutochnye-kanikuly',
       generateSlug: false,
       title: 'Промежуточные каникулы',
-      shortDescription: 'Клуб полного дня на каникулах для детей 7–12 лет: творчество и английский язык.',
+      shortDescription:
+        'Клуб полного дня на каникулах для детей 7–12 лет: творчество и английский язык.',
       category: programCategories['aktivnye-kanikuly'].id,
       previewImage: media.clubPromezhutochnyeKanikulyPreview.id,
       coverImage: null,
@@ -2108,7 +2221,8 @@ async function seedCollections(
             {
               blockType: 'program',
               title: 'Что входит в смену',
-              description: 'Тот же формат, что и летом, — только неделя, чтобы уместиться в короткие школьные каникулы.',
+              description:
+                'Тот же формат, что и летом, — только неделя, чтобы уместиться в короткие школьные каникулы.',
               items: [
                 {
                   title: 'Английский каждый день',
@@ -2146,7 +2260,10 @@ async function seedCollections(
                 { label: 'Дни недели', value: 'Пн–Пт' },
                 { label: 'Время', value: '8:30–18:30' },
                 { label: 'Продолжительность', value: '5 дней (1 неделя)' },
-                { label: 'Когда', value: 'Осенние, зимние и весенние каникулы — точные даты по школьному календарю' },
+                {
+                  label: 'Когда',
+                  value: 'Осенние, зимние и весенние каникулы — точные даты по школьному календарю',
+                },
               ],
             },
           ],
@@ -2180,7 +2297,8 @@ async function seedCollections(
       slug: 'podgotovka-k-shkole',
       generateSlug: false,
       title: 'Подготовка к школе',
-      shortDescription: 'Готовим будущих первоклассников к школе: математика, чтение, письмо и речь.',
+      shortDescription:
+        'Готовим будущих первоклассников к школе: математика, чтение, письмо и речь.',
       category: programCategories['podgotovka-k-shkole'].id,
       previewImage: media.clubPodgotovkaKShkole.id,
       coverImage: media.clubPodgotovkaKShkole.id,
@@ -2297,7 +2415,10 @@ async function seedCollections(
               title: 'Расписание «Интенсив»',
               description: 'Два варианта на выбор — летний интенсив или курс в течение года.',
               scheduleItems: [
-                { label: 'Летний интенсив', value: '3 раза в неделю по 60 минут, 4 недели перед 1 сентября' },
+                {
+                  label: 'Летний интенсив',
+                  value: '3 раза в неделю по 60 минут, 4 недели перед 1 сентября',
+                },
                 { label: 'Базовый курс (будни)', value: '2 раза в неделю по 60 минут, вечером' },
                 { label: 'Базовый курс (выходные)', value: '1 раз в неделю по субботам, 90 минут' },
                 { label: 'Размер группы', value: 'До 6 детей' },
@@ -2360,7 +2481,8 @@ async function seedCollections(
             {
               blockType: 'program',
               title: 'Что входит в нулевой класс',
-              description: 'Каждый день — уроки и переменки, как в школе, а вокруг основных предметов — творчество, музыка, спорт и вкусное питание.',
+              description:
+                'Каждый день — уроки и переменки, как в школе, а вокруг основных предметов — творчество, музыка, спорт и вкусное питание.',
               items: [
                 {
                   title: 'Английский язык',
@@ -2522,7 +2644,8 @@ async function seedCollections(
             {
               blockType: 'program',
               title: 'Что входит в программу начальной школы',
-              description: 'Крепкая база по основным предметам и разностороннее развитие в расписании занятий.',
+              description:
+                'Крепкая база по основным предметам и разностороннее развитие в расписании занятий.',
               items: [
                 {
                   title: 'Математика и русский язык',
@@ -2724,7 +2847,8 @@ async function seedCollections(
                 },
                 {
                   label: '14:10–15:30',
-                  value: 'Перекус, затем шахматы, консультации и самоподготовка (организация выполнения домашнего задания)',
+                  value:
+                    'Перекус, затем шахматы, консультации и самоподготовка (организация выполнения домашнего задания)',
                 },
               ],
             },
@@ -2812,7 +2936,8 @@ async function seedCollections(
             {
               blockType: 'program',
               title: 'Что входит в подготовку старшеклассников',
-              description: 'Системная подготовка к экзаменам и взрослая, но насыщенная школьная жизнь.',
+              description:
+                'Системная подготовка к экзаменам и взрослая, но насыщенная школьная жизнь.',
               items: [
                 {
                   title: 'Государственные экзамены',
@@ -2856,7 +2981,8 @@ async function seedCollections(
                 },
                 {
                   label: '14:10–15:30',
-                  value: 'Перекус, консультации и самоподготовка (организация выполнения домашнего задания)',
+                  value:
+                    'Перекус, консультации и самоподготовка (организация выполнения домашнего задания)',
                 },
               ],
             },
@@ -2914,7 +3040,13 @@ async function seedCollections(
   const clubDocsBySlug = new Map<string, { id: number }>()
 
   for (const club of collectionSeeds) {
-    const clubDoc = await upsertPublishedDoc(payload, 'clubs', 'slug', club.slug, club as Record<string, unknown>)
+    const clubDoc = await upsertPublishedDoc(
+      payload,
+      'clubs',
+      'slug',
+      club.slug,
+      club as Record<string, unknown>,
+    )
     clubDocsBySlug.set(club.slug, clubDoc as { id: number })
   }
 
@@ -3067,7 +3199,13 @@ async function seedCollections(
   ]
 
   for (const teacher of teacherSeeds) {
-    await upsertPublishedDoc(payload, 'teachers', 'name', teacher.name, teacher as Record<string, unknown>)
+    await upsertPublishedDoc(
+      payload,
+      'teachers',
+      'name',
+      teacher.name,
+      teacher as Record<string, unknown>,
+    )
   }
 
   const placeholderTeacherNames = ['Преподаватель 1', 'Преподаватель 2', 'Преподаватель 3'] as const
@@ -3173,7 +3311,13 @@ async function seedCollections(
   ] as const
 
   for (const album of gallerySeeds) {
-    await upsertPublishedDoc(payload, 'gallery-albums', 'title', album.title, album as Record<string, unknown>)
+    await upsertPublishedDoc(
+      payload,
+      'gallery-albums',
+      'title',
+      album.title,
+      album as Record<string, unknown>,
+    )
   }
 }
 
@@ -3192,7 +3336,8 @@ async function seedOrgInfoSections(
     {
       slug: 'osnovnye-svedeniya',
       title: 'Основные сведения',
-      excerpt: 'Наименование, дата регистрации, режим работы и лицензия образовательной организации.',
+      excerpt:
+        'Наименование, дата регистрации, режим работы и лицензия образовательной организации.',
       sortOrder: 1,
       content: makeRichText([
         'Полное наименование образовательной организации: Индивидуальный предприниматель Грицан Татьяна Анатольевна.',
@@ -3208,7 +3353,8 @@ async function seedOrgInfoSections(
     {
       slug: 'struktura-i-organy-upravleniya',
       title: 'Структура и органы управления образовательной организацией',
-      excerpt: 'Принципы управления и локальные нормативные акты, регулирующие деятельность органов управления.',
+      excerpt:
+        'Принципы управления и локальные нормативные акты, регулирующие деятельность органов управления.',
       sortOrder: 2,
       content: makeRichText([
         'Управление образовательной организацией осуществляется на основании принципов единоначалия и в соответствии с законодательством Российской Федерации, включая Федеральный закон от 29.12.2012 № 273-ФЗ «Об образовании в Российской Федерации», а также локальными нормативными актами.',
@@ -3217,7 +3363,11 @@ async function seedOrgInfoSections(
       ]),
       documents: [
         orgDoc(media, 'orgDoc12', 'Положение о педагогическом совете'),
-        orgDoc(media, 'orgDoc13', 'Положение о нормах профессиональной этики педагогических работников'),
+        orgDoc(
+          media,
+          'orgDoc13',
+          'Положение о нормах профессиональной этики педагогических работников',
+        ),
         orgDoc(
           media,
           'orgDoc14',
@@ -3231,7 +3381,8 @@ async function seedOrgInfoSections(
     {
       slug: 'dokumenty',
       title: 'Документы',
-      excerpt: 'Локальные нормативные акты по основным вопросам организации и осуществления образовательной деятельности.',
+      excerpt:
+        'Локальные нормативные акты по основным вопросам организации и осуществления образовательной деятельности.',
       sortOrder: 3,
       content: makeRichText([
         'Локальные нормативные акты образовательной организации по основным вопросам организации и осуществления образовательной деятельности.',
@@ -3248,7 +3399,11 @@ async function seedOrgInfoSections(
           'orgDoc26',
           'Положение о текущем контроле, промежуточном контроле и итоговой аттестации',
         ),
-        orgDoc(media, 'orgDoc27', 'Положение о порядке перевода, отчисления и восстановления обучающихся'),
+        orgDoc(
+          media,
+          'orgDoc27',
+          'Положение о порядке перевода, отчисления и восстановления обучающихся',
+        ),
         orgDoc(
           media,
           'orgDoc28',
@@ -3257,7 +3412,11 @@ async function seedOrgInfoSections(
         orgDoc(media, 'orgDoc29', 'Положение о порядке проведения самообследования'),
         orgDoc(media, 'orgDoc210', 'Положение о внутренней системе оценки качества образования'),
         orgDoc(media, 'orgDoc211', 'Положение о совете обучающихся'),
-        orgDoc(media, 'orgDoc212', 'Положение о рабочей группе по противодействию и предотвращению коррупции'),
+        orgDoc(
+          media,
+          'orgDoc212',
+          'Положение о рабочей группе по противодействию и предотвращению коррупции',
+        ),
         orgDoc(media, 'orgDoc213', 'Порядок хранения результатов освоения программ в архивах'),
         orgDoc(media, 'orgDoc214', 'Положение о порядке пользования учебными пособиями'),
         orgDoc(media, 'orgDoc215', 'Положение об информационной открытости и официальном сайте'),
@@ -3265,7 +3424,11 @@ async function seedOrgInfoSections(
         orgDoc(media, 'orgDoc217', 'Положение о конфликте интересов'),
         orgDoc(media, 'orgDoc218', 'Положение об обработке персональных данных'),
         orgDoc(media, 'orgDoc219', 'Положение о порядке рассмотрения обращений граждан'),
-        orgDoc(media, 'orgDoc220', 'Положение об электронном обучении и дистанционных образовательных технологиях'),
+        orgDoc(
+          media,
+          'orgDoc220',
+          'Положение об электронном обучении и дистанционных образовательных технологиях',
+        ),
         orgDoc(media, 'orgDocReestr', 'Выписка из реестра лицензий'),
       ],
     },
@@ -3539,7 +3702,11 @@ async function seedPages(
         makeTextImageBlock('Вводный блок', 'right', media.hero.id),
         makeTextImageBlock('Текст и изображение слева', 'left', media.hero.id),
         makeTextImageBlock('Текст и изображение справа', 'right', media.banner1.id),
-        makeFeatureCardsBlock('Карточки преимуществ', ['Быстрый старт', 'Готовые секции', 'Гибкая сборка']),
+        makeFeatureCardsBlock('Карточки преимуществ', [
+          'Быстрый старт',
+          'Готовые секции',
+          'Гибкая сборка',
+        ]),
         makeAudienceBlock('Для кого подходит', ['Редакторы', 'Маркетологи', 'Администраторы']),
         makeProgramBlock('Как собрана страница', ['Hero', 'Slider', 'Text + image', 'Form']),
         makeScheduleBlock('Расписание работы', ['Понедельник', 'Среда', 'Пятница']),
@@ -3759,17 +3926,24 @@ async function seedPages(
   const seededPages: Record<string, SeededPage> = {}
 
   for (const page of pages) {
-    const createdPage = await upsertPublishedDoc(payload, 'pages', 'slug', page.slug, {
-      title: page.title,
-      pageTitle: page.pageTitle,
-      layout: page.layout,
-      meta: page.meta,
-      slug: page.slug,
-      generateSlug: false,
-      _status: 'published',
-    }, {
-      draft: false,
-    })
+    const createdPage = await upsertPublishedDoc(
+      payload,
+      'pages',
+      'slug',
+      page.slug,
+      {
+        title: page.title,
+        pageTitle: page.pageTitle,
+        layout: page.layout,
+        meta: page.meta,
+        slug: page.slug,
+        generateSlug: false,
+        _status: 'published',
+      },
+      {
+        draft: false,
+      },
+    )
 
     seededPages[page.slug] = {
       id: createdPage.id as number,
@@ -3835,7 +4009,9 @@ async function seedHeader(
     {
       ...makeUrlNavigationLink('О нас', '/'),
       subLinks: [
-        pages.home ? makePageNavigationSubLink('Главная', pages.home.id) : makeUrlNavigationSubLink('Главная', '/'),
+        pages.home
+          ? makePageNavigationSubLink('Главная', pages.home.id)
+          : makeUrlNavigationSubLink('Главная', '/'),
         makeUrlNavigationSubLink('Преподаватели', '/teachers'),
         makeUrlNavigationSubLink('Вакансии', '/vacancies'),
         makeUrlNavigationSubLink('Новости', '/news'),

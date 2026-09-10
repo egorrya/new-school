@@ -1,0 +1,63 @@
+'use client'
+
+import { useState } from 'react'
+
+import { Button } from '@/shared/ui/primitives/button'
+import { MotionReveal } from '@/shared/components/MotionReveal'
+import { cn } from '@/shared/lib/cn'
+
+type SiteMapEmbedProps = {
+  src: string
+}
+
+export function SiteMapEmbed({ src }: SiteMapEmbedProps) {
+  const [isActive, setIsActive] = useState(false)
+  const [isLoaded, setIsLoaded] = useState(false)
+
+  if (!src) {
+    return null
+  }
+
+  return (
+    <section className="relative">
+      <MotionReveal amount={0.1} duration={0.275} margin="-15% 0px -15% 0px" y={24}>
+        <div className="relative left-1/2 h-95 w-screen -translate-x-1/2 overflow-hidden sm:h-110 lg:h-130">
+          {!isLoaded ? (
+            <div
+              aria-hidden="true"
+              className="absolute inset-0 animate-pulse bg-secondary-background"
+            />
+          ) : null}
+          <iframe
+            className={cn(
+              'absolute inset-0 h-full w-full motion-safe:transition-opacity motion-safe:duration-700 motion-safe:ease-out',
+              isLoaded ? 'opacity-100' : 'opacity-0',
+              isActive ? 'pointer-events-auto' : 'pointer-events-none',
+            )}
+            loading="lazy"
+            onLoad={() => setIsLoaded(true)}
+            referrerPolicy="no-referrer-when-downgrade"
+            src={src}
+            title="Карта проезда"
+          />
+          {!isActive ? (
+            <>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-0 bg-linear-to-b from-transparent from-50% to-border"
+              />
+              <div
+                className="absolute inset-0 z-10 flex cursor-pointer items-end justify-start p-4"
+                onClick={() => setIsActive(true)}
+              >
+                <Button onClick={() => setIsActive(true)} size="sm" type="button">
+                  Нажмите, чтобы управлять картой
+                </Button>
+              </div>
+            </>
+          ) : null}
+        </div>
+      </MotionReveal>
+    </section>
+  )
+}

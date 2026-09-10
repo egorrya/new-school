@@ -1,0 +1,181 @@
+'use client'
+
+import Link from 'next/link'
+import { useLayoutEffect, useState } from 'react'
+import { MotionReveal } from '@/shared/components/MotionReveal'
+
+import type { HeroBlock as HeroBlockType, News } from '@/payload-types'
+
+import { HeroBlobIllustration } from './BlobIllustration'
+import { LatestNewsLink } from './LatestNewsLink'
+import { Button } from '@/shared/ui/primitives/button'
+
+import { PageBlockContainer, PageBlockSection } from '@/shared/components/PageBlock'
+
+import { cn } from '@/shared/lib/cn'
+
+type HeroBlockProps = HeroBlockType & {
+  fullScreen?: boolean
+  latestNews?: News | null
+}
+
+const MOBILE_HERO_MEDIA_QUERY = '(width < 40rem)'
+
+function getViewportWidth() {
+  return document.documentElement.clientWidth || window.innerWidth
+}
+
+function useStableMobileHeroHeight(enabled: boolean) {
+  const [stableHeight, setStableHeight] = useState<string | null>(null)
+
+  useLayoutEffect(() => {
+    if (!enabled) {
+      return
+    }
+
+    const mobileQuery = window.matchMedia(MOBILE_HERO_MEDIA_QUERY)
+    let lastWidth = getViewportWidth()
+
+    const updateHeight = () => {
+      setStableHeight(mobileQuery.matches ? `${window.innerHeight}px` : null)
+    }
+
+    const handleResize = () => {
+      const nextWidth = getViewportWidth()
+
+      if (!mobileQuery.matches) {
+        lastWidth = nextWidth
+        setStableHeight(null)
+        return
+      }
+
+      if (Math.abs(nextWidth - lastWidth) >= 1) {
+        lastWidth = nextWidth
+        updateHeight()
+      }
+    }
+
+    const handleQueryChange = () => {
+      lastWidth = getViewportWidth()
+      updateHeight()
+    }
+
+    const initialHeightFrame = window.requestAnimationFrame(updateHeight)
+    window.addEventListener('resize', handleResize)
+    mobileQuery.addEventListener('change', handleQueryChange)
+
+    return () => {
+      window.cancelAnimationFrame(initialHeightFrame)
+      window.removeEventListener('resize', handleResize)
+      mobileQuery.removeEventListener('change', handleQueryChange)
+    }
+  }, [enabled])
+
+  return enabled ? stableHeight : null
+}
+
+export function HeroBlock({
+  title,
+  description,
+  image,
+  showBlobBackground,
+  customBlobPositioning,
+  kidsImage,
+  primaryButtonLabel,
+  primaryButtonLink,
+  secondaryButtonLabel,
+  secondaryButtonLink,
+  fullScreen = false,
+  latestNews,
+}: HeroBlockProps) {
+  const hasPrimaryAction = Boolean(primaryButtonLabel && primaryButtonLink)
+  const primaryHref = primaryButtonLink || '/'
+  const hasSecondaryAction = Boolean(secondaryButtonLabel && secondaryButtonLink)
+  const stableMobileHeroHeight = useStableMobileHeroHeight(fullScreen)
+  const fullScreenStyle = fullScreen
+    ? {
+        minHeight: stableMobileHeroHeight ?? '100dvh',
+        marginTop:
+          'calc(-1 * (var(--site-header-height, 0px) + var(--site-secondary-header-height, 0px)))',
+      }
+    : undefined
+
+  return (
+    <PageBlockSection
+      style={fullScreenStyle}
+      className={cn(
+        'py-0 sm:py-0 lg:py-0',
+        fullScreen && 'flex flex-col items-center justify-center',
+      )}
+    >
+      <PageBlockContainer className="w-full">
+        <div className="relative w-full overflow-x-clip">
+          <div
+            className={cn(
+              'mobile-standard-text-scale-75 relative grid w-full items-center gap-5 px-0 py-4 sm:gap-8 sm:p-6 lg:p-8',
+              fullScreen
+                ? 'pt-12 sm:pt-6 lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)] lg:gap-10'
+                : 'lg:grid-cols-[minmax(0,0.95fr)_minmax(20rem,1.05fr)]',
+            )}
+          >
+            <div className={cn('space-y-4 sm:space-y-6', fullScreen && 'max-w-3xl')}>
+              <div className="space-y-4 sm:space-y-6">
+                {latestNews?.slug ? (
+                  <MotionReveal allowMobileMotion amount={0.12} duration={0.5} y={14}>
+                    <LatestNewsLink slug={latestNews.slug} textAlign="left" title={latestNews.title} />
+                  </MotionReveal>
+                ) : null}
+                <h2
+                  className="hero-heading-reveal font-heading text-[1.5rem] leading-[1.1] whitespace-pre-line sm:text-[2rem] lg:text-[2.75rem]"
+                  style={{ animationDelay: latestNews?.slug ? '100ms' : undefined }}
+                >
+                  {title}
+                </h2>
+                <MotionReveal
+                  allowMobileMotion
+                  amount={0.12}
+                  delay={latestNews?.slug ? 0.24 : 0.14}
+                  duration={0.6}
+                  y={18}
+                >
+                  <p className="max-w-2xl text-base leading-relaxed text-black sm:text-lg">
+                    {description || 'Описание этого экрана пока не заполнено.'}
+                  </p>
+                </MotionReveal>
+              </div>
+              <MotionReveal
+                allowMobileMotion
+                amount={0.12}
+                delay={latestNews?.slug ? 0.4 : 0.3}
+                duration={0.55}
+                y={18}
+              >
+                <div className="flex flex-wrap items-center gap-5">
+                  {hasPrimaryAction ? (
+                    <Button asChild>
+                      <Link href={primaryHref}>{primaryButtonLabel}</Link>
+                    </Button>
+                  ) : null}
+                  {hasSecondaryAction ? (
+                    <Button asChild className="h-auto px-0 py-1 sm:h-auto sm:px-0" variant="link">
+                      <Link href={secondaryButtonLink || '/'}>{secondaryButtonLabel}</Link>
+                    </Button>
+                  ) : null}
+                </div>
+              </MotionReveal>
+            </div>
+
+            <div className="flex w-full justify-center">
+              <HeroBlobIllustration
+                blobImage={image}
+                customBlobPositioning={customBlobPositioning}
+                kidsImage={kidsImage}
+                showBlobBackground={showBlobBackground}
+              />
+            </div>
+          </div>
+        </div>
+      </PageBlockContainer>
+    </PageBlockSection>
+  )
+}

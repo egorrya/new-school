@@ -1,0 +1,336 @@
+'use client'
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import React, { useLayoutEffect, useRef, useState } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
+
+import type { Header, SiteSetting } from '@/payload-types'
+
+import { Logo } from '@/shared/components/Logo/Logo'
+import {
+  HeaderNavActions,
+  HeaderNavLinks,
+  SecondaryHeaderLinks,
+  headerNavigationItemDelayStep,
+  headerNavigationItemRevealDuration,
+} from './Nav'
+import { cn } from '@/shared/lib/cn'
+
+interface HeaderClientProps {
+  header: Header
+  siteSettings?: SiteSetting
+}
+
+const HEADER_MINI_SCROLL_THRESHOLD = 32
+
+const headerShellClassName =
+  'relative overflow-visible rounded-base border shadow-none transition-[border-color,background-color] duration-300 ease-out'
+const headerRowClassName =
+  'relative flex items-center justify-between gap-3 px-3 transition-[padding] duration-300 ease-out sm:gap-4 lg:gap-6'
+const headerLogoClassName =
+  'inline-flex shrink-0 items-center transition-[height] duration-[560ms] ease-[cubic-bezier(0.22,1,0.36,1)]'
+const headerNavClassName =
+  'pointer-events-none absolute left-1/2 hidden -translate-x-1/2 xl:flex'
+const headerNavRevealDelay = 0.88
+const headerActionsRevealGap = 0.14
+const headerPositionTransitionDuration = 700
+
+// This is rendered with the initial HTML so full-screen sections do not first
+// lay out as if the secondary header were absent. The client still measures the
+// element afterwards, which covers an editor adding links that wrap to another
+// line or a viewport resize.
+const secondaryHeaderInitialHeightStyles = `
+  :root {
+    --site-secondary-header-height: 33px;
+  }
+
+  @media (width >= 40rem) {
+    :root {
+      --site-secondary-header-height: 46px;
+    }
+  }
+
+  @media (width >= 64rem) {
+    :root {
+      --site-secondary-header-height: 50px;
+    }
+  }
+`
+
+function getDesktopSocialLinksWidth(siteSettings?: SiteSetting) {
+  const logoImage =
+    typeof siteSettings?.logoImage === 'object' && siteSettings.logoImage !== null
+      ? siteSettings.logoImage
+      : null
+  const compactLogoImage =
+    typeof siteSettings?.logoImageCompact === 'object' && siteSettings.logoImageCompact !== null
+      ? siteSettings.logoImageCompact
+      : null
+  const logo = logoImage ?? compactLogoImage
+
+  if (!logo?.width || !logo.height || logo.height <= 0) {
+    return undefined
+  }
+
+  return `calc(var(--site-header-logo-height-expanded) * ${logo.width / logo.height} - 1.25rem)`
+}
+
+export const HeaderClient: React.FC<HeaderClientProps> = ({ header, siteSettings }) => {
+  const pathname = usePathname()
+  const [isMiniHeader, setIsMiniHeader] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const shouldReduceMotion = useReducedMotion() ?? false
+  const shellRef = useRef<HTMLDivElement | null>(null)
+  const rowRef = useRef<HTMLDivElement | null>(null)
+  const logoRef = useRef<HTMLDivElement | null>(null)
+  const navRef = useRef<HTMLDivElement | null>(null)
+  const actionsRef = useRef<HTMLDivElement | null>(null)
+  const fixedHeaderRef = useRef<HTMLElement | null>(null)
+  const secondaryHeaderRef = useRef<HTMLDivElement | null>(null)
+  const applyScrollStateRef = useRef<(() => void) | null>(null)
+  const showSecondaryHeader = Boolean(header.showSecondaryHeader)
+  const desktopSocialLinksWidth = getDesktopSocialLinksWidth(siteSettings)
+  const desktopSecondaryNavigationItem = header.navigationLinks?.at(-1)
+  const navigationItemCount = header.navigationLinks?.length ?? 0
+  const primaryNavigationItemCount = Math.max(
+    0,
+    navigationItemCount - (showSecondaryHeader ? 1 : 0),
+  )
+  const headerActionsRevealDelay =
+    primaryNavigationItemCount > 0
+      ? headerNavRevealDelay +
+        (primaryNavigationItemCount - 1) * headerNavigationItemDelayStep +
+        headerNavigationItemRevealDuration +
+        headerActionsRevealGap
+      : 0.7
+
+  useLayoutEffect(() => {
+    let scrollRaf = 0
+
+    const applyScrollState = () => {
+      const scrollY = window.scrollY
+      const nextIsMiniHeader = scrollY > HEADER_MINI_SCROLL_THRESHOLD
+
+      setIsMiniHeader((current) => (current === nextIsMiniHeader ? current : nextIsMiniHeader))
+    }
+    applyScrollStateRef.current = applyScrollState
+
+    const scheduleScrollState = () => {
+      if (scrollRaf !== 0) {
+        return
+      }
+
+      scrollRaf = window.requestAnimationFrame(() => {
+        scrollRaf = 0
+        applyScrollState()
+      })
+    }
+
+    applyScrollState()
+    window.addEventListener('scroll', scheduleScrollState, { passive: true })
+
+    return () => {
+      applyScrollStateRef.current = null
+      window.removeEventListener('scroll', scheduleScrollState)
+      if (scrollRaf !== 0) {
+        window.cancelAnimationFrame(scrollRaf)
+      }
+    }
+  }, [])
+
+  useLayoutEffect(() => {
+    applyScrollStateRef.current?.()
+  }, [isMiniHeader, pathname])
+
+  useLayoutEffect(() => {
+    const fixedHeader = fixedHeaderRef.current
+
+    if (!fixedHeader) {
+      return
+    }
+
+    let frame = 0
+    let transitionTimer = 0
+
+    const updateFixedHeaderBottom = () => {
+      document.documentElement.style.setProperty(
+        '--site-header-fixed-bottom',
+        `${fixedHeader.getBoundingClientRect().bottom}px`,
+      )
+    }
+
+    frame = window.requestAnimationFrame(updateFixedHeaderBottom)
+    transitionTimer = window.setTimeout(updateFixedHeaderBottom, headerPositionTransitionDuration + 80)
+    window.addEventListener('resize', updateFixedHeaderBottom)
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(transitionTimer)
+      window.removeEventListener('resize', updateFixedHeaderBottom)
+    }
+  }, [isMiniHeader, showSecondaryHeader])
+
+  useLayoutEffect(() => {
+    const secondaryHeader = secondaryHeaderRef.current
+
+    if (!secondaryHeader) {
+      document.documentElement.style.setProperty('--site-secondary-header-height', '0px')
+      document.documentElement.style.setProperty(
+        '--site-header-fixed-bottom',
+        'var(--site-header-height)',
+      )
+      applyScrollStateRef.current?.()
+      return
+    }
+
+    const updateHeight = () => {
+      const styles = window.getComputedStyle(secondaryHeader)
+      const verticalMargins =
+        (Number.parseFloat(styles.marginTop) || 0) + (Number.parseFloat(styles.marginBottom) || 0)
+      const height = secondaryHeader.offsetHeight + verticalMargins
+      document.documentElement.style.setProperty('--site-secondary-header-height', `${height}px`)
+      document.documentElement.style.setProperty(
+        '--site-header-fixed-bottom',
+        `calc(var(--site-header-height) + ${height}px)`,
+      )
+    }
+
+    updateHeight()
+
+    const resizeObserver = new ResizeObserver(updateHeight)
+    resizeObserver.observe(secondaryHeader)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [showSecondaryHeader])
+
+  return (
+    <>
+      {showSecondaryHeader ? <style>{secondaryHeaderInitialHeightStyles}</style> : null}
+      {showSecondaryHeader ? (
+        <div
+          ref={secondaryHeaderRef}
+          className={cn(
+            'fixed inset-x-0 top-0 z-80 mt-0 sm:mt-0.5 mb-[calc(var(--site-header-top-offset)*3/4)] text-foreground transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-transform',
+            isMiniHeader
+              ? 'pointer-events-none -translate-y-[calc(100%+0.125rem)] sm:-translate-y-[calc(100%+0.25rem)]'
+              : 'translate-y-0',
+          )}
+        >
+          <motion.div
+            className="w-full px-0 sm:mx-auto sm:max-w-(--breakpoint-sm) sm:px-4 md:max-w-(--breakpoint-md) md:px-8 lg:max-w-(--breakpoint-lg) xl:max-w-(--breakpoint-xl) 2xl:max-w-(--breakpoint-2xl)"
+            animate={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -8 }}
+            transition={{ delay: 0.1, duration: 0.48, ease: 'easeOut' }}
+          >
+            <div className="border-b border-border bg-white sm:rounded-base sm:border">
+              <SecondaryHeaderLinks
+                desktopCenterNavigationItem={
+                  showSecondaryHeader ? desktopSecondaryNavigationItem : undefined
+                }
+                header={header}
+                siteSettings={siteSettings}
+                socialLinksSpreadWidth={desktopSocialLinksWidth}
+              />
+            </div>
+          </motion.div>
+        </div>
+      ) : null}
+      <header
+        ref={fixedHeaderRef}
+        className={cn(
+          'container fixed inset-x-0 transition-[top] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)]',
+          showSecondaryHeader && !isMiniHeader
+            ? 'pt-0'
+            : isMiniHeader
+              ? 'mt-(--site-header-top-offset)'
+            : 'pt-(--site-header-top-offset)',
+          menuOpen ? 'z-90' : 'z-70',
+        )}
+        style={{ top: isMiniHeader ? 0 : 'var(--site-secondary-header-height, 0px)' }}
+        suppressHydrationWarning
+      >
+        <motion.div
+          ref={shellRef}
+          className={cn(
+            headerShellClassName,
+            isMiniHeader ? 'border-border bg-white' : 'border-transparent bg-transparent',
+          )}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+          transition={{ delay: 0.12, duration: 0.72, ease: 'easeOut' }}
+          viewport={{ amount: 0.1, once: true }}
+          whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+          style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity' }}
+        >
+          <motion.div
+            ref={rowRef}
+            data-header-state={isMiniHeader ? 'compact' : 'expanded'}
+            className={cn(
+              headerRowClassName,
+              isMiniHeader
+                ? 'py-[0.28125rem] sm:px-2.5 sm:py-[0.46875rem] lg:px-4 lg:py-3'
+                : 'py-0.5 sm:py-1 sm:px-1 lg:py-1.5 lg:px-1.5',
+            )}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+            transition={{ delay: 0.36, duration: 0.62, ease: 'easeOut' }}
+            viewport={{ amount: 0.1, once: true }}
+            whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+            style={shouldReduceMotion ? undefined : { willChange: 'transform, opacity' }}
+          >
+            <motion.div
+              ref={logoRef}
+              className={cn(headerLogoClassName)}
+              initial={shouldReduceMotion ? false : { opacity: 0, y: -10 }}
+              transition={{ delay: 0.62, duration: 0.55, ease: 'easeOut' }}
+              viewport={{ amount: 0.1, once: true }}
+              whileInView={shouldReduceMotion ? undefined : { opacity: 1, y: 0 }}
+              style={{
+                height: isMiniHeader
+                  ? 'var(--site-header-logo-height)'
+                  : 'var(--site-header-logo-height-expanded)',
+                ...(shouldReduceMotion ? undefined : { willChange: 'transform, opacity' }),
+              }}
+            >
+              <Link
+                aria-label={siteSettings?.siteName || 'Новая школа'}
+                className="flex h-full origin-center items-center transition-transform duration-200 ease-out hover:scale-105 focus-visible:scale-105 motion-reduce:transition-none motion-reduce:hover:scale-100 motion-reduce:focus-visible:scale-100"
+                href="/"
+              >
+                <Logo
+                  className="h-full"
+                  compactLogo={siteSettings?.logoImageCompact ?? null}
+                  logo={siteSettings?.logoImage ?? null}
+                  logoType={siteSettings?.logoType ?? null}
+                  sizeVariant="header"
+                  siteName={siteSettings?.siteName}
+                  state={isMiniHeader ? 'compact' : 'expanded'}
+                />
+              </Link>
+            </motion.div>
+
+            <div ref={navRef} className={cn(headerNavClassName)}>
+              <HeaderNavLinks
+                header={header}
+                hideLastItemOnDesktop={showSecondaryHeader}
+                revealDelay={headerNavRevealDelay}
+              />
+            </div>
+
+            <div ref={actionsRef} className="ml-auto">
+              <HeaderNavActions
+                header={header}
+                hideSocialLinks={showSecondaryHeader}
+                menuOpen={menuOpen}
+                onMenuOpenChange={setMenuOpen}
+                revealDelay={headerActionsRevealDelay}
+                siteSettings={siteSettings}
+              />
+            </div>
+          </motion.div>
+        </motion.div>
+      </header>
+    </>
+  )
+}
