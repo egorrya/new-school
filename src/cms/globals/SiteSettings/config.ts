@@ -2,6 +2,7 @@ import type { GlobalConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
 import { revalidateSiteSettings } from './hooks/revalidateSiteSettings'
+import { validateEmailRecipients } from '@/shared/lib/emailRecipients'
 
 export const SiteSettings: GlobalConfig = {
   slug: 'site-settings',
@@ -142,6 +143,32 @@ export const SiteSettings: GlobalConfig = {
       admin: {
         description: 'Показывается на кнопке заявки, если для страницы не задан свой текст.',
       },
+    },
+    {
+      name: 'formNotifications',
+      type: 'group',
+      label: 'Уведомления о заявках',
+      admin: {
+        description: 'Настройте, кому отправлять уведомления о новых заявках с сайта.',
+      },
+      fields: [
+        {
+          name: 'enabled',
+          type: 'checkbox',
+          label: 'Отправлять уведомления',
+          defaultValue: true,
+        },
+        {
+          name: 'recipients',
+          type: 'textarea',
+          label: 'Адреса получателей',
+          validate: validateEmailRecipients,
+          admin: {
+            condition: (_, data) => data?.formNotifications?.enabled !== false,
+            description: 'Укажите один или несколько адресов: по одному на строку либо через запятую.',
+          },
+        },
+      ],
     },
     {
       name: 'contactsSection',

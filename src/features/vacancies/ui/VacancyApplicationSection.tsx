@@ -5,7 +5,8 @@ import { z } from 'zod'
 
 import type { Job } from '@/payload-types'
 import { type CTAFormAction, type CTAFormState } from '@/features/page-builder/blocks/CTAFormBlock/types'
-import { buildCTAFormSubmissionKey, normalizePhone } from '@/server/forms/ctaForm'
+import { buildCTAFormSubmissionKey, isRussianPhone, normalizePhone } from '@/server/forms/ctaForm'
+import { isSpamFormSubmission } from '@/server/forms/antiSpam'
 
 import { VacancyApplicationSectionClient } from './VacancyApplicationSection.client'
 
@@ -41,8 +42,7 @@ const vacancyApplicationSchema = z.object({
   phone: z
     .string()
     .trim()
-    .min(6, 'Введите корректный номер телефона.')
-    .refine((value) => normalizePhone(value).length >= 10, 'Введите корректный номер телефона.'),
+    .refine(isRussianPhone, 'Введите номер в формате +7 (999) 123-45-67.'),
   specialty: z.string().trim().min(2, 'Укажите специальность по диплому.').max(240, 'Текст слишком длинный.'),
   workExperience: z
     .string()
@@ -79,6 +79,14 @@ export function VacancyApplicationSection({ jobs, selectedJob = null }: Props) {
     'use server'
 
     try {
+      if (isSpamFormSubmission(formData)) {
+        return {
+          eventId: randomUUID(),
+          message: 'Мы обязательно свяжемся с вами в ближайшее время.',
+          status: 'success',
+        }
+      }
+
       const parsed = vacancyApplicationSchema.safeParse({
         about: formData.get('about'),
         age: formData.get('age'),
@@ -122,7 +130,7 @@ export function VacancyApplicationSection({ jobs, selectedJob = null }: Props) {
 
       const pageUrl = application.jobId ? `/vacancies/${application.jobId}` : '/vacancies'
       const submissionKey = buildCTAFormSubmissionKey({
-        formType: 'application',
+        formType: 'vacancy',
         pageUrl,
         phone: application.phone,
       })
@@ -158,7 +166,7 @@ export function VacancyApplicationSection({ jobs, selectedJob = null }: Props) {
           education: application.education,
           educationalInstitution: application.educationalInstitution,
           email: application.email,
-          formType: 'application',
+          formType: 'vacancy',
           job: application.jobId,
           name: application.name,
           pageUrl,

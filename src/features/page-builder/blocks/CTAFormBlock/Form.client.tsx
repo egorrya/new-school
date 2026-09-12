@@ -5,6 +5,8 @@ import { useActionState, useEffect } from 'react'
 import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 
+import { FormAntiSpamFields } from '@/shared/components/FormAntiSpamFields'
+import { formatRussianPhone, RUSSIAN_PHONE_MASK } from '@/shared/lib/russianPhone'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/primitives/alert'
 import { Button } from '@/shared/ui/primitives/button'
 import { Card, CardContent } from '@/shared/ui/primitives/card'
@@ -75,6 +77,7 @@ function CTAFormFields({
       <input name="pageUrl" type="hidden" value={pageUrl} />
       <input name="formType" type="hidden" value={formType} />
       {typeof clubId === 'number' ? <input name="clubId" type="hidden" value={clubId} /> : null}
+      <FormAntiSpamFields />
 
       <div className="space-y-2">
         <Label htmlFor="cta-name">Имя</Label>
@@ -93,12 +96,18 @@ function CTAFormFields({
         <Label htmlFor="cta-phone">Телефон</Label>
         <Input
           autoComplete="tel"
+          defaultValue="+7"
           id="cta-phone"
           inputMode="tel"
+          maxLength={18}
           name="phone"
-          onChange={(event) => event.currentTarget.setCustomValidity('')}
-          onInvalid={(event) => event.currentTarget.setCustomValidity('Пожалуйста, укажите номер телефона.')}
-          placeholder="+7 (___) ___-__-__"
+          onChange={(event) => {
+            event.currentTarget.value = formatRussianPhone(event.currentTarget.value)
+            event.currentTarget.setCustomValidity('')
+          }}
+          onInvalid={(event) => event.currentTarget.setCustomValidity(`Введите номер в формате ${RUSSIAN_PHONE_MASK}.`)}
+          pattern="\\+7 \\(\\d{3}\\) \\d{3}-\\d{2}-\\d{2}"
+          placeholder={RUSSIAN_PHONE_MASK}
           required
           type="tel"
         />

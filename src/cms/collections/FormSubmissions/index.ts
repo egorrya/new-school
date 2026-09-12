@@ -1,12 +1,25 @@
 import type { CollectionConfig } from 'payload'
 
 import { authenticated } from '../../access/authenticated'
-import { CTA_FORM_TYPES, buildCTAFormSubmissionKey } from '@/server/forms/ctaForm'
+import { FORM_SUBMISSION_TYPES, buildCTAFormSubmissionKey } from '@/server/forms/ctaForm'
+import { notifyFormSubmission } from '@/server/forms/notifications'
+import { isRussianPhone } from '@/shared/lib/russianPhone'
 
-const formTypeOptions = CTA_FORM_TYPES.map((value) => ({
-  label: value === 'application' ? 'Заявка' : value === 'callback' ? 'Обратный звонок' : 'Программа',
+const formTypeOptions = FORM_SUBMISSION_TYPES.map((value) => ({
+  label:
+    value === 'application'
+      ? 'Заявка'
+      : value === 'callback'
+        ? 'Обратный звонок'
+        : value === 'club'
+          ? 'Программа'
+          : 'Отклик на вакансию',
   value,
 }))
+
+function isVacancySubmission(_: unknown, siblingData: { formType?: string } | undefined) {
+  return siblingData?.formType === 'vacancy'
+}
 
 export const FormSubmissions: CollectionConfig<'form-submissions'> = {
   slug: 'form-submissions',
@@ -23,7 +36,7 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
   },
   admin: {
     group: 'Обращения',
-    defaultColumns: ['name', 'job', 'phone', 'formType', 'consentAccepted', 'createdAt'],
+    defaultColumns: ['name', 'phone', 'formType', 'consentAccepted', 'createdAt'],
     useAsTitle: 'name',
   },
   fields: [
@@ -38,6 +51,10 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
       type: 'text',
       label: 'Телефон',
       required: true,
+      validate: (value: unknown) =>
+        typeof value === 'string' && isRussianPhone(value)
+          ? true
+          : 'Введите номер в формате +7 (999) 123-45-67.',
     },
     {
       name: 'pageUrl',
@@ -61,7 +78,8 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
       relationTo: 'jobs',
       label: 'Вакансия',
       admin: {
-        description: 'Заполняется при отклике на конкретную вакансию.',
+        condition: isVacancySubmission,
+        description: 'Заполняется только при отклике на вакансию.',
       },
     },
     {
@@ -79,6 +97,7 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
       type: 'number',
       label: 'Возраст',
       admin: {
+        condition: isVacancySubmission,
         description: 'Заполняется в анкете соискателя.',
       },
     },
@@ -86,11 +105,17 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
       name: 'city',
       type: 'text',
       label: 'Город проживания',
+      admin: {
+        condition: isVacancySubmission,
+      },
     },
     {
       name: 'email',
       type: 'email',
       label: 'Адрес электронной почты',
+      admin: {
+        condition: isVacancySubmission,
+      },
     },
     {
       name: 'education',
@@ -106,12 +131,16 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
           value: 'vocational',
         },
       ],
+      admin: {
+        condition: isVacancySubmission,
+      },
     },
     {
       name: 'educationalInstitution',
       type: 'textarea',
       label: 'Учебное заведение и год окончания',
       admin: {
+        condition: isVacancySubmission,
         description: 'Укажите название учебного заведения и год окончания, если есть образование.',
       },
     },
@@ -119,16 +148,25 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
       name: 'specialty',
       type: 'text',
       label: 'Специальность по диплому',
+      admin: {
+        condition: isVacancySubmission,
+      },
     },
     {
       name: 'workExperience',
       type: 'textarea',
       label: 'Стаж работы по специальности',
+      admin: {
+        condition: isVacancySubmission,
+      },
     },
     {
       name: 'about',
       type: 'textarea',
       label: 'Дополнительная информация о соискателе',
+      admin: {
+        condition: isVacancySubmission,
+      },
     },
     {
       name: 'submissionKey',
@@ -153,6 +191,13 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
     },
   ],
   hooks: {
+    afterChange: [
+      async ({ doc, operation, req }) => {
+        if (operation === 'create') {
+          await notifyFormSubmission({ payload: req.payload, submission: doc })
+        }
+      },
+    ],
     beforeValidate: [
       ({ data }) => {
         if (!data) {
@@ -179,7 +224,7 @@ export const FormSubmissions: CollectionConfig<'form-submissions'> = {
           submissionKey: buildCTAFormSubmissionKey({
             clubId,
             formType:
-              formType === 'application' || formType === 'callback' || formType === 'club'
+              formType === 'application' || formType === 'callback' || formType === 'club' || formType === 'vacancy'
                 ? formType
                 : 'application',
             pageUrl,

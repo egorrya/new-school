@@ -12,9 +12,11 @@ import { cn } from '@/shared/lib/cn'
 import {
   CTA_FORM_TYPES,
   buildCTAFormSubmissionKey,
+  isRussianPhone,
   normalizePhone,
   type CTAFormType,
 } from '@/server/forms/ctaForm'
+import { isSpamFormSubmission } from '@/server/forms/antiSpam'
 
 import { CTAFormClient } from './Form.client'
 import { type CTAFormAction, type CTAFormState } from './types'
@@ -41,8 +43,7 @@ const ctaFormSubmissionSchema = z.object({
   phone: z
     .string()
     .trim()
-    .min(6, 'Введите корректный номер телефона.')
-    .refine((value) => normalizePhone(value).length >= 10, 'Введите корректный номер телефона.'),
+    .refine(isRussianPhone, 'Введите номер в формате +7 (999) 123-45-67.'),
 })
 
 function isDuplicateSubmissionError(error: unknown): boolean {
@@ -81,6 +82,14 @@ export async function CTAFormBlock({
     'use server'
 
     try {
+      if (isSpamFormSubmission(formData)) {
+        return {
+          eventId: randomUUID(),
+          message: 'Спасибо! Заявка отправлена. Мы свяжемся с вами в ближайшее время.',
+          status: 'success',
+        }
+      }
+
       const parsed = ctaFormSubmissionSchema.safeParse({
         clubId: formData.get('clubId'),
         consentAccepted: formData.get('consentAccepted') === 'on',

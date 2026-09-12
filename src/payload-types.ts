@@ -1344,9 +1344,9 @@ export interface FormSubmission {
    * Адрес страницы, с которой пришла заявка.
    */
   pageUrl: string;
-  formType: 'application' | 'callback' | 'club';
+  formType: 'application' | 'callback' | 'club' | 'vacancy';
   /**
-   * Заполняется при отклике на конкретную вакансию.
+   * Заполняется только при отклике на вакансию.
    */
   job?: (number | null) | Job;
   /**
@@ -2429,6 +2429,16 @@ export interface SiteSetting {
    */
   defaultApplicationCtaText?: string | null;
   /**
+   * Настройте, кому отправлять уведомления о новых заявках с сайта.
+   */
+  formNotifications?: {
+    enabled?: boolean | null;
+    /**
+     * Укажите один или несколько адресов: по одному на строку либо через запятую.
+     */
+    recipients?: string | null;
+  };
+  /**
    * Блок с контактами, формой заявки и картой, который автоматически показывается внизу каждой страницы сайта перед подвалом.
    */
   contactsSection?: {
@@ -2644,6 +2654,12 @@ export interface SiteSettingsSelect<T extends boolean = true> {
   telegramUrl?: T;
   whatsappUrl?: T;
   defaultApplicationCtaText?: T;
+  formNotifications?:
+    | T
+    | {
+        enabled?: T;
+        recipients?: T;
+      };
   contactsSection?:
     | T
     | {

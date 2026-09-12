@@ -5,6 +5,8 @@ import { useFormStatus } from 'react-dom'
 import { toast } from 'sonner'
 
 import { type CTAFormAction, initialCTAFormState } from '@/features/page-builder/blocks/CTAFormBlock/types'
+import { FormAntiSpamFields } from '@/shared/components/FormAntiSpamFields'
+import { formatRussianPhone, RUSSIAN_PHONE_MASK } from '@/shared/lib/russianPhone'
 import { Alert, AlertDescription, AlertTitle } from '@/shared/ui/primitives/alert'
 import { Button } from '@/shared/ui/primitives/button'
 import { Checkbox } from '@/shared/ui/primitives/checkbox'
@@ -111,6 +113,7 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
   return (
     <fieldset aria-busy={pending} className="space-y-6" disabled={pending}>
       {selectedJob ? <input name="jobId" type="hidden" value={selectedJob.id} /> : null}
+      <FormAntiSpamFields />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2 sm:col-span-2">
@@ -138,10 +141,18 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
           <Label htmlFor="vacancy-phone">Номер телефона</Label>
           <Input
             autoComplete="tel"
+            defaultValue="+7"
             id="vacancy-phone"
             inputMode="tel"
+            maxLength={18}
             name="phone"
-            placeholder="+7 (___) ___-__-__"
+            onChange={(event) => {
+              event.currentTarget.value = formatRussianPhone(event.currentTarget.value)
+              event.currentTarget.setCustomValidity('')
+            }}
+            onInvalid={(event) => event.currentTarget.setCustomValidity(`Введите номер в формате ${RUSSIAN_PHONE_MASK}.`)}
+            pattern="\\+7 \\(\\d{3}\\) \\d{3}-\\d{2}-\\d{2}"
+            placeholder={RUSSIAN_PHONE_MASK}
             required
             type="tel"
           />
