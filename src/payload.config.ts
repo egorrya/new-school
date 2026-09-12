@@ -81,6 +81,7 @@ export default buildConfig({
   db: postgresAdapter({
     // This project may connect to the production database during local development.
     // Apply schema changes only through reviewed migrations, never via dev schema push.
+    migrationDir: path.resolve(dirname, 'cms/migrations'),
     push: false,
     pool: {
       connectionString: process.env.DATABASE_URL || '',

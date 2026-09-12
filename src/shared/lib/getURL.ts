@@ -2,6 +2,10 @@ import canUseDOM from './canUseDOM'
 
 export const getServerSideURL = () => {
   return (
+    // Keep Payload's server URL runtime-configurable. NEXT_PUBLIC_* values are
+    // embedded by Next.js at build time, while this value is also used for
+    // server-only CORS and CSRF checks.
+    process.env.SERVER_URL ||
     process.env.NEXT_PUBLIC_SERVER_URL ||
     (process.env.VERCEL_PROJECT_PRODUCTION_URL
       ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
