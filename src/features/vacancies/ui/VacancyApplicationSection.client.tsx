@@ -122,6 +122,8 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
             autoComplete="name"
             id="vacancy-name"
             name="name"
+            onChange={(event) => event.currentTarget.setCustomValidity('')}
+            onInvalid={(event) => event.currentTarget.setCustomValidity('Укажите ФИО.')}
             placeholder="Иванов Иван Иванович"
             required
           />
@@ -129,12 +131,28 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
 
         <div className="space-y-2">
           <Label htmlFor="vacancy-age">Возраст</Label>
-          <Input id="vacancy-age" max="100" min="14" name="age" required type="number" />
+          <Input
+            id="vacancy-age"
+            max="100"
+            min="14"
+            name="age"
+            onChange={(event) => event.currentTarget.setCustomValidity('')}
+            onInvalid={(event) => event.currentTarget.setCustomValidity('Укажите возраст от 14 до 100 лет.')}
+            required
+            type="number"
+          />
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="vacancy-city">Город проживания</Label>
-          <Input autoComplete="address-level2" id="vacancy-city" name="city" required />
+          <Input
+            autoComplete="address-level2"
+            id="vacancy-city"
+            name="city"
+            onChange={(event) => event.currentTarget.setCustomValidity('')}
+            onInvalid={(event) => event.currentTarget.setCustomValidity('Укажите город проживания.')}
+            required
+          />
         </div>
 
         <div className="space-y-2">
@@ -151,7 +169,7 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
               event.currentTarget.setCustomValidity('')
             }}
             onInvalid={(event) => event.currentTarget.setCustomValidity(`Введите номер в формате ${RUSSIAN_PHONE_MASK}.`)}
-            pattern="\\+7 \\(\\d{3}\\) \\d{3}-\\d{2}-\\d{2}"
+            pattern="\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}"
             placeholder={RUSSIAN_PHONE_MASK}
             required
             type="tel"
@@ -160,7 +178,15 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
 
         <div className="space-y-2">
           <Label htmlFor="vacancy-email">Адрес электронной почты</Label>
-          <Input autoComplete="email" id="vacancy-email" name="email" required type="email" />
+          <Input
+            autoComplete="email"
+            id="vacancy-email"
+            name="email"
+            onChange={(event) => event.currentTarget.setCustomValidity('')}
+            onInvalid={(event) => event.currentTarget.setCustomValidity('Введите корректный адрес электронной почты.')}
+            required
+            type="email"
+          />
         </div>
       </div>
 
@@ -171,6 +197,8 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
           defaultValue=""
           id="vacancy-education"
           name="education"
+          onChange={(event) => event.currentTarget.setCustomValidity('')}
+          onInvalid={(event) => event.currentTarget.setCustomValidity('Выберите уровень образования.')}
           required
         >
           <option disabled value="">
@@ -195,17 +223,36 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
 
       <div className="space-y-2">
         <Label htmlFor="vacancy-specialty">Специальность по диплому</Label>
-        <Input id="vacancy-specialty" name="specialty" required />
+        <Input
+          id="vacancy-specialty"
+          name="specialty"
+          onChange={(event) => event.currentTarget.setCustomValidity('')}
+          onInvalid={(event) => event.currentTarget.setCustomValidity('Укажите специальность по диплому.')}
+          required
+        />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="vacancy-experience">Стаж работы по специальности</Label>
-        <Textarea id="vacancy-experience" name="workExperience" placeholder="Например: 3 года" required />
+        <Textarea
+          id="vacancy-experience"
+          name="workExperience"
+          onChange={(event) => event.currentTarget.setCustomValidity('')}
+          onInvalid={(event) => event.currentTarget.setCustomValidity('Укажите стаж работы по специальности.')}
+          placeholder="Например: 3 года"
+          required
+        />
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="vacancy-about">Что вы можете ещё рассказать о себе</Label>
-        <Textarea id="vacancy-about" name="about" required />
+        <Textarea
+          id="vacancy-about"
+          name="about"
+          onChange={(event) => event.currentTarget.setCustomValidity('')}
+          onInvalid={(event) => event.currentTarget.setCustomValidity('Расскажите немного о себе.')}
+          required
+        />
       </div>
 
       <div className="space-y-4 border-t border-border pt-5">
@@ -216,7 +263,12 @@ function ApplicationFields({ selectedJob }: { selectedJob: SelectedJob | null })
         </Button>
 
         <div className="flex items-start gap-3">
-          <Checkbox id="vacancy-consent" name="consentAccepted" required />
+          <Checkbox
+            id="vacancy-consent"
+            name="consentAccepted"
+            onInvalid={(event) => event.currentTarget.setCustomValidity('Подтвердите согласие на обработку персональных данных.')}
+            required
+          />
           <Label className="cursor-pointer text-sm leading-snug text-foreground" htmlFor="vacancy-consent">
             Даю согласие на обработку персональных данных в соответствии с{' '}
             <a

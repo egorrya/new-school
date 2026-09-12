@@ -106,7 +106,7 @@ function CTAFormFields({
             event.currentTarget.setCustomValidity('')
           }}
           onInvalid={(event) => event.currentTarget.setCustomValidity(`Введите номер в формате ${RUSSIAN_PHONE_MASK}.`)}
-          pattern="\\+7 \\(\\d{3}\\) \\d{3}-\\d{2}-\\d{2}"
+          pattern="\+7 \(\d{3}\) \d{3}-\d{2}-\d{2}"
           placeholder={RUSSIAN_PHONE_MASK}
           required
           type="tel"
@@ -121,7 +121,7 @@ function CTAFormFields({
           required
         />
         <Label className="cursor-pointer text-sm leading-snug text-foreground" htmlFor="cta-consent">
-          <span>Согласен(-на) с </span>
+          <span>Даю согласие на обработку персональных данных в соответствии с </span>
           <a
             className="underline underline-offset-2 transition-colors hover:text-main"
             href="/privacy-policy"
@@ -137,7 +137,7 @@ function CTAFormFields({
             rel="noreferrer"
             target="_blank"
           >
-            документом по персональным данным
+            согласием на обработку персональных данных
           </a>
         </Label>
       </div>
