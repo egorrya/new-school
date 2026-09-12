@@ -9,6 +9,7 @@ import config from '@payload-config'
 import { defaultLegalEntityText } from '@/cms/globals/Footer/defaults'
 import { TEACHERS_INTRO_IMAGE_ALT } from '@/features/teachers/constants'
 import type { Header } from '@/payload-types'
+import { legalDocumentPages } from './legal-document-pages'
 
 type SeedMediaInput = {
   key: string
@@ -3923,9 +3924,14 @@ async function seedPages(
     },
   ] as const
 
+  const pagesWithLegalDocuments = [
+    ...pages.filter((page) => page.slug !== 'privacy-policy' && page.slug !== 'personal-data'),
+    ...legalDocumentPages,
+  ]
+
   const seededPages: Record<string, SeededPage> = {}
 
-  for (const page of pages) {
+  for (const page of pagesWithLegalDocuments) {
     const createdPage = await upsertPublishedDoc(
       payload,
       'pages',

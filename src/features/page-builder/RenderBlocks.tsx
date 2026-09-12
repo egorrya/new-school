@@ -6,6 +6,7 @@ import { AudienceBlock } from './blocks/AudienceBlock/View'
 import { CTAFormBlock } from './blocks/CTAFormBlock/View'
 import { CollectionGridBlock } from './blocks/CollectionGridBlock/View'
 import { ContactsBlock } from './blocks/ContactsBlock/View'
+import { DocumentTextBlock } from './blocks/DocumentTextBlock/View'
 import { FaqBlock } from './blocks/FaqBlock/View'
 import { FeatureCardsBlock } from './blocks/FeatureCardsBlock/View'
 import { HeroBlock } from './blocks/HeroBlock/View'
@@ -103,6 +104,8 @@ function renderBlock(
       return <FaqBlock {...block} insideTabs={insideTabs} />
     case 'contacts':
       return <ContactsBlock {...block} />
+    case 'documentText':
+      return <DocumentTextBlock {...block} />
     case 'ctaForm':
       return <CTAFormBlock {...block} clubId={clubId} insideTabs={insideTabs} pageUrl={pageUrl} />
     default:

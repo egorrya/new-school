@@ -180,6 +180,7 @@ export interface Page {
         | HeroBlock
         | HeroMarqueeBlock
         | TitleDescriptionBlock
+        | DocumentTextBlock
         | MarqueeBlock
         | TextImageBlock
         | FeatureCardsBlock
@@ -405,6 +406,37 @@ export interface TitleDescriptionBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'titleDescription';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentTextBlock".
+ */
+export interface DocumentTextBlock {
+  title: string;
+  sections?:
+    | {
+        title: string;
+        content: {
+          root: {
+            type: string;
+            children: {
+              type: any;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        };
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'documentText';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1661,6 +1693,7 @@ export interface PagesSelect<T extends boolean = true> {
         hero?: T | HeroBlockSelect<T>;
         heroMarquee?: T | HeroMarqueeBlockSelect<T>;
         titleDescription?: T | TitleDescriptionBlockSelect<T>;
+        documentText?: T | DocumentTextBlockSelect<T>;
         marquee?: T | MarqueeBlockSelect<T>;
         textImage?: T | TextImageBlockSelect<T>;
         featureCards?: T | FeatureCardsBlockSelect<T>;
@@ -1735,6 +1768,22 @@ export interface HeroMarqueeBlockSelect<T extends boolean = true> {
 export interface TitleDescriptionBlockSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentTextBlock_select".
+ */
+export interface DocumentTextBlockSelect<T extends boolean = true> {
+  title?: T;
+  sections?:
+    | T
+    | {
+        title?: T;
+        content?: T;
+        id?: T;
+      };
   id?: T;
   blockName?: T;
 }

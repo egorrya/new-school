@@ -4,6 +4,7 @@ import { AudienceBlock } from './blocks/AudienceBlock/schema'
 import { CTAFormBlock } from './blocks/CTAFormBlock/schema'
 import { CollectionGridBlock } from './blocks/CollectionGridBlock/schema'
 import { ContactsBlock } from './blocks/ContactsBlock/schema'
+import { DocumentTextBlock } from './blocks/DocumentTextBlock/schema'
 import { FaqBlock } from './blocks/FaqBlock/schema'
 import { FeatureCardsBlock } from './blocks/FeatureCardsBlock/schema'
 import { HeroBlock } from './blocks/HeroBlock/schema'
@@ -25,6 +26,7 @@ export {
   CTAFormBlock,
   CollectionGridBlock,
   ContactsBlock,
+  DocumentTextBlock,
   FaqBlock,
   FeatureCardsBlock,
   HeroBlock,
@@ -46,6 +48,7 @@ export const pageBlocks: Block[] = [
   HeroBlock,
   HeroMarqueeBlock,
   TitleDescriptionBlock,
+  DocumentTextBlock,
   MarqueeBlock,
   TextImageBlock,
   FeatureCardsBlock,

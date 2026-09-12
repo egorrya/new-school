@@ -97,6 +97,7 @@ export default async function Page({ params: paramsPromise }: Args) {
   const layout = page.layout ?? []
   const hasHeroMarquee = layout.some((block) => block.blockType === 'heroMarquee')
   const isHome = slug === 'home'
+  const isLegalDocument = slug === 'privacy-policy' || slug === 'personal-data'
   const heroBlock = isHome ? layout[0] : undefined
   const remainingBlocks = heroBlock ? layout.slice(1) : layout
   const shouldShowLatestNews =
@@ -124,7 +125,7 @@ export default async function Page({ params: paramsPromise }: Args) {
         {isHome ? <AboutLinksBlock /> : null}
         <RenderBlocks blocks={remainingBlocks} marqueeImages={marqueeImages} pageUrl={pageUrl} />
       </article>
-      {slug !== 'contacts' && !isHome ? <SiteContactsSection /> : null}
+      {slug !== 'contacts' && !isHome && !isLegalDocument ? <SiteContactsSection /> : null}
     </>
   )
 }
