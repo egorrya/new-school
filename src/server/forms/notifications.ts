@@ -3,6 +3,7 @@ import nodemailer from 'nodemailer'
 
 import type { FormSubmission } from '@/payload-types'
 import { parseEmailRecipients } from '@/shared/lib/emailRecipients'
+import { getServerSideURL } from '@/shared/lib/getURL'
 
 const formTypeLabels = {
   application: 'Заявка',
@@ -52,7 +53,7 @@ function formatSubmission(submission: FormSubmission): string {
   if (submission.about) lines.push(`О себе: ${submission.about}`)
   lines.push(`Страница: ${submission.pageUrl}`)
 
-  const serverUrl = process.env.NEXT_PUBLIC_SERVER_URL
+  const serverUrl = getServerSideURL()
   if (serverUrl) lines.push(`Открыть в админке: ${serverUrl}/admin/collections/form-submissions/${submission.id}`)
 
   return lines.join('\n')
